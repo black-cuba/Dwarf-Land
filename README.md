@@ -24,6 +24,7 @@
 - Recursos distribuidos por capa: árboles y cultivos en superficie, agua y tierra en subsuelo, roca y minerales en profundidad.
 - Generación de cavernas reproducibles, excavación de bloques geológicos y apertura de rutas transitables.
 - Construcción sobre celdas 2D con ocupación sólida, persistencia y asignación de camas mediante rutas.
+- Transporte físico de recursos: los colonos recogen materiales, los cargan y los llevan al almacén; la carga sobrevive al guardado.
 - Selección táctil directa de la capa y celda en el mapa completo.
 - Movimiento interpolado de colonos y guardado local automático con copia de seguridad.
 - Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.
