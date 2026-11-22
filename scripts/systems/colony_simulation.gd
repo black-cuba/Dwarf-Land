@@ -5,7 +5,7 @@ signal time_changed(day: int, hour: int)
 signal colony_changed
 signal alert_raised(message: String, severity: int)
 
-const LEVEL_COUNT := 2
+const LEVEL_COUNT := 3
 const ALERT_INFO := 0
 const ALERT_WARNING := 1
 const ALERT_CRITICAL := 2
@@ -28,11 +28,11 @@ var _last_alert_key := ""
 func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
 	resource_nodes = {
-		&"food": ColonyResourceNode.new(&"cave_garden", &"food", 0, Vector2i(11, 0), 24, 48, 6, 4.0, 6),
-		&"water": ColonyResourceNode.new(&"underground_spring", &"water", 0, Vector2i(18, 0), 32, 64, 8, 3.0, 8),
-		&"wood": ColonyResourceNode.new(&"fungal_timber", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
-		&"stone": ColonyResourceNode.new(&"stone_quarry", &"stone", 1, Vector2i(13, 1), 60, 100, 0, 5.0, 5),
-		&"ore": ColonyResourceNode.new(&"ore_vein", &"ore", 1, Vector2i(27, 1), 24, 40, 0, 6.0, 3)
+		&"food": ColonyResourceNode.new(&"surface_crops", &"food", 0, Vector2i(11, 0), 24, 48, 6, 4.0, 6),
+		&"wood": ColonyResourceNode.new(&"surface_forest", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
+		&"water": ColonyResourceNode.new(&"shallow_aquifer", &"water", 1, Vector2i(18, 1), 32, 64, 8, 3.0, 8),
+		&"stone": ColonyResourceNode.new(&"deep_bedrock", &"stone", 2, Vector2i(13, 2), 60, 100, 0, 5.0, 5),
+		&"ore": ColonyResourceNode.new(&"deep_ore_vein", &"ore", 2, Vector2i(27, 2), 24, 40, 0, 6.0, 3)
 	}
 	var borin := DwarfColonist.new(&"dwarf_001", "Borin", "Recolector")
 	borin.current_position = Vector2i(7, 0)
@@ -41,7 +41,7 @@ func _init() -> void:
 	dora.current_position = Vector2i(16, 0)
 	colonists.append(dora)
 	var krag := DwarfColonist.new(&"dwarf_003", "Krag", "Minero")
-	krag.current_position = Vector2i(25, 0)
+	krag.current_position = Vector2i(25, 2)
 	colonists.append(krag)
 
 
@@ -76,7 +76,7 @@ func set_paused(value: bool) -> void:
 
 
 func switch_level() -> void:
-	active_level = 1 - active_level
+	active_level = (active_level + 1) % LEVEL_COUNT
 	colony_changed.emit()
 
 
