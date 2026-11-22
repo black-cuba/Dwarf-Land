@@ -93,6 +93,8 @@ func _to_json_safe(value: Variant) -> Variant:
 			return String(value)
 		TYPE_VECTOR2I:
 			return {"__vector2i": true, "x": value.x, "y": value.y}
+		TYPE_VECTOR3I:
+			return {"__vector3i": true, "x": value.x, "y": value.y, "z": value.z}
 		TYPE_VECTOR2:
 			return {"__vector2": true, "x": value.x, "y": value.y}
 		TYPE_DICTIONARY:
@@ -112,6 +114,8 @@ func _from_json_safe(value: Variant) -> Variant:
 	if typeof(value) == TYPE_DICTIONARY:
 		if value.get("__vector2i", false):
 			return Vector2i(int(value.get("x", 0)), int(value.get("y", 0)))
+		if value.get("__vector3i", false):
+			return Vector3i(int(value.get("x", 0)), int(value.get("y", 0)), int(value.get("z", 0)))
 		if value.get("__vector2", false):
 			return Vector2(float(value.get("x", 0.0)), float(value.get("y", 0.0)))
 		var result: Dictionary = {}
