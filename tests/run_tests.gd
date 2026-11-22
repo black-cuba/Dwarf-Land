@@ -435,13 +435,14 @@ func _test_colonist() -> void:
 	assert(colonist.visual_position.x > 7.0 and colonist.visual_position.x < 9.0, "El movimiento no interpola posiciones.")
 	colonist.advance_movement(1.0)
 	assert(not colonist.is_moving and colonist.current_position == Vector2i(9, 0), "El colono no finalizó el movimiento.")
-	colonist.start_map_movement(Vector3i(10, 5, 0))
+	colonist.sync_map_position_from_legacy()
+	colonist.start_map_movement(Vector3i(12, 5, 0))
 	assert(colonist.is_map_moving, "El colono no inició el movimiento en el mapa 2D.")
 	colonist.advance_map_movement(0.4)
-	assert(colonist.map_visual_position.x > 9.0 and colonist.map_visual_position.x < 10.0, "El movimiento espacial 2D no interpola la posición.")
+	assert(colonist.map_visual_position.x > 9.0 and colonist.map_visual_position.x < 12.0, "El movimiento espacial 2D no interpola la posición.")
 	colonist.advance_map_movement(1.0)
-	assert(not colonist.is_map_moving and colonist.map_position == Vector3i(10, 5, 0), "El colono no terminó el movimiento en el mapa 2D.")
-	assert(colonist.current_position == Vector2i(10, 0), "La posición de juego heredada no se sincronizó con el mapa 2D.")
+	assert(not colonist.is_map_moving and colonist.map_position == Vector3i(12, 5, 0), "El colono no terminó el movimiento en el mapa 2D.")
+	assert(colonist.current_position == Vector2i(12, 0), "La posición de juego heredada no se sincronizó con el mapa 2D.")
 	colonist.fatigue = 80.0
 	colonist.is_sleeping = true
 	colonist.advance_hour(true, 18.0)
