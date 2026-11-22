@@ -305,7 +305,7 @@ func _build_interface() -> void:
 func _add_button(parent: HBoxContainer, caption: String, callback: Callable) -> void:
 	var button := Button.new()
 	button.text = caption
-	button.custom_minimum_size = Vector2(185, 54)
+	button.custom_minimum_size = Vector2(150, 54)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	parent.add_child(button)
@@ -323,11 +323,12 @@ func _refresh_interface() -> void:
 	var ore := simulation.inventory.get_amount(&"ore")
 	var clay := simulation.inventory.get_amount(&"clay")
 	var coal := simulation.inventory.get_amount(&"coal")
+	var seeds := simulation.inventory.get_amount(&"seeds")
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
 	title_label.text = "DWARF LAND     ·     DÍA %d     ·     %02d:00" % [simulation.day, simulation.hour]
-	status_label.text = "Comida: %d   Agua: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   |   Colonos: %d   Trabajos: %d" % [
-		food, water, wood, clay, stone, coal, ore, simulation.get_living_colonist_count(), active_orders
+	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   |   Colonos: %d   Trabajos: %d" % [
+		food, water, seeds, wood, clay, stone, coal, ore, simulation.get_living_colonist_count(), active_orders
 	]
 	message_label.text = message
 
@@ -401,6 +402,16 @@ func _gather_wood() -> void:
 		message = "Trabajo de obtención de madera añadido a la cola."
 	else:
 		message = "No se pudo crear el trabajo de madera."
+	_refresh_interface()
+
+
+func _plant_crops() -> void:
+	if simulation.active_level != 0:
+		message = "Los cultivos se siembran en la superficie."
+	elif simulation.queue_planting():
+		message = "Orden de siembra añadida. Se ha reservado una semilla."
+	else:
+		message = "No se puede sembrar: revisa el estado del campo y las semillas."
 	_refresh_interface()
 
 
