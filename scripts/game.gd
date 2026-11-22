@@ -149,8 +149,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	var target := Vector2i(cell_x, simulation.active_level)
 	if build_mode:
 		var building := _get_selected_building()
-		if simulation.queue_construction(building, target):
-			message = "Construcción de %s ordenada en la celda %d." % [String(building), cell_x]
+		if simulation.queue_map_construction(building, map_target):
+			message = "Construcción de %s ordenada en la celda (%d, %d)." % [String(building), cell_x, cell_y]
 		else:
 			message = "No se puede construir ahí: revisa espacio, materiales y capa."
 		_refresh_interface()
@@ -197,21 +197,22 @@ func _draw_structures() -> void:
 	draw_string(ThemeDB.fallback_font, Vector2(195, 507), "TALLER", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
 
 	for structure in simulation.structures:
-		var cell: Vector2i = structure.get("cell", Vector2i.ZERO)
-		if cell.y != simulation.active_level:
+		var cell: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 0))))
+		if cell.z != simulation.active_level:
 			continue
-		var px := 65.0 + float(cell.x) * 28.0
-		var floor_y: float = [205.0, 390.0, 585.0][cell.y]
+		var px := 65.0 + float(cell.x) * 28.0 + 14.0
+		var floor_y: float = [205.0, 390.0, 585.0][cell.z]
+		var py := floor_y + float(cell.y - ColonyNavigationGrid.ELEVATOR_ROW) * 12.0
 		match StringName(structure.get("type", "")):
 			&"bed":
-				draw_rect(Rect2(px - 12, floor_y - 19, 24, 14), Color("#a9b4c0"))
-				draw_rect(Rect2(px - 10, floor_y - 17, 20, 5), Color("#e4d6bd"))
+				draw_rect(Rect2(px - 12.0, py - 8.0, 24.0, 14.0), Color("#a9b4c0"))
+				draw_rect(Rect2(px - 10.0, py - 6.0, 20.0, 5.0), Color("#e4d6bd"))
 			&"storage":
-				draw_rect(Rect2(px - 15, floor_y - 32, 30, 32), Color("#a77d45"))
-				draw_rect(Rect2(px - 15, floor_y - 32, 30, 32), Color("#e2bd78"), false, 2.0)
+				draw_rect(Rect2(px - 13.0, py - 22.0, 26.0, 22.0), Color("#a77d45"))
+				draw_rect(Rect2(px - 13.0, py - 22.0, 26.0, 22.0), Color("#e2bd78"), false, 2.0)
 			&"workshop":
-				draw_rect(Rect2(px - 17, floor_y - 28, 34, 28), Color("#667583"))
-				draw_rect(Rect2(px - 17, floor_y - 28, 34, 28), Color("#b3c0c9"), false, 2.0)
+				draw_rect(Rect2(px - 14.0, py - 20.0, 28.0, 20.0), Color("#667583"))
+				draw_rect(Rect2(px - 14.0, py - 20.0, 28.0, 20.0), Color("#b3c0c9"), false, 2.0)
 
 
 func _draw_resource_nodes() -> void:
