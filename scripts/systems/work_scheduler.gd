@@ -41,6 +41,8 @@ func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationG
 			_release_assignment(colonist.id)
 			continue
 		if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
+			# A colonist in urgent need must not hold a job slot indefinitely.
+			_release_assignment(colonist.id)
 			continue
 
 		var assigned_order := _get_assigned_order(colonist.id)
@@ -139,10 +141,14 @@ func _release_assignment(colonist_id: StringName) -> void:
 	if not _assignments.has(colonist_id):
 		return
 
-	var order := _get_assigned_order(colonist_id)
-	if order != null and order.state != ColonyWorkOrder.State.COMPLETED:
-		order.state = ColonyWorkOrder.State.AVAILABLE
+	var assigned_id: StringName = _assignments[colonist_id]
+	for order in orders:
+		if order.id != assigned_id:
+			continue
+		if order.state == ColonyWorkOrder.State.IN_PROGRESS:
+			order.state = ColonyWorkOrder.State.AVAILABLE
 		order.assigned_colonist_id = &""
+		break
 
 	_assignments.erase(colonist_id)
 
