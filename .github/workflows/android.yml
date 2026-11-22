@@ -67,8 +67,9 @@ jobs:
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=androiddebugkey" >> "$GITHUB_ENV"
           echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=android" >> "$GITHUB_ENV"
 
-      - name: Validate project and import assets
+      - name: Parse GDScript and validate project
         run: |
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://scripts/game.gd --check-only
           Godot_v4.7.2-stable_linux.x86_64 --headless --editor --path . --quit
 
       - name: Export Android debug APK
