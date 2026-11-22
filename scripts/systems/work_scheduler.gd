@@ -38,6 +38,8 @@ func advance_hour(colonists: Array[DwarfColonist]) -> void:
 		if not colonist.alive:
 			_release_assignment(colonist.id)
 			continue
+		if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
+			continue
 
 		var order := _get_assigned_order(colonist.id)
 		if order == null:
@@ -53,7 +55,7 @@ func advance_hour(colonists: Array[DwarfColonist]) -> void:
 			colonist.current_level = order.level
 			continue
 
-		if order.advance(1.0):
+		if order.advance(colonist.get_work_speed(order.work_type)):
 			task_completed.emit(order.id, order.output_resource, order.output_amount)
 			_release_assignment(colonist.id)
 
