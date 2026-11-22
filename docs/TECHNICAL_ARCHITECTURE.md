@@ -31,7 +31,8 @@
 - Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas.
 - En el horario nocturno, el planificador libera trabajos, asigna camas libres y los colonos recuperan fatiga al llegar al refugio.
 - La temperatura local depende de la capa, la hora y el refugio; la exposición extrema reduce la salud y activa alertas.
-- La construcción reserva materiales al crear la orden; almacenes amplían la capacidad y camas construidas se añaden a la asignación nocturna. Las estructuras se mantienen transitables hasta incorporar navegación con varias rutas.
+- La construcción reserva materiales al crear la orden; almacenes amplían la capacidad y camas construidas se añaden a la asignación nocturna.
+- La minería reserva herramientas, aplica desgaste por material y devuelve la herramienta si no se rompe; el taller convierte madera y mineral en herramientas. Las estructuras se mantienen transitables hasta incorporar navegación con varias rutas.
 
 ## Validación
 - GitHub Actions importa el proyecto y ejecuta pruebas de lógica.
