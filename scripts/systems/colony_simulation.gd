@@ -37,6 +37,7 @@ var _bed_assignments: Dictionary = {}
 func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
 	scheduler.terrain_excavated.connect(_on_terrain_excavated)
+	scheduler.map_terrain_excavated.connect(_on_map_terrain_excavated)
 	scheduler.crop_planted.connect(_on_crop_planted)
 	scheduler.structure_built.connect(_on_structure_built)
 	scheduler.task_cancelled.connect(_on_task_cancelled)
@@ -162,6 +163,20 @@ func queue_excavation(cell: Vector2i, priority: int = 3) -> bool:
 	colony_changed.emit()
 	return true
 
+
+
+func queue_map_excavation(cell: Vector3i, priority: int = 3) -> bool:
+	if cell.z != active_level or not navigation.can_dig_map_cell(cell):
+		return false
+	for order in scheduler.orders:
+		if order.work_type == &"map_dig" and order.target_map_cell == cell:
+			if order.state == ColonyWorkOrder.State.AVAILABLE or order.state == ColonyWorkOrder.State.IN_PROGRESS:
+				return false
+	var order_id := scheduler.queue_map_excavation(cell, priority)
+	if order_id == &"":
+		return false
+	colony_changed.emit()
+	return true
 
 
 func queue_planting(priority: int = 3) -> bool:
@@ -625,6 +640,10 @@ func _on_task_completed(task_id: StringName, resource: StringName, amount: int) 
 
 
 func _on_terrain_excavated(_cell: Vector2i) -> void:
+	colony_changed.emit()
+
+
+func _on_map_terrain_excavated(_cell: Vector3i) -> void:
 	colony_changed.emit()
 
 
