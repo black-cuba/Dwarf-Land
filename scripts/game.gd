@@ -356,7 +356,7 @@ func _build_interface() -> void:
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	action_scroll.add_child(row)
 
-	_add_button(row, "Cambiar nivel", _switch_level)
+	_add_button(row, "Cambiar capa", _switch_level)
 	_add_button(row, "Comida", _gather_food)
 	_add_button(row, "Agua", _gather_water)
 	_add_button(row, "Extraer", _extract_resource)
