@@ -1,6 +1,6 @@
 # Dwarf Land
 
-**Dwarf Land** es un juego original de supervivencia y gestión de colonos en un mundo subterráneo 2D lateral.
+**Dwarf Land** es un juego original de supervivencia y gestión de colonos en un mundo 2D lateral con superficie y dos capas subterráneas.
 
 > Organiza una pequeña comunidad de enanos, administra sus necesidades y mantén el refugio funcionando bajo tierra.
 
@@ -15,11 +15,11 @@
 
 ## Pilares de diseño
 
-- Exactamente dos niveles subterráneos jugables.
+- Tres capas jugables: superficie, subsuelo y profundidad.
 - Vista 2D lateral.
 - Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
 - Colonos con actividad autónoma, profesiones y órdenes del jugador.
-- Fuentes de recursos finitas y renovables con navegación entre dos niveles.
+- Recursos distribuidos por capa: árboles y cultivos en superficie, agua y tierra en subsuelo, roca y minerales en profundidad.
 - Construcción, extracción y producción.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
