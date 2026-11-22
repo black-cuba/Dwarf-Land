@@ -223,6 +223,11 @@ func _test_colonist() -> void:
 	colonist.fatigue = 50.0
 	colonist.advance_hour(true, 18.0)
 	assert(colonist.fatigue > 50.0, "El colono recuperó fatiga sin dormir.")
+	var cold_colonist := DwarfColonist.new(&"cold_test", "Frío", "Minero")
+	for _hour in range(60):
+		cold_colonist.advance_hour(false, 0.0)
+	assert(cold_colonist.body_temperature < 37.0, "La temperatura corporal no respondió al frío extremo.")
+	assert(cold_colonist.health < 100.0, "El frío extremo no produjo daño a la salud.")
 
 
 func _test_work_order_depth() -> void:
