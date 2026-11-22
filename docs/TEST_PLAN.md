@@ -1,15 +1,15 @@
 # Dwarf Land — Plan de pruebas
 
-Este documento define comprobaciones obligatorias. No implica que ya se hayan ejecutado.
+Este documento define los criterios de aceptación. Las casillas pendientes no se consideran superadas por el mero hecho de existir una prueba automatizada.
 
 ## Simulación y necesidades
 
 - [ ] El reloj avanza una hora por paso y cambia el día correctamente.
 - [ ] Pausar detiene el tiempo; reanudar continúa desde el mismo estado.
-- [ ] Hambre, sed y fatiga permanecen dentro de 0–100.
+- [ ] Hambre, sed y fatiga permanecen dentro del rango 0–100.
 - [ ] La comida y el agua se consumen solo si existen unidades disponibles.
 - [ ] La falta prolongada de comida o agua afecta la salud.
-- [ ] En condiciones ambientales normales la temperatura corporal permanece estable.
+- [ ] En ambiente templado la temperatura corporal permanece estable.
 - [ ] El frío y el calor extremos afectan la temperatura corporal y, si persisten, la salud.
 
 ## Fuentes de recursos
@@ -17,7 +17,7 @@ Este documento define comprobaciones obligatorias. No implica que ya se hayan ej
 - [ ] Las fuentes renovables se regeneran al cambiar el día sin superar su capacidad.
 - [ ] Las vetas minerales y canteras se agotan y no se regeneran.
 - [ ] No se puede reservar más recurso del que una fuente contiene.
-- [ ] Una orden agotada o inválida no consume existencias.
+- [ ] Las fuentes de cada recurso están ubicadas en el nivel correcto.
 
 ## Inventario y producción
 
@@ -27,22 +27,25 @@ Este documento define comprobaciones obligatorias. No implica que ya se hayan ej
 - [ ] Cada orden requiere el tiempo de trabajo definido.
 - [ ] La prioridad más alta se asigna antes que las prioridades inferiores.
 - [ ] Cada profesión aplica su bonificación solo a trabajos compatibles.
-- [ ] Un colono con necesidades críticas suspende su trabajo hasta recuperarse.
+- [ ] Se selecciona al colono más cualificado disponible para cada orden.
+- [ ] Un colono con necesidades críticas suspende su trabajo.
 - [ ] Un colono no puede ejecutar dos órdenes simultáneamente.
 - [ ] Una orden completada entrega exactamente la cantidad definida.
-- [ ] Una orden no produce recursos si está cancelada o no se ha completado.
 
 ## Niveles y colonos
 
 - [ ] Solo existen los niveles jugables 1 y 2.
 - [ ] No se puede seleccionar ni crear un tercer nivel.
-- [ ] Un colono tarda tiempo en cambiar de nivel.\n- [ ] Los trabajos asignan al colono más cualificado disponible.\n- [ ] Los colonos recorren la cuadrícula hasta la fuente de recursos y solo cambian de nivel por el ascensor.
-- [ ] Los colonos se muestran en el nivel donde se encuentran.
+- [ ] No existe una conexión vertical distinta del ascensor.
+- [ ] Los colonos recorren la cuadrícula hasta la fuente de recursos.
+- [ ] Un colono tarda tiempo en desplazarse entre niveles.
+- [ ] Las celdas bloqueadas no pueden atravesarse.
+- [ ] Los colonos se muestran en el nivel y posición donde se encuentran.
 - [ ] Un colono fallecido no continúa trabajando ni consumiendo recursos.
 
-## Persistencia y Android (etapa posterior)
+## Persistencia y Android
 
-- [ ] Guardar y cargar conserva hora, día, inventario, colonos, órdenes y estado de la colonia.
+- [ ] Guardar y cargar conserva hora, día, inventario, colonos, fuentes, órdenes y estado de la colonia.
 - [ ] Un guardado dañado no destruye automáticamente una partida válida anterior.
 - [ ] La interfaz se adapta a resoluciones y relaciones de aspecto Android.
 - [ ] Los controles táctiles son utilizables y no se solapan.
