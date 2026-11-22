@@ -15,15 +15,16 @@
 
 ## Pilares de diseño
 
-- Tres capas jugables: superficie, subsuelo y profundidad.
+- Tres capas jugables visibles simultáneamente: superficie, subsuelo y profundidad.
 - Semilla de mundo reproducible con variación inicial de bosques, acuíferos, arcilla y vetas minerales.
-- Vista 2D lateral, sin renderizado ni escenas 3D.
+- Vista 2D lateral con las tres capas visibles a la vez, sin renderizado ni escenas 3D.
 - Mapa de 40 × 12 celdas por capa, excavación en distintas filas y desplazamiento entre capas mediante ascensor.
 - Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
 - Colonos con actividad autónoma, profesiones y órdenes del jugador.
 - Recursos distribuidos por capa: árboles y cultivos en superficie, agua y tierra en subsuelo, roca y minerales en profundidad.
 - Generación de cavernas reproducibles, excavación de bloques geológicos y apertura de rutas transitables.
 - Construcción sobre celdas 2D con ocupación sólida, persistencia y asignación de camas mediante rutas.
+- Selección táctil directa de la capa y celda en el mapa completo.
 - Movimiento interpolado de colonos y guardado local automático con copia de seguridad.
 - Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.
 - Descanso nocturno autónomo con asignación de camas, rutas por la cuadrícula 2D y recuperación de fatiga.
