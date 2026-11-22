@@ -24,7 +24,7 @@
 - Cada orden reserva existencias antes de entrar en cola.
 - Los trabajos consumen tiempo y entregan producción al inventario.
 - El inventario limita la entrada; el excedente permanece pendiente.
-- La distribución inicial respeta el entorno: madera y cultivos en superficie, agua en subsuelo, roca y mineral en profundidad.
+- La distribución inicial respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
 
 ## Validación
 - GitHub Actions importa el proyecto y ejecuta pruebas de lógica.
