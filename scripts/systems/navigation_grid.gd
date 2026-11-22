@@ -10,6 +10,13 @@ var diggable_cells: Dictionary = {}
 var excavated_cells: Dictionary = {}
 
 
+
+func clear_terrain() -> void:
+	blocked_cells.clear()
+	diggable_cells.clear()
+	excavated_cells.clear()
+
+
 func is_walkable(cell: Vector2i) -> bool:
 	if cell.x < 0 or cell.x >= GRID_WIDTH:
 		return false
