@@ -2,7 +2,7 @@ class_name ColonyNavigationGrid
 extends RefCounted
 
 const GRID_WIDTH := 40
-const LEVEL_COUNT := 2
+const LEVEL_COUNT := 3
 const ELEVATOR_COLUMN := 34
 
 var blocked_cells: Dictionary = {}
@@ -66,7 +66,10 @@ func _get_neighbors(cell: Vector2i) -> Array[Vector2i]:
 		Vector2i(cell.x + 1, cell.y)
 	]
 
-	# The only vertical connection is the elevator between the two floors.
+	# A single elevator connects adjacent layers: surface, shallow subsurface and deep rock.
 	if cell.x == ELEVATOR_COLUMN:
-		result.append(Vector2i(ELEVATOR_COLUMN, 1 - cell.y))
+		if cell.y > 0:
+			result.append(Vector2i(ELEVATOR_COLUMN, cell.y - 1))
+		if cell.y < LEVEL_COUNT - 1:
+			result.append(Vector2i(ELEVATOR_COLUMN, cell.y + 1))
 	return result
