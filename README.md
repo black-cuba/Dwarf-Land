@@ -22,7 +22,8 @@
 - Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
 - Colonos con actividad autónoma, profesiones y órdenes del jugador.
 - Recursos distribuidos por capa: árboles y cultivos en superficie, agua y tierra en subsuelo, roca y minerales en profundidad.
-- Excavación de bloques geológicos mediante órdenes de trabajo y apertura de rutas transitables.
+- Generación de cavernas reproducibles, excavación de bloques geológicos y apertura de rutas transitables.
+- Construcción sobre celdas 2D con ocupación sólida, persistencia y asignación de camas mediante rutas.
 - Movimiento interpolado de colonos y guardado local automático con copia de seguridad.
 - Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.
 - Descanso nocturno autónomo con asignación de camas, rutas por la cuadrícula 2D y recuperación de fatiga.
