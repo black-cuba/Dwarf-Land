@@ -34,10 +34,12 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 
 ## Niveles y colonos
 
-- [ ] Solo existen los niveles jugables 1 y 2.
-- [ ] No se puede seleccionar ni crear un tercer nivel.
+- [ ] Existen exactamente tres capas jugables: superficie, subsuelo y profundidad.
+- [ ] La vista y el movimiento son siempre 2D; la capa es un dato lógico, nunca una escena 3D.
 - [ ] No existe una conexión vertical distinta del ascensor.
-- [ ] Los colonos recorren la cuadrícula hasta la fuente de recursos.
+- [ ] Los colonos recorren la cuadrícula 2D hasta la celda de trabajo.
+- [ ] El ascensor conecta las tres capas y no permite atravesar roca sin excavar.
+- [ ] Las órdenes de excavación 2D abren la celda seleccionada al completarse.
 - [ ] Un colono tarda tiempo en desplazarse entre niveles.
 - [ ] Las celdas bloqueadas no pueden atravesarse.
 - [ ] Los colonos se muestran en el nivel y posición donde se encuentran.
