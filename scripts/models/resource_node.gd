@@ -25,7 +25,7 @@ func _init(
 ) -> void:
 	id = p_id
 	resource = p_resource
-	level = clampi(p_level, 0, 1)
+	level = clampi(p_level, 0, 2)
 	cell = Vector2i(p_cell.x, level)
 	maximum_units = maxi(0, p_maximum_units)
 	available_units = clampi(p_available_units, 0, maximum_units)
