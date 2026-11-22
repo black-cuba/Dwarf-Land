@@ -95,32 +95,24 @@ func _draw_cavern() -> void:
 
 func _draw_excavation_blocks() -> void:
 	var floors := [205.0, 390.0, 585.0]
-	for cell in simulation.navigation.get_diggable_cells():
-		if cell.y != simulation.active_level:
-			continue
-		var px := 65.0 + float(cell.x) * 28.0
-		var floor_y: float = floors[cell.y]
-		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#76563f"))
-		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#a98761"), false, 2.0)
-		draw_line(Vector2(px - 8, floor_y - 22), Vector2(px + 7, floor_y - 10), Color("#4d392d"), 2.0)
-		draw_line(Vector2(px + 5, floor_y - 27), Vector2(px - 4, floor_y - 14), Color("#4d392d"), 2.0)
-
-	var active_floor: float = floors[simulation.active_level]
 	var grid_color := Color(0.82, 0.86, 0.9, 0.16)
-	for column in range(ColonyNavigationGrid.MAP_WIDTH + 1):
-		var grid_x := 65.0 + float(column) * 28.0
-		draw_line(Vector2(grid_x, active_floor - 66.0), Vector2(grid_x, active_floor + 78.0), grid_color, 1.0)
-	for row in range(ColonyNavigationGrid.MAP_HEIGHT + 1):
-		var grid_y := active_floor - 66.0 + float(row) * 12.0
-		draw_line(Vector2(65.0, grid_y), Vector2(1185.0, grid_y), grid_color, 1.0)
+	for layer in range(ColonyNavigationGrid.LEVEL_COUNT):
+		var floor_y: float = floors[layer]
+		for cell in simulation.navigation.diggable_map_cells.keys():
+			if cell.z != layer:
+				continue
+			var px := 65.0 + float(cell.x) * 28.0 + 14.0
+			var py := floor_y + float(cell.y - ColonyNavigationGrid.ELEVATOR_ROW) * 12.0
+			draw_rect(Rect2(px - 13.0, py - 5.0, 26.0, 10.0), Color("#625b58"))
+			draw_rect(Rect2(px - 13.0, py - 5.0, 26.0, 10.0), Color("#a18e7d"), false, 1.0)
+		for column in range(ColonyNavigationGrid.MAP_WIDTH + 1):
+			var grid_x := 65.0 + float(column) * 28.0
+			draw_line(Vector2(grid_x, floor_y - 66.0), Vector2(grid_x, floor_y + 78.0), grid_color, 1.0)
+		for row in range(ColonyNavigationGrid.MAP_HEIGHT + 1):
+			var grid_y := floor_y - 66.0 + float(row) * 12.0
+			draw_line(Vector2(65.0, grid_y), Vector2(1185.0, grid_y), grid_color, 1.0)
 
-	for cell in simulation.navigation.diggable_map_cells.keys():
-		if cell.z != simulation.active_level:
-			continue
-		var px := 65.0 + float(cell.x) * 28.0 + 14.0
-		var py := active_floor + float(cell.y - ColonyNavigationGrid.ELEVATOR_ROW) * 12.0
-		draw_rect(Rect2(px - 13.0, py - 5.0, 26.0, 10.0), Color("#625b58"))
-		draw_rect(Rect2(px - 13.0, py - 5.0, 26.0, 10.0), Color("#a18e7d"), false, 1.0)
+
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -137,16 +129,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	var floors := [205.0, 390.0, 585.0]
-	var floor_y: float = floors[simulation.active_level]
 	if position.x < 65.0 or position.x > 1185.0:
 		return
-	if position.y < floor_y - 66.0 or position.y > floor_y + 78.0:
+	var selected_layer := -1
+	var floor_y := 0.0
+	for layer in range(ColonyNavigationGrid.LEVEL_COUNT):
+		var candidate_floor: float = floors[layer]
+		if position.y >= candidate_floor - 66.0 and position.y <= candidate_floor + 78.0:
+			selected_layer = layer
+			floor_y = candidate_floor
+			break
+	if selected_layer < 0:
 		return
-
+	simulation.active_level = selected_layer
 	var cell_x := clampi(floori((position.x - 65.0) / 28.0), 0, ColonyNavigationGrid.MAP_WIDTH - 1)
 	var cell_y := clampi(roundi((position.y - floor_y) / 12.0) + ColonyNavigationGrid.ELEVATOR_ROW, 0, ColonyNavigationGrid.MAP_HEIGHT - 1)
-	var map_target := Vector3i(cell_x, cell_y, simulation.active_level)
-	var target := Vector2i(cell_x, simulation.active_level)
+	var map_target := Vector3i(cell_x, cell_y, selected_layer)
+	var target := Vector2i(cell_x, selected_layer)
 	if build_mode:
 		var building := _get_selected_building()
 		if simulation.queue_map_construction(building, map_target):
@@ -198,8 +197,6 @@ func _draw_structures() -> void:
 
 	for structure in simulation.structures:
 		var cell: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 0))))
-		if cell.z != simulation.active_level:
-			continue
 		var px := 65.0 + float(cell.x) * 28.0 + 14.0
 		var floor_y: float = [205.0, 390.0, 585.0][cell.z]
 		var py := floor_y + float(cell.y - ColonyNavigationGrid.ELEVATOR_ROW) * 12.0
@@ -218,9 +215,6 @@ func _draw_structures() -> void:
 func _draw_resource_nodes() -> void:
 	for resource in simulation.resource_nodes:
 		var node: ColonyResourceNode = simulation.resource_nodes[resource]
-		if node.level != simulation.active_level:
-			continue
-
 		var px := 65.0 + float(node.map_cell.x) * 28.0 + 14.0
 		var floor_y: float = [205.0, 390.0, 585.0][node.map_cell.z]
 		var py := floor_y + float(node.map_cell.y - ColonyNavigationGrid.ELEVATOR_ROW) * 12.0
@@ -296,8 +290,6 @@ func _draw_colonists() -> void:
 
 		var map_render_position: Vector2 = colonist.get_map_render_position()
 		var render_layer := colonist.map_position.z
-		if render_layer != simulation.active_level:
-			continue
 		var px := 65.0 + map_render_position.x * 28.0 + 14.0
 		var floors := [205.0, 390.0, 585.0]
 		var floor_y: float = floors[render_layer]
