@@ -52,10 +52,13 @@ func _test_navigation() -> void:
 	assert(path.back() == Vector2i(12, 1), "La ruta no termina en el destino solicitado.")
 	for cell in path:
 		assert(navigation.is_walkable(cell), "La ruta atraviesa una celda no transitable.")
-	assert(not navigation.is_walkable(Vector2i(5, 2)), "El mapa permite un tercer nivel.")
+	assert(navigation.is_walkable(Vector2i(5, 2)), "El nivel profundo debe existir.")
+	assert(not navigation.is_walkable(Vector2i(5, 3)), "El mapa permite un cuarto nivel.")
+	var deep_path := navigation.find_path(Vector2i(7, 0), Vector2i(12, 2))
+	assert(not deep_path.is_empty(), "No se puede llegar desde la superficie a la profundidad.")
 
 	navigation.set_blocked(Vector2i(ColonyNavigationGrid.ELEVATOR_COLUMN, 0), true)
-	var blocked_path := navigation.find_path(Vector2i(7, 0), Vector2i(12, 1))
+	var blocked_path := navigation.find_path(Vector2i(7, 0), Vector2i(12, 2))
 	assert(blocked_path.is_empty(), "La ruta atraviesa un ascensor bloqueado.")
 
 
@@ -73,6 +76,12 @@ func _test_simulation_work_order() -> void:
 	var simulation := ColonySimulation.new()
 	var source: ColonyResourceNode = simulation.resource_nodes[&"food"]
 	var initial_source := source.available_units
+	assert(source.level == 0, "Los cultivos deben estar en la superficie.")
+	var water_source: ColonyResourceNode = simulation.resource_nodes[&"water"]
+	var stone_source: ColonyResourceNode = simulation.resource_nodes[&"stone"]
+	var ore_source: ColonyResourceNode = simulation.resource_nodes[&"ore"]
+	assert(water_source.level == 1, "El acuífero debe estar en el subsuelo.")
+	assert(stone_source.level == 2 and ore_source.level == 2, "La piedra y los minerales deben estar en profundidad.")
 	var initial_inventory := simulation.inventory.get_amount(&"food")
 
 	assert(simulation.queue_work(&"food", 3), "No se pudo encolar una tarea de comida.")
