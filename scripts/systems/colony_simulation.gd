@@ -332,8 +332,6 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 			return false
 		var restored_structure := item.duplicate(true)
 		structures.append(restored_structure)
-		if StringName(restored_structure.get("type", "")) != &"bed":
-			navigation.set_blocked(restored_structure["cell"], true)
 
 	var terrain_data: Variant = snapshot.get("diggable_cells", [])
 	if typeof(terrain_data) != TYPE_ARRAY:
@@ -477,8 +475,6 @@ func _on_structure_built(cell: Vector2i, structure_type: StringName) -> void:
 	})
 	if structure_type == &"storage":
 		inventory.capacity += 60
-	if structure_type != &"bed":
-		navigation.set_blocked(cell, true)
 	colony_changed.emit()
 
 
