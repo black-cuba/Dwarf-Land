@@ -83,7 +83,7 @@ func _draw_cavern() -> void:
 		var floor_y: float = floors[layer]
 		draw_rect(Rect2(45, floor_y, 1190, 16), Color("#7b5a3d") if layer < 2 else Color("#737b83"))
 		draw_rect(Rect2(45, floor_y + 16, 1190, 6), Color("#3d3029"))
-		draw_string(ThemeDB.fallback_font, Vector2(65, floor_y - 12), labels[layer], HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("#e8d6b5"))
+		draw_string(ThemeDB.fallback_font, Vector2(65, py - 12), labels[layer], HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("#e8d6b5"))
 
 	# One elevator shaft connects all three layers.
 	draw_rect(Rect2(1080, 195, 70, 400), Color("#495565"), false, 5.0)
@@ -100,10 +100,10 @@ func _draw_excavation_blocks() -> void:
 			continue
 		var px := 65.0 + float(cell.x) * 28.0
 		var floor_y: float = floors[cell.y]
-		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#76563f"))
-		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#a98761"), false, 2.0)
-		draw_line(Vector2(px - 8, floor_y - 22), Vector2(px + 7, floor_y - 10), Color("#4d392d"), 2.0)
-		draw_line(Vector2(px + 5, floor_y - 27), Vector2(px - 4, floor_y - 14), Color("#4d392d"), 2.0)
+		draw_rect(Rect2(px - 13, py - 31, 26, 31), Color("#76563f"))
+		draw_rect(Rect2(px - 13, py - 31, 26, 31), Color("#a98761"), false, 2.0)
+		draw_line(Vector2(px - 8, floor_y - 22), Vector2(px + 7, py - 10), Color("#4d392d"), 2.0)
+		draw_line(Vector2(px + 5, py - 27), Vector2(px - 4, floor_y - 14), Color("#4d392d"), 2.0)
 
 	var active_floor: float = floors[simulation.active_level]
 	var grid_color := Color(0.82, 0.86, 0.9, 0.16)
@@ -221,62 +221,63 @@ func _draw_resource_nodes() -> void:
 		if node.level != simulation.active_level:
 			continue
 
-		var px := 65.0 + float(node.cell.x) * 28.0
-		var floor_y: float = [205.0, 390.0, 585.0][node.level]
+		var px := 65.0 + float(node.map_cell.x) * 28.0 + 14.0
+		var floor_y: float = [205.0, 390.0, 585.0][node.map_cell.z]
+		var py := floor_y + float(node.map_cell.y - ColonyNavigationGrid.ELEVATOR_ROW) * 12.0
 		var amount := node.available_units
 
 		match resource:
 			&"food":
 				if simulation.crop_field.is_planted:
-					draw_rect(Rect2(px - 3, floor_y - 24, 6, 22), Color("#d5d0a0"))
-					draw_circle(Vector2(px, floor_y - 27), 9, Color("#c47b9b"))
-					draw_circle(Vector2(px - 13, floor_y - 20), 7, Color("#d48eaa"))
+					draw_rect(Rect2(px - 3, py - 24, 6, 22), Color("#d5d0a0"))
+					draw_circle(Vector2(px, py - 27), 9, Color("#c47b9b"))
+					draw_circle(Vector2(px - 13, py - 20), 7, Color("#d48eaa"))
 				else:
-					draw_rect(Rect2(px - 18, floor_y - 5, 36, 5), Color("#79573b"))
+					draw_rect(Rect2(px - 18, py - 5, 36, 5), Color("#79573b"))
 			&"water":
-				draw_circle(Vector2(px, floor_y - 10), 20, Color("#397eaa"))
-				draw_arc(Vector2(px, floor_y - 10), 20, 0.0, TAU, 32, Color("#8ed4ed"), 3.0)
+				draw_circle(Vector2(px, py - 10), 20, Color("#397eaa"))
+				draw_arc(Vector2(px, py - 10), 20, 0.0, TAU, 32, Color("#8ed4ed"), 3.0)
 			&"wood":
-				draw_rect(Rect2(px - 5, floor_y - 42, 10, 42), Color("#76513b"))
-				draw_circle(Vector2(px, floor_y - 45), 19, Color("#6e9b78"))
-				draw_circle(Vector2(px - 12, floor_y - 35), 12, Color("#86b58a"))
+				draw_rect(Rect2(px - 5, py - 42, 10, 42), Color("#76513b"))
+				draw_circle(Vector2(px, py - 45), 19, Color("#6e9b78"))
+				draw_circle(Vector2(px - 12, py - 35), 12, Color("#86b58a"))
 			&"stone":
 				draw_colored_polygon(PackedVector2Array([
 					Vector2(px - 22, floor_y),
-					Vector2(px - 16, floor_y - 24),
-					Vector2(px + 2, floor_y - 34),
-					Vector2(px + 23, floor_y - 12),
+					Vector2(px - 16, py - 24),
+					Vector2(px + 2, py - 34),
+					Vector2(px + 23, py - 12),
 					Vector2(px + 20, floor_y)
 				]), Color("#8c969f"))
 			&"clay":
 				draw_colored_polygon(PackedVector2Array([
 					Vector2(px - 21, floor_y),
-					Vector2(px - 15, floor_y - 20),
-					Vector2(px + 4, floor_y - 25),
-					Vector2(px + 22, floor_y - 9),
+					Vector2(px - 15, py - 20),
+					Vector2(px + 4, py - 25),
+					Vector2(px + 22, py - 9),
 					Vector2(px + 18, floor_y)
 				]), Color("#a87953"))
 			&"coal":
 				draw_colored_polygon(PackedVector2Array([
 					Vector2(px - 21, floor_y),
-					Vector2(px - 15, floor_y - 20),
-					Vector2(px + 4, floor_y - 25),
-					Vector2(px + 22, floor_y - 9),
+					Vector2(px - 15, py - 20),
+					Vector2(px + 4, py - 25),
+					Vector2(px + 22, py - 9),
 					Vector2(px + 18, floor_y)
 				]), Color("#292d33"))
 			&"ore":
 				draw_colored_polygon(PackedVector2Array([
 					Vector2(px - 22, floor_y),
 					Vector2(px - 17, floor_y - 22),
-					Vector2(px + 2, floor_y - 31),
-					Vector2(px + 22, floor_y - 10),
+					Vector2(px + 2, py - 31),
+					Vector2(px + 22, py - 10),
 					Vector2(px + 19, floor_y)
 				]), Color("#626d7c"))
-				draw_circle(Vector2(px, floor_y - 17), 5, Color("#d5a84f"))
+				draw_circle(Vector2(px, py - 17), 5, Color("#d5a84f"))
 
 		draw_string(
 			ThemeDB.fallback_font,
-			Vector2(px - 42, floor_y - 54),
+			Vector2(px - 42, py - 54),
 			"%s · %d" % [String(resource).to_upper(), amount],
 			HORIZONTAL_ALIGNMENT_CENTER,
 			84,
@@ -300,7 +301,7 @@ func _draw_colonists() -> void:
 		var px := 65.0 + map_render_position.x * 28.0
 		var floors := [205.0, 390.0, 585.0]
 		var floor_y: float = floors[render_layer]
-		var py := floor_y - 24.0 + (map_render_position.y - float(ColonyNavigationGrid.ELEVATOR_ROW)) * 12.0
+		var py := py - 24.0 + (map_render_position.y - float(ColonyNavigationGrid.ELEVATOR_ROW)) * 12.0
 		draw_circle(Vector2(px, py - 22), 13, Color("#d9b58b"))
 		draw_rect(Rect2(px - 12, py - 12, 24, 27), body_colors[i % body_colors.size()])
 		draw_rect(Rect2(px - 10, py + 13, 8, 12), Color("#403b3a"))
