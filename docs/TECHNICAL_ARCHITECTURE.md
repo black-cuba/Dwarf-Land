@@ -8,14 +8,14 @@
 - `scripts/systems/save_system.gd`: guardado JSON local versionado, escritura temporal y recuperación desde copia de seguridad.
 - `scripts/models/crop_field.gd`: ciclo de cultivo, humedad, maduración, cosecha y resiembra.
 - `scripts/systems/navigation_grid.gd`: navegación heredada por capa y nueva cuadrícula espacial 2D (X/Y + capa Z), con rutas alternativas, ascensor, obstáculos y excavación.
-- `scripts/systems/world_generator.gd`: distribución reproducible de recursos a partir de una semilla persistente.
+- `scripts/systems/world_generator.gd`: distribución reproducible de recursos y bloques geológicos excavables para la cuadrícula 2D.
 - `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
 - `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
 - `tests/`: pruebas automatizadas.
 
 ## Modelo espacial
 
-La cuadrícula espacial nueva usa coordenadas `Vector3i(x, y, capa)`: 40 columnas por 12 filas en cada una de las tres capas. La navegación admite cuatro direcciones cardinales, obstáculos y rutas alternativas mediante búsqueda en anchura. El ascensor conecta las tres capas únicamente en su celda de acceso. La API anterior basada en `Vector2i` se conserva durante la migración gradual de colonos, órdenes, guardado e interfaz.
+La cuadrícula espacial nueva usa coordenadas `Vector3i(x, y, capa)`: 40 columnas por 12 filas en cada una de las tres capas. El generador crea bloques excavables reproducibles en las capas subterráneas, dejando abierto el corredor de acceso y la columna del ascensor; el estado de esos bloques se conserva en el guardado local. La navegación admite cuatro direcciones cardinales, obstáculos y rutas alternativas mediante búsqueda en anchura. El ascensor conecta las tres capas únicamente en su celda de acceso. La API anterior basada en `Vector2i` se conserva durante la migración gradual de colonos, órdenes, guardado e interfaz.
 
 - Capa 0: superficie (árboles, suelo fértil y cultivos).
 - Capa 1: subsuelo (tierra, raíces, arcilla y agua subterránea).
