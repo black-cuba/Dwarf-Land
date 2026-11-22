@@ -570,7 +570,7 @@ func _complete_reserved_tool(task_id: StringName) -> void:
 		if game_mode != &"sandbox" and event_random.randf() < 0.15:
 			for colonist in colonists:
 				if colonist.alive and colonist.profession == "Minero":
-					colonist.apply_injury(15.0)
+					colonist.apply_injury(30.0)
 					alert_raised.emit("%s sufrió un accidente durante la extracción." % colonist.display_name, ALERT_WARNING)
 					break
 	else:
