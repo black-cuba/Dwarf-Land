@@ -237,7 +237,8 @@ func _assign_available_orders(
 				path_distance = path.size()
 
 			var distance_penalty := float(path_distance) * 0.1
-			var score := colonist.get_work_speed(order.work_type) * 100.0 - distance_penalty
+			var work_speed := colonist.get_work_speed(&"stone") if order.work_type == &"map_dig" else colonist.get_work_speed(order.work_type)
+			var score := work_speed * 100.0 - distance_penalty
 			if score > best_score:
 				best_score = score
 				best_colonist = colonist
