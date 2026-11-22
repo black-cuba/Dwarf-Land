@@ -36,7 +36,7 @@ Este documento define comprobaciones obligatorias. No implica que ya se hayan ej
 
 - [ ] Solo existen los niveles jugables 1 y 2.
 - [ ] No se puede seleccionar ni crear un tercer nivel.
-- [ ] Un colono tarda tiempo en cambiar de nivel.
+- [ ] Un colono tarda tiempo en cambiar de nivel.\n- [ ] Los trabajos asignan al colono más cualificado disponible.\n- [ ] Los colonos recorren la cuadrícula hasta la fuente de recursos y solo cambian de nivel por el ascensor.
 - [ ] Los colonos se muestran en el nivel donde se encuentran.
 - [ ] Un colono fallecido no continúa trabajando ni consumiendo recursos.
 
