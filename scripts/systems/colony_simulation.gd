@@ -20,6 +20,7 @@ var inventory := ColonyInventory.new()
 var scheduler := ColonyWorkScheduler.new()
 var colonists: Array[DwarfColonist] = []
 var _pending_outputs: Array[Dictionary] = []
+var _last_alert_key := ""
 
 
 func _init() -> void:
@@ -120,7 +121,9 @@ func get_snapshot() -> Dictionary:
 		"paused": paused,
 		"ambient_temperature": ambient_temperature,
 		"inventory": inventory.get_snapshot(),
-		"colonists": people
+		"colonists": people,
+		"active_work_orders": scheduler.get_active_orders_snapshot(),
+		"pending_outputs": _pending_outputs.duplicate(true)
 	}
 
 
@@ -159,13 +162,26 @@ func _deliver_pending_outputs() -> void:
 
 func _check_colony_alerts() -> void:
 	var living := get_living_colonist_count()
-	if living == 0:
-		alert_raised.emit("La colonia ha perdido a todos sus habitantes.", ALERT_CRITICAL)
-		return
-
 	var food := inventory.get_amount(&"food")
 	var water := inventory.get_amount(&"water")
-	if food <= living * 2:
-		alert_raised.emit("Reservas de comida críticas: quedan %d unidades." % food, ALERT_CRITICAL)
+	var alert_key := ""
+	var alert_message := ""
+	var severity := ALERT_INFO
+
+	if living == 0:
+		alert_key = "colony_lost"
+		alert_message = "La colonia ha perdido a todos sus habitantes."
+		severity = ALERT_CRITICAL
+	elif food <= living * 2:
+		alert_key = "food_critical"
+		alert_message = "Reservas de comida críticas: quedan %d unidades." % food
+		severity = ALERT_CRITICAL
 	elif water <= living * 2:
-		alert_raised.emit("Reservas de agua críticas: quedan %d unidades." % water, ALERT_CRITICAL)
+		alert_key = "water_critical"
+		alert_message = "Reservas de agua críticas: quedan %d unidades." % water
+		severity = ALERT_CRITICAL
+
+	if alert_key != _last_alert_key:
+		_last_alert_key = alert_key
+		if not alert_key.is_empty():
+			alert_raised.emit(alert_message, severity)
