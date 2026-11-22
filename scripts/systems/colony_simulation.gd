@@ -82,7 +82,7 @@ func advance_hour() -> void:
 			_bed_assignments.erase(colonist.id)
 			continue
 		_update_rest(colonist, is_rest_period)
-		colonist.advance_hour(is_rest_period, ambient_temperature)
+		colonist.advance_hour(is_rest_period, get_local_temperature(colonist))
 		_satisfy_needs(colonist)
 
 	scheduler.advance_hour(colonists, navigation)
@@ -284,6 +284,15 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	colony_changed.emit()
 	return true
 
+
+
+
+func get_local_temperature(colonist: DwarfColonist) -> float:
+	var layer_offsets := [4.0, 0.0, -7.0]
+	var level := clampi(colonist.current_level, 0, LEVEL_COUNT - 1)
+	var daylight_offset := 3.0 if hour >= 9 and hour < 18 else -2.0
+	var shelter_bonus := 4.0 if colonist.is_sleeping else 0.0
+	return ambient_temperature + layer_offsets[level] + daylight_offset + shelter_bonus
 
 
 func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
