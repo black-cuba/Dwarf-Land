@@ -57,6 +57,8 @@ func _init() -> void:
 	var krag := DwarfColonist.new(&"dwarf_003", "Krag", "Minero")
 	krag.current_position = Vector2i(25, 2)
 	colonists.append(krag)
+	for colonist in colonists:
+		colonist.sync_map_position_from_legacy()
 
 
 
@@ -404,7 +406,7 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 			colonist.map_position = saved_map_position
 		else:
 			colonist.sync_map_position_from_legacy()
-		colonist.map_visual_position = Vector3(colonist.map_position)
+		colonist.map_visual_position = Vector2(colonist.map_position.x, colonist.map_position.y)
 		colonist.map_movement_target = colonist.map_position
 		colonist.is_map_moving = false
 		colonist.is_resting = false
