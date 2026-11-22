@@ -371,6 +371,7 @@ func _refresh_interface() -> void:
 	var coal := simulation.inventory.get_amount(&"coal")
 	var seeds := simulation.inventory.get_amount(&"seeds")
 	var tools := simulation.inventory.get_amount(&"tools")
+	var tool_condition := roundi(simulation.tool_durability)
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
 	title_label.text = "DWARF LAND     ·     DÍA %d     ·     %02d:00" % [simulation.day, simulation.hour]
