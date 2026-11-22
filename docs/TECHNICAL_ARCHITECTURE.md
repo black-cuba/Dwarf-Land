@@ -29,7 +29,7 @@
 - El inventario limita la entrada; el excedente permanece pendiente.
 - La distribución inicial respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
 - Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas.
-- En el horario nocturno, el planificador libera trabajos, asigna camas libres y los colonos recuperan fatiga al llegar al refugio.
+- En el horario nocturno, el planificador libera trabajos, asigna camas libres y los colonos recuperan fatiga al llegar al refugio.\n- La temperatura local depende de la capa, la hora y el refugio; la exposición extrema reduce la salud y activa alertas.
 
 ## Validación
 - GitHub Actions importa el proyecto y ejecuta pruebas de lógica.
