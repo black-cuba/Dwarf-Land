@@ -13,6 +13,7 @@ var title_label: Label
 var status_label: Label
 var message_label: Label
 var action_buttons: Array[Button] = []
+var selected_extraction_index := 0
 
 
 func _ready() -> void:
@@ -312,7 +313,7 @@ func _build_interface() -> void:
 func _add_button(parent: HBoxContainer, caption: String, callback: Callable) -> void:
 	var button := Button.new()
 	button.text = caption
-	button.custom_minimum_size = Vector2(150, 54)
+	button.custom_minimum_size = Vector2(140, 54)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	parent.add_child(button)
@@ -340,6 +341,7 @@ func _refresh_interface() -> void:
 	message_label.text = message
 
 	if action_buttons.size() > 6:
+		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer recurso"
 		action_buttons[6].text = "Reanudar" if simulation.paused else "Pausar"
 
 
@@ -355,6 +357,7 @@ func _on_alert_raised(alert_message: String, severity: int) -> void:
 
 func _switch_level() -> void:
 	simulation.switch_level()
+	selected_extraction_index = 0
 	message = "Ahora estás en: %s." % ["Superficie", "Subsuelo", "Profundidad"][simulation.active_level]
 	_refresh_interface()
 	queue_redraw()
@@ -386,16 +389,40 @@ func _gather_water() -> void:
 	_refresh_interface()
 
 
-func _mine_stone() -> void:
-	if simulation.active_level != 2:
-		message = "La piedra se extrae en la zona profunda."
-		_refresh_interface()
-		return
+func _get_extraction_options() -> Array[StringName]:
+	if simulation.active_level == 1:
+		return [&"clay"]
+	if simulation.active_level == 2:
+		return [&"stone", &"ore", &"coal"]
+	return []
 
-	if simulation.queue_work(&"stone", 3):
-		message = "Trabajo de extracción de piedra añadido a la cola."
+
+func _get_selected_extraction_resource() -> StringName:
+	var options := _get_extraction_options()
+	if options.is_empty():
+		return &""
+	selected_extraction_index = clampi(selected_extraction_index, 0, options.size() - 1)
+	return options[selected_extraction_index]
+
+
+func _cycle_extraction_resource() -> void:
+	var options := _get_extraction_options()
+	if options.is_empty():
+		message = "Los recursos minerales se extraen en el subsuelo y la profundidad."
 	else:
-		message = "No se pudo crear el trabajo de piedra."
+		selected_extraction_index = (selected_extraction_index + 1) % options.size()
+		message = "Recurso seleccionado: %s." % String(_get_selected_extraction_resource())
+	_refresh_interface()
+
+
+func _extract_resource() -> void:
+	var resource := _get_selected_extraction_resource()
+	if resource == &"":
+		message = "Selecciona una capa subterránea para extraer recursos."
+	elif simulation.queue_work(resource, 3):
+		message = "Orden de extracción de %s añadida." % String(resource)
+	else:
+		message = "No hay reservas disponibles de %s o no se pudo crear el trabajo." % String(resource)
 	_refresh_interface()
 
 
