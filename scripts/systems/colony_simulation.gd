@@ -139,7 +139,12 @@ func queue_excavation(cell: Vector2i, priority: int = 3) -> bool:
 
 
 func queue_planting(priority: int = 3) -> bool:
-	if active_level != 0 or crop_field.is_planted or not inventory.remove_resource(&"seeds", 1):
+	if active_level != 0 or crop_field.is_planted:
+		return false
+	for order in scheduler.orders:
+		if order.work_type == &"plant" and order.state == ColonyWorkOrder.State.AVAILABLE or order.work_type == &"plant" and order.state == ColonyWorkOrder.State.IN_PROGRESS:
+			return false
+	if not inventory.remove_resource(&"seeds", 1):
 		return false
 	scheduler.queue_order(&"plant", 0, crop_field.cell, priority, 2.0, &"", 0)
 	colony_changed.emit()
@@ -285,7 +290,9 @@ func _satisfy_needs(colonist: DwarfColonist) -> void:
 func _on_new_day() -> void:
 	for node in resource_nodes.values():
 		node.regenerate()
-	var watered := inventory.remove_resource(&"water", 1)
+	var watered := false
+	if crop_field.is_planted and not crop_field.is_ready:
+		watered = inventory.remove_resource(&"water", 1)
 	var new_food := crop_field.advance_day(watered)
 	if new_food > 0:
 		var food_node: ColonyResourceNode = resource_nodes[&"food"]
