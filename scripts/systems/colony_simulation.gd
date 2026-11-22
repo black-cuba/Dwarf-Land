@@ -343,18 +343,21 @@ func has_workshop() -> bool:
 func queue_crafting(recipe: StringName, priority: int = 3) -> bool:
 	if not has_workshop() or recipe != &"tool":
 		return false
-	var workshop_cell := Vector2i(-1, -1)
+	var workshop_cell := Vector3i(-1, -1, -1)
 	for structure in structures:
 		if StringName(structure.get("type", "")) == &"workshop":
-			workshop_cell = structure.get("cell", Vector2i(-1, -1))
+			workshop_cell = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i(-1, -1)).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 1))))
 			break
-	if workshop_cell.x < 0:
+	if not navigation.is_map_cell_inside(workshop_cell):
 		return false
 	if not inventory.has_amount(&"wood", 2) or not inventory.has_amount(&"ore", 1):
 		return false
 	inventory.remove_resource(&"wood", 2)
 	inventory.remove_resource(&"ore", 1)
-	scheduler.queue_order(&"craft", workshop_cell.y, workshop_cell, priority, 3.0, &"tools", 1)
+	if scheduler.queue_map_crafting(workshop_cell, priority, &"tools", 1, 3.0) == &"":
+		inventory.add_resource(&"wood", 2)
+		inventory.add_resource(&"ore", 1)
+		return false
 	colony_changed.emit()
 	return true
 
@@ -712,7 +715,7 @@ func _on_task_completed(task_id: StringName, resource: StringName, amount: int) 
 	if resource == &"food":
 		crop_field.harvest(amount)
 	var completed_order := _find_order(task_id)
-	if completed_order != null and [&"food", &"water", &"wood", &"clay", &"stone", &"ore", &"coal"].has(completed_order.work_type):
+	if completed_order != null and [&"food", &"water", &"wood", &"clay", &"stone", &"ore", &"coal", &"tools"].has(completed_order.work_type):
 		for colonist in colonists:
 			if colonist.id != completed_order.assigned_colonist_id:
 				continue
