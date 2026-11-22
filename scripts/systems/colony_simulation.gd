@@ -27,6 +27,10 @@ var _last_alert_key := ""
 
 func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
+	scheduler.terrain_excavated.connect(_on_terrain_excavated)
+	# Initial geological obstacles. These cells must be excavated before passage.
+	for cell in [Vector2i(5, 1), Vector2i(6, 1), Vector2i(20, 2), Vector2i(21, 2)]:
+		navigation.set_diggable(cell)
 	resource_nodes = {
 		&"food": ColonyResourceNode.new(&"surface_crops", &"food", 0, Vector2i(11, 0), 24, 48, 6, 4.0, 6),
 		&"wood": ColonyResourceNode.new(&"surface_forest", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
@@ -61,7 +65,6 @@ func advance_hour() -> void:
 	for colonist in colonists:
 		if not colonist.alive:
 			continue
-
 		colonist.advance_hour(is_rest_period, ambient_temperature)
 		_satisfy_needs(colonist)
 
@@ -99,15 +102,15 @@ func queue_work(work_type: StringName, priority: int = 3) -> bool:
 		alert_raised.emit("No quedan recursos disponibles en esta fuente.", ALERT_WARNING)
 		return false
 
-	scheduler.queue_order(
-		work_type,
-		node.level,
-		node.cell,
-		priority,
-		node.work_hours_per_batch,
-		node.resource,
-		node.output_per_batch
-	)
+	scheduler.queue_order(work_type, node.level, node.cell, priority, node.work_hours_per_batch, node.resource, node.output_per_batch)
+	colony_changed.emit()
+	return true
+
+
+func queue_excavation(cell: Vector2i, priority: int = 3) -> bool:
+	if cell.y != active_level or not navigation.can_dig(cell):
+		return false
+	scheduler.queue_order(&"dig", cell.y, cell, priority, 3.0, &"", 0)
 	colony_changed.emit()
 	return true
 
@@ -143,7 +146,8 @@ func get_snapshot() -> Dictionary:
 		"resource_nodes": get_resource_nodes_snapshot(),
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
-		"pending_outputs": _pending_outputs.duplicate(true)
+		"pending_outputs": _pending_outputs.duplicate(true),
+		"diggable_cells": navigation.get_diggable_cells()
 	}
 
 
@@ -161,6 +165,9 @@ func _on_new_day() -> void:
 
 
 func _on_task_completed(_task_id: StringName, resource: StringName, amount: int) -> void:
+	if resource == &"" or amount <= 0:
+		colony_changed.emit()
+		return
 	var accepted := inventory.add_resource(resource, amount)
 	if accepted < amount:
 		_pending_outputs.append({
@@ -168,6 +175,10 @@ func _on_task_completed(_task_id: StringName, resource: StringName, amount: int)
 			"amount": amount - accepted
 		})
 		alert_raised.emit("Almacén lleno: hay producción pendiente de almacenar.", ALERT_WARNING)
+	colony_changed.emit()
+
+
+func _on_terrain_excavated(_cell: Vector2i) -> void:
 	colony_changed.emit()
 
 
