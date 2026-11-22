@@ -334,6 +334,10 @@ func _test_map_construction_and_restore() -> void:
 	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se restauró una estructura del mapa 2D.")
 	assert(restored.navigation.blocked_map_cells.has(target), "El guardado perdió la colisión de la estructura 2D.")
 	assert(restored.get_bed_map_cells().size() == 3, "Las camas iniciales no se conservaron tras construir.")
+	for colonist in restored.colonists:
+		colonist.current_position = Vector2i(36, 1)
+		colonist.current_level = 1
+		colonist.sync_map_position_from_legacy()
 	var new_bed := Vector3i(37, ColonyNavigationGrid.ELEVATOR_ROW, 1)
 	assert(restored.queue_map_construction(&"bed", new_bed), "No se pudo ordenar una cama en el mapa 2D.")
 	for _hour in range(5):
