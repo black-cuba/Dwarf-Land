@@ -167,6 +167,11 @@ func _test_autonomous_bed_assignment() -> void:
 	var assigned_beds: Array = simulation._bed_assignments.values()
 	assert(assigned_beds[0] != assigned_beds[1] and assigned_beds[1] != assigned_beds[2] and assigned_beds[0] != assigned_beds[2], "Dos colonos comparten la misma cama.")
 	assert(colonist.fatigue < 80.0, "El descanso nocturno no redujo la fatiga.")
+	var surface_colonist: DwarfColonist = simulation.colonists[1]
+	var deep_colonist: DwarfColonist = simulation.colonists[2]
+	simulation.hour = 12
+	assert(simulation.get_local_temperature(surface_colonist) > simulation.get_local_temperature(deep_colonist), "La profundidad no es más fría que la superficie.")
+	assert(simulation.get_local_temperature(colonist) > simulation.ambient_temperature, "El refugio no mejora la temperatura durante el sueño.")
 	simulation.hour = 5
 	simulation.advance_hour()
 	assert(not colonist.is_resting and not colonist.is_sleeping, "El colono siguió descansando después del amanecer.")
