@@ -5,6 +5,7 @@ var id: StringName
 var resource: StringName
 var level: int
 var cell: Vector2i
+var map_cell: Vector3i
 var available_units: int
 var maximum_units: int
 var daily_regeneration: int
@@ -27,6 +28,7 @@ func _init(
 	resource = p_resource
 	level = clampi(p_level, 0, 2)
 	cell = Vector2i(p_cell.x, level)
+	map_cell = Vector3i(p_cell.x, ColonyNavigationGrid.ELEVATOR_ROW, level)
 	maximum_units = maxi(0, p_maximum_units)
 	available_units = clampi(p_available_units, 0, maximum_units)
 	daily_regeneration = maxi(0, p_daily_regeneration)
@@ -55,6 +57,7 @@ func get_snapshot() -> Dictionary:
 		"resource": String(resource),
 		"level": level,
 		"cell": cell,
+		"map_cell": map_cell,
 		"available_units": available_units,
 		"maximum_units": maximum_units,
 		"daily_regeneration": daily_regeneration
