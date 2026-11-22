@@ -248,6 +248,12 @@ func _draw_resource_nodes() -> void:
 					Vector2(px + 22, py - 9),
 					Vector2(px + 18, floor_y)
 				]), Color("#a87953"))
+			&"mushrooms":
+				for mushroom_index in range(3):
+					var mushroom_x := px - 13.0 + float(mushroom_index) * 13.0
+					var mushroom_height := 12.0 + float((mushroom_index + 1) % 2) * 6.0
+					draw_rect(Rect2(mushroom_x - 2.0, py - mushroom_height, 4.0, mushroom_height), Color("#d8c8a4"))
+					draw_arc(Vector2(mushroom_x, py - mushroom_height), 7.0, PI, TAU, 16, Color("#9c6c87"), 5.0)
 			&"coal":
 				draw_colored_polygon(PackedVector2Array([
 					Vector2(px - 21, floor_y),
