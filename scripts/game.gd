@@ -302,6 +302,9 @@ func _draw_colonists() -> void:
 		draw_string(ThemeDB.fallback_font, Vector2(px - 42, py - 48), colonist.display_name, HORIZONTAL_ALIGNMENT_CENTER, 84, 13, Color.WHITE)
 		var needs_text := "H %02d  S %02d  F %02d" % [roundi(colonist.hunger), roundi(colonist.thirst), roundi(colonist.fatigue)]
 		draw_string(ThemeDB.fallback_font, Vector2(px - 48, py - 34), needs_text, HORIZONTAL_ALIGNMENT_CENTER, 96, 10, Color("#f2d9a4"))
+		if colonist.carried_amount > 0:
+			draw_rect(Rect2(px + 8.0, py - 39.0, 20.0, 14.0), Color("#d6a34a"))
+			draw_string(ThemeDB.fallback_font, Vector2(px + 11.0, py - 28.0), str(colonist.carried_amount), HORIZONTAL_ALIGNMENT_LEFT, 16, 10, Color("#1b2430"))
 
 
 func _draw_level_marker() -> void:
