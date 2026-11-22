@@ -6,6 +6,7 @@ signal task_started(task_id: StringName, colonist_id: StringName)
 signal terrain_excavated(cell: Vector2i)
 signal map_terrain_excavated(cell: Vector3i)
 signal map_structure_built(cell: Vector3i, structure_type: StringName)
+signal resource_delivered(colonist_id: StringName, resource: StringName, amount: int)
 signal crop_planted(cell: Vector2i)
 signal structure_built(cell: Vector2i, structure_type: StringName)
 signal task_cancelled(task_id: StringName)
@@ -71,6 +72,21 @@ func queue_map_construction(cell: Vector3i, structure_type: StringName, priority
 	return order_id
 
 
+func queue_map_delivery(colonist_id: StringName, storage_cell: Vector3i, resource: StringName, amount: int) -> StringName:
+	if colonist_id == &"" or not is_map_cell_inside(storage_cell) or resource == &"" or amount <= 0:
+		return &""
+	for existing in orders:
+		if existing.work_type == &"map_delivery" and existing.target_colonist_id == colonist_id and (existing.state == ColonyWorkOrder.State.AVAILABLE or existing.state == ColonyWorkOrder.State.IN_PROGRESS):
+			return &""
+	var order_id := queue_order(&"map_delivery", storage_cell.z, Vector2i(storage_cell.x, storage_cell.z), 5, 1.0, resource, amount)
+	for order in orders:
+		if order.id == order_id:
+			order.target_map_cell = storage_cell
+			order.target_colonist_id = colonist_id
+			break
+	return order_id
+
+
 func is_map_cell_inside(cell: Vector3i) -> bool:
 	return cell.x >= 0 and cell.x < ColonyNavigationGrid.MAP_WIDTH and cell.y >= 0 and cell.y < ColonyNavigationGrid.MAP_HEIGHT and cell.z >= 0 and cell.z < ColonyNavigationGrid.LEVEL_COUNT
 
@@ -118,6 +134,7 @@ func restore_active_orders(snapshots: Array) -> bool:
 		var saved_map_target: Variant = item.get("target_map_cell", Vector3i(-1, -1, -1))
 		if typeof(saved_map_target) == TYPE_VECTOR3I:
 			order.target_map_cell = saved_map_target
+		order.target_colonist_id = StringName(item.get("target_colonist_id", ""))
 		order.progress = clampf(float(item.get("progress", 0.0)), 0.0, order.required_work)
 		order.state = ColonyWorkOrder.State.AVAILABLE
 		orders.append(order)
@@ -151,6 +168,9 @@ func _progress_order(
 		return
 	if order.work_type == &"map_build":
 		_progress_map_build_order(colonist, order, navigation)
+		return
+	if order.work_type == &"map_delivery":
+		_progress_map_delivery_order(colonist, order, navigation)
 		return
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
@@ -239,6 +259,28 @@ func _progress_map_build_order(
 		_release_assignment(colonist.id)
 
 
+
+func _progress_map_delivery_order(
+	colonist: DwarfColonist,
+	order: ColonyWorkOrder,
+	navigation: ColonyNavigationGrid
+) -> void:
+	var work_cell := order.target_map_cell if navigation.is_map_walkable(order.target_map_cell) else navigation.get_map_adjacent_cell(colonist.map_position, order.target_map_cell)
+	if work_cell.x < 0:
+		_release_assignment(colonist.id)
+		return
+	if colonist.map_position != work_cell:
+		var path := navigation.find_map_path(colonist.map_position, work_cell)
+		if path.is_empty():
+			_release_assignment(colonist.id)
+			return
+		colonist.start_map_movement(path[mini(4, path.size()) - 1])
+		return
+	if order.advance(1.0):
+		resource_delivered.emit(colonist.id, order.output_resource, order.output_amount)
+		_release_assignment(colonist.id)
+
+
 func _assign_available_orders(
 	colonists: Array[DwarfColonist],
 	navigation: ColonyNavigationGrid
@@ -263,10 +305,16 @@ func _assign_available_orders(
 				continue
 			if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
 				continue
+			if order.target_colonist_id != &"" and order.target_colonist_id != colonist.id:
+				continue
+			if colonist.carried_amount > 0 and order.work_type != &"map_delivery":
+				continue
+			if order.work_type == &"map_delivery" and colonist.carried_amount <= 0:
+				continue
 
 			var path_distance := 0
-			if order.work_type == &"map_dig" or order.work_type == &"map_build":
-				var map_work_target := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell) if order.work_type == &"map_dig" else navigation.get_map_adjacent_cell(colonist.map_position, order.target_map_cell)
+			if order.work_type == &"map_dig" or order.work_type == &"map_build" or order.work_type == &"map_delivery":
+				var map_work_target := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell) if order.work_type == &"map_dig" else (order.target_map_cell if order.work_type == &"map_delivery" and navigation.is_map_walkable(order.target_map_cell) else navigation.get_map_adjacent_cell(colonist.map_position, order.target_map_cell))
 				if map_work_target.x < 0:
 					continue
 				var map_path := navigation.find_map_path(colonist.map_position, map_work_target)
