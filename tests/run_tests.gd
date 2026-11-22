@@ -7,6 +7,7 @@ func _initialize() -> void:
 
 func _run_tests() -> void:
 	_test_inventory()
+	_test_save_system_backup_recovery()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -68,6 +69,30 @@ func _test_excavation() -> void:
 	assert(not navigation.can_dig(wall), "La roca excavada sigue marcada como pendiente.")
 
 
+
+
+
+func _test_save_system_backup_recovery() -> void:
+	var save_system := ColonySaveSystem.new("user://dwarf_land_test_saves")
+	var first_snapshot := {"day": 4, "position": Vector2i(8, 2), "name": "Primera"}
+	var second_snapshot := {"day": 5, "position": Vector2i(9, 2), "name": "Segunda"}
+	assert(save_system.save_snapshot(first_snapshot), "No se pudo crear el primer guardado.")
+	assert(save_system.save_snapshot(second_snapshot), "No se pudo actualizar el guardado.")
+	var loaded := save_system.load_snapshot()
+	assert(loaded.success and not loaded.used_backup, "No se leyó el guardado principal.")
+	assert(loaded.data.day == 5 and loaded.data.position == Vector2i(9, 2), "El guardado no conservó los datos.")
+	var target := ProjectSettings.globalize_path("user://dwarf_land_test_saves/colony_save.json")
+	var corrupt := FileAccess.open(target, FileAccess.WRITE)
+	assert(corrupt != null, "No se pudo preparar la prueba de recuperación.")
+	corrupt.store_string("{invalid json")
+	corrupt.close()
+	var recovered := save_system.load_snapshot()
+	assert(recovered.success and recovered.used_backup, "No se recuperó la copia de seguridad.")
+	assert(recovered.data.day == 4, "La copia de seguridad recuperada no es la versión anterior.")
+	var directory := ProjectSettings.globalize_path("user://dwarf_land_test_saves")
+	DirAccess.remove_absolute(target)
+	DirAccess.remove_absolute(target + ".bak")
+	DirAccess.remove_absolute(directory)
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
