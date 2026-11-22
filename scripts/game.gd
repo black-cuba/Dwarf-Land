@@ -16,6 +16,7 @@ var action_buttons: Array[Button] = []
 var selected_extraction_index := 0
 var build_mode := false
 var selected_building_index := 0
+var selected_recipe: StringName = &"tool"
 
 
 func _ready() -> void:
@@ -326,7 +327,7 @@ func _build_interface() -> void:
 	top_box.add_child(title_label)
 
 	status_label = Label.new()
-	status_label.add_theme_font_size_override("font_size", 16)
+	status_label.add_theme_font_size_override("font_size", 14)
 	top_box.add_child(status_label)
 
 	var bottom := PanelContainer.new()
@@ -357,7 +358,9 @@ func _build_interface() -> void:
 	_add_button(row, "Madera", _gather_wood)
 	_add_button(row, "Sembrar", _plant_crops)
 	_add_button(row, "Construir", _toggle_build_mode)
-	_add_button(row, "Fabricar", _craft_tool)
+	_add_button(row, "Receta", _cycle_crafting_recipe)
+	_add_button(row, "Fabricar", _craft_selected_recipe)
+	_add_button(row, "Tratar", _treat_colonist)
 	_add_button(row, "Guardar", _save_game)
 	_add_button(row, "Modo", _cycle_game_mode)
 	_add_button(row, "Pausar", _toggle_pause)
@@ -392,13 +395,15 @@ func _refresh_interface() -> void:
 	var clay := simulation.inventory.get_amount(&"clay")
 	var coal := simulation.inventory.get_amount(&"coal")
 	var seeds := simulation.inventory.get_amount(&"seeds")
+	var mushrooms := simulation.inventory.get_amount(&"mushrooms")
+	var medicine := simulation.inventory.get_amount(&"medicine")
 	var tools := simulation.inventory.get_amount(&"tools")
 	var tool_condition := roundi(simulation.tool_durability)
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
 	title_label.text = "DWARF LAND     ·     %s     ·     %s     ·     DÍA %d     ·     %02d:00" % [simulation.get_game_mode_label().to_upper(), ["SUPERFICIE", "SUBSUELO", "PROFUNDIDAD"][simulation.active_level], simulation.day, simulation.hour]
-	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   Herramientas: %d (%d%%)   |   Colonos: %d   Trabajos: %d" % [
-		food, water, seeds, wood, clay, stone, coal, ore, tools, tool_condition, simulation.get_living_colonist_count(), active_orders
+	status_label.text = "Comida:%d Agua:%d Semillas:%d Madera:%d Arcilla:%d Hongos:%d Medicina:%d Piedra:%d Carbón:%d Mineral:%d Herramientas:%d(%d%%) | Colonos:%d Trabajos:%d" % [
+		food, water, seeds, wood, clay, mushrooms, medicine, stone, coal, ore, tools, tool_condition, simulation.get_living_colonist_count(), active_orders
 	]
 	message_label.text = message
 	if simulation.game_mode == &"campaign":
@@ -409,12 +414,14 @@ func _refresh_interface() -> void:
 			"✓" if progress.day_ten_reached else "—"
 		]
 
-	if action_buttons.size() > 11:
+	if action_buttons.size() > 13:
 		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer"
 		action_buttons[7].text = "Plano: " + String(_get_selected_building()).capitalize() if build_mode else "Construir"
-		action_buttons[8].disabled = not simulation.has_workshop()
-		action_buttons[10].text = "Modo: " + simulation.get_game_mode_label()
-		action_buttons[11].text = "Reanudar" if simulation.paused else "Pausar"
+		action_buttons[8].text = "Receta: Medicina" if selected_recipe == &"medicine" else "Receta: Herramienta"
+		action_buttons[9].disabled = not _can_craft_selected_recipe()
+		action_buttons[10].disabled = medicine <= 0 or not _has_treatable_colonist()
+		action_buttons[12].text = "Modo: " + simulation.get_game_mode_label()
+		action_buttons[13].text = "Reanudar" if simulation.paused else "Pausar"
 
 
 func _on_alert_raised(alert_message: String, severity: int) -> void:
@@ -464,7 +471,7 @@ func _gather_water() -> void:
 
 func _get_extraction_options() -> Array[StringName]:
 	if simulation.active_level == 1:
-		return [&"clay"]
+		return [&"clay", &"mushrooms"]
 	if simulation.active_level == 2:
 		return [&"stone", &"ore", &"coal"]
 	return []
@@ -575,11 +582,41 @@ func _save_game() -> void:
 	_refresh_interface()
 
 
-func _craft_tool() -> void:
-	if simulation.queue_crafting(&"tool"):
-		message = "Fabricación de herramienta añadida al taller."
+func _cycle_crafting_recipe() -> void:
+	selected_recipe = &"medicine" if selected_recipe == &"tool" else &"tool"
+	message = "Receta seleccionada: %s." % ("Medicina" if selected_recipe == &"medicine" else "Herramienta")
+	_refresh_interface()
+
+
+func _can_craft_selected_recipe() -> bool:
+	if not simulation.has_workshop():
+		return false
+	if selected_recipe == &"medicine":
+		return simulation.inventory.has_amount(&"mushrooms", 2) and simulation.inventory.has_amount(&"water", 1)
+	return simulation.inventory.has_amount(&"wood", 2) and simulation.inventory.has_amount(&"ore", 1)
+
+
+func _craft_selected_recipe() -> void:
+	if simulation.queue_crafting(selected_recipe):
+		message = "Fabricación de %s añadida al taller." % ("medicina" if selected_recipe == &"medicine" else "herramienta")
 	else:
-		message = "Necesitas un taller, 2 maderas y 1 mineral."
+		message = "Faltan materiales o no hay un taller disponible para esta receta."
+	_refresh_interface()
+
+
+func _has_treatable_colonist() -> bool:
+	for colonist in simulation.colonists:
+		if colonist.alive and (colonist.illness_severity > 0.0 or colonist.injury_severity > 0.0):
+			return true
+	return false
+
+
+func _treat_colonist() -> void:
+	var treated_name := simulation.treat_most_affected_colonist()
+	if treated_name.is_empty():
+		message = "No hay medicina disponible o ningún colono necesita tratamiento."
+	else:
+		message = "%s recibió tratamiento médico." % treated_name
 	_refresh_interface()
 
 
