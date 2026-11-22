@@ -32,6 +32,7 @@ La distribución representa una regla ecológica/geológica, no una garantía de
 - Necesidades: hambre, sed, sueño/fatiga, salud y temperatura.
 - Durante la noche, los colonos suspenden sus trabajos, buscan una cama libre en el refugio y recuperan más fatiga al dormir.
 - La superficie, el subsuelo y la profundidad tienen temperaturas distintas; la exposición térmica puede dañar la salud y generar alertas.
+- Las construcciones consumen materiales y requieren trabajo; los almacenes amplían capacidad y las camas aumentan los puestos de descanso.
 - Recursos: comida, agua, madera, tierra/arcilla, piedra, minerales, herramientas y materiales.
 - Vivienda, almacenes, talleres, cultivos e instalaciones.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
