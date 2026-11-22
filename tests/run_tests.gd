@@ -355,12 +355,15 @@ func _test_resource_hauling_to_storage() -> void:
 		colonist.current_position = Vector2i(36, 1)
 		colonist.current_level = 1
 		colonist.sync_map_position_from_legacy()
+	var elevator_cell := Vector3i(ColonyNavigationGrid.ELEVATOR_COLUMN, ColonyNavigationGrid.ELEVATOR_ROW, 1)
+	assert(not simulation.queue_map_construction(&"storage", elevator_cell), "Se permitió bloquear el ascensor con una estructura.")
 	var storage_cell := Vector3i(38, ColonyNavigationGrid.ELEVATOR_ROW, 1)
 	assert(simulation.queue_map_construction(&"storage", storage_cell), "No se pudo construir el almacén de logística.")
 	for _hour in range(7):
 		simulation.advance_hour()
 		simulation.update_frame(2.0)
 	assert(simulation.structures.size() == 1, "El almacén logístico no se construyó.")
+	assert(not simulation.navigation.find_map_path(Vector3i(7, ColonyNavigationGrid.ELEVATOR_ROW, 0), Vector3i(7, ColonyNavigationGrid.ELEVATOR_ROW, 2)).is_empty(), "La construcción del almacén bloqueó la conexión entre capas.")
 	for colonist in simulation.colonists:
 		colonist.current_position = Vector2i(37, 1)
 		colonist.current_level = 1
