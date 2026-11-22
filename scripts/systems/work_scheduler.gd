@@ -265,7 +265,7 @@ func _assign_available_orders(
 
 			var path_distance := 0
 			if order.work_type == &"map_dig" or order.work_type == &"map_build":
-				var map_work_target := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell)
+				var map_work_target := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell) if order.work_type == &"map_dig" else navigation.get_map_adjacent_cell(colonist.map_position, order.target_map_cell)
 				if map_work_target.x < 0:
 					continue
 				var map_path := navigation.find_map_path(colonist.map_position, map_work_target)
