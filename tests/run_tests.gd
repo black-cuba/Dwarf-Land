@@ -8,6 +8,7 @@ func _initialize() -> void:
 func _run_tests() -> void:
 	_test_inventory()
 	_test_save_system_backup_recovery()
+	_test_simulation_snapshot_restore()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -93,6 +94,25 @@ func _test_save_system_backup_recovery() -> void:
 	DirAccess.remove_absolute(target)
 	DirAccess.remove_absolute(target + ".bak")
 	DirAccess.remove_absolute(directory)
+
+
+
+func _test_simulation_snapshot_restore() -> void:
+	var original := ColonySimulation.new()
+	original.day = 9
+	original.hour = 14
+	original.active_level = 2
+	original.inventory.add_resource(&"ore", 7)
+	original.navigation.excavate(Vector2i(20, 2))
+	original.queue_work(&"food", 4)
+	var snapshot := original.get_snapshot()
+	var restored := ColonySimulation.new()
+	assert(restored.restore_snapshot(snapshot), "No se pudo restaurar el estado completo de la colonia.")
+	assert(restored.day == 9 and restored.hour == 14, "El reloj no se restauró.")
+	assert(restored.active_level == 2, "No se restauró la capa activa.")
+	assert(restored.inventory.get_amount(&"ore") == original.inventory.get_amount(&"ore"), "El inventario no se restauró.")
+	assert(restored.navigation.is_walkable(Vector2i(20, 2)), "El terreno excavado no se conservó.")
+	assert(restored.scheduler.get_active_orders_snapshot().size() == 1, "La cola de trabajo no se restauró.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
