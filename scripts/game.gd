@@ -290,10 +290,12 @@ func _draw_colonists() -> void:
 			continue
 
 		var map_render_position: Vector2 = colonist.get_map_render_position()
-		var render_layer := colonist.map_position.z
+		var render_layer := colonist.get_map_render_layer()
 		var px := 65.0 + map_render_position.x * 28.0 + 14.0
 		var floors := [205.0, 390.0, 585.0]
-		var floor_y: float = floors[render_layer]
+		var lower_layer := clampi(floori(render_layer), 0, ColonyNavigationGrid.LEVEL_COUNT - 1)
+		var upper_layer := mini(lower_layer + 1, ColonyNavigationGrid.LEVEL_COUNT - 1)
+		var floor_y := lerpf(floors[lower_layer], floors[upper_layer], render_layer - float(lower_layer))
 		var py := floor_y - 24.0 + (map_render_position.y - float(ColonyNavigationGrid.ELEVATOR_ROW)) * 12.0
 		draw_circle(Vector2(px, py - 22), 13, Color("#d9b58b"))
 		draw_rect(Rect2(px - 12, py - 12, 24, 27), body_colors[i % body_colors.size()])
