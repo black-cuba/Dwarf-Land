@@ -375,8 +375,8 @@ func _refresh_interface() -> void:
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
 	title_label.text = "DWARF LAND     ·     DÍA %d     ·     %02d:00" % [simulation.day, simulation.hour]
-	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   Herramientas: %d   |   Colonos: %d   Trabajos: %d" % [
-		food, water, seeds, wood, clay, stone, coal, ore, tools, simulation.get_living_colonist_count(), active_orders
+	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   Herramientas: %d (%d%%)   |   Colonos: %d   Trabajos: %d" % [
+		food, water, seeds, wood, clay, stone, coal, ore, tools, tool_condition, simulation.get_living_colonist_count(), active_orders
 	]
 	message_label.text = message
 
