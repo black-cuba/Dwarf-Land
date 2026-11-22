@@ -36,6 +36,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	_draw_cavern()
+	_draw_excavation_blocks()
 	_draw_structures()
 	_draw_resource_nodes()
 	_draw_colonists()
@@ -76,6 +77,53 @@ func _draw_cavern() -> void:
 	draw_line(Vector2(1115, 200), Vector2(1115, 590), Color("#c7a66a"), 3.0)
 	var lift_y: float = floors[simulation.active_level]
 	draw_circle(Vector2(1115, lift_y), 10.0, Color("#f4c76b"))
+
+
+
+func _draw_excavation_blocks() -> void:
+	var floors := [205.0, 390.0, 585.0]
+	for cell in simulation.navigation.get_diggable_cells():
+		if cell.y != simulation.active_level:
+			continue
+		var px := 65.0 + float(cell.x) * 28.0
+		var floor_y: float = floors[cell.y]
+		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#76563f"))
+		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#a98761"), false, 2.0)
+		draw_line(Vector2(px - 8, floor_y - 22), Vector2(px + 7, floor_y - 10), Color("#4d392d"), 2.0)
+		draw_line(Vector2(px + 5, floor_y - 27), Vector2(px - 4, floor_y - 14), Color("#4d392d"), 2.0)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var pressed := false
+	var position := Vector2.ZERO
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		pressed = true
+		position = event.position
+	elif event is InputEventScreenTouch and event.pressed:
+		pressed = true
+		position = event.position
+
+	if not pressed:
+		return
+
+	var floors := [205.0, 390.0, 585.0]
+	var floor_y: float = floors[simulation.active_level]
+	if position.x < 65.0 or position.x > 1185.0:
+		return
+	if position.y < floor_y - 58.0 or position.y > floor_y + 18.0:
+		return
+
+	var cell_x := clampi(roundi((position.x - 65.0) / 28.0), 0, ColonyNavigationGrid.GRID_WIDTH - 1)
+	var target := Vector2i(cell_x, simulation.active_level)
+	if simulation.navigation.can_dig(target):
+		if simulation.queue_excavation(target):
+			message = "Excavación ordenada en la celda %d." % cell_x
+		else:
+			message = "No se pudo crear la orden de excavación."
+		_refresh_interface()
+		return
+	message = "Selecciona un bloque de roca marcado para excavar."
+	_refresh_interface()
 
 
 func _draw_structures() -> void:
