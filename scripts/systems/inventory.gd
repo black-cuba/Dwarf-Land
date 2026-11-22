@@ -17,7 +17,8 @@ func _init() -> void:
 		&"stone": 16,
 		&"ore": 0,
 		&"tools": 3,
-		&"materials": 0
+		&"materials": 0,
+		&"seeds": 6
 	}
 
 
