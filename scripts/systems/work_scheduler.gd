@@ -5,6 +5,7 @@ signal task_completed(task_id: StringName, resource: StringName, amount: int)
 signal task_started(task_id: StringName, colonist_id: StringName)
 signal terrain_excavated(cell: Vector2i)
 signal crop_planted(cell: Vector2i)
+signal structure_built(cell: Vector2i, structure_type: StringName)
 
 var orders: Array[ColonyWorkOrder] = []
 var _next_order_number := 1
@@ -107,7 +108,7 @@ func _progress_order(
 		return
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
-		if order.work_type == &"dig":
+		if order.work_type == &"dig" or order.work_type == &"build":
 			order.state = ColonyWorkOrder.State.CANCELLED
 		_release_assignment(colonist.id)
 		return
@@ -128,6 +129,8 @@ func _progress_order(
 				terrain_excavated.emit(order.target_cell)
 		elif order.work_type == &"plant":
 			crop_planted.emit(order.target_cell)
+		elif order.work_type == &"build":
+			structure_built.emit(order.target_cell, order.output_resource)
 		task_completed.emit(order.id, order.output_resource, order.output_amount)
 		_release_assignment(colonist.id)
 
@@ -186,6 +189,8 @@ func _get_work_target(
 ) -> Vector2i:
 	if order.work_type == &"dig":
 		return navigation.get_adjacent_work_cell(colonist_position, order.target_cell)
+	if order.work_type == &"build":
+		return navigation.get_adjacent_build_cell(colonist_position, order.target_cell)
 	return order.target_cell
 
 
