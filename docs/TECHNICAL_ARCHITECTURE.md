@@ -42,4 +42,10 @@
 - La exportación final requiere juego completo, pruebas superadas y autorización expresa.
 
 ## Pendiente
-Movimiento continuo, excavación y generación de mapas; autonomía completa; cultivos avanzados; construcción; habitaciones; talleres; herramientas; transporte; eventos; guardado; modos de juego; interfaz móvil y arte/audio finales.
+- Navegación 2D real, rutas alternativas y colisiones de estructuras.
+- Generación procedural de mapas y depósitos con semilla persistente.
+- Logística/transporte entre fuentes, colonos, almacenes y talleres.
+- Habitaciones, aislamiento y sistemas avanzados de producción.
+- Enfermedades, accidentes y eventos ambientales.
+- Modos de juego y progresión de campaña.
+- Interfaz móvil adaptable, arte/audio finales y pruebas Android reales.
