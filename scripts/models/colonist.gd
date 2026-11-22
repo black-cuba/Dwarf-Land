@@ -102,6 +102,9 @@ func advance_movement(delta: float) -> bool:
 
 
 func stop_movement() -> void:
+	if is_map_moving:
+		stop_map_movement()
+		return
 	if not is_moving:
 		return
 	current_position = Vector2i(roundi(visual_position.x), roundi(visual_position.y))
