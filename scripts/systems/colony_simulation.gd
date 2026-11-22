@@ -534,6 +534,9 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	for map_cell in map_terrain_data:
 		if typeof(map_cell) == TYPE_VECTOR3I:
 			navigation.set_map_diggable(map_cell)
+	for structure in structures:
+		var map_cell: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 0))))
+		navigation.set_map_blocked(map_cell, true)
 
 	var orders_data: Variant = snapshot.get("active_work_orders", [])
 	if typeof(orders_data) != TYPE_ARRAY or not scheduler.restore_active_orders(orders_data):
