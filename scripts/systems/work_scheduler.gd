@@ -105,7 +105,7 @@ func _progress_order(
 	order: ColonyWorkOrder,
 	navigation: ColonyNavigationGrid
 ) -> void:
-	if colonist.is_moving:
+	if colonist.is_moving or colonist.is_map_moving:
 		return
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
@@ -115,14 +115,14 @@ func _progress_order(
 		_release_assignment(colonist.id)
 		return
 
-	if colonist.current_position != work_target:
-		var path := navigation.find_path(colonist.current_position, work_target)
-		if path.is_empty():
+	var map_work_target := Vector3i(work_target.x, ColonyNavigationGrid.ELEVATOR_ROW, work_target.y)
+	if colonist.map_position != map_work_target:
+		var map_path := navigation.find_map_path(colonist.map_position, map_work_target)
+		if map_path.is_empty():
 			_release_assignment(colonist.id)
 			return
-
-		var movement_steps := mini(4, path.size())
-		colonist.start_movement(path[movement_steps - 1])
+		var movement_steps := mini(4, map_path.size())
+		colonist.start_map_movement(map_path[movement_steps - 1])
 		return
 
 	if order.advance(colonist.get_work_speed(order.work_type)):
