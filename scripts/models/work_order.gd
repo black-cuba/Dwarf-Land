@@ -33,7 +33,7 @@ func _init(
 ) -> void:
 	id = p_id
 	work_type = p_work_type
-	level = clampi(p_level, 0, 1)
+	level = clampi(p_level, 0, 2)
 	target_cell = Vector2i(p_target_cell.x, level)
 	priority = clampi(p_priority, 1, 5)
 	required_work = maxf(0.1, p_required_work)
