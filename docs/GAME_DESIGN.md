@@ -1,89 +1,76 @@
-# Dwarf Land — Documento de diseño inicial
+# Dwarf Land — Documento de diseño
 
 ## Visión
 
-Juego original de supervivencia y gestión de una pequeña colonia de enanos bajo tierra. La presión principal nace de mantener con vida a la comunidad mediante producción, almacenamiento y decisiones de gestión.
+Juego original de supervivencia y gestión de una colonia de enanos bajo tierra. La presión principal nace de mantener con vida a la comunidad mediante producción, almacenamiento, planificación y decisiones de gestión.
 
-## Reglas de alcance confirmadas
+## Alcance confirmado
 
-- Cámara 2D lateral.
+- Vista 2D lateral.
 - Exactamente dos niveles subterráneos jugables.
-- No existe un tercer nivel ni una superficie jugable.
-- Colonos autónomos en labores rutinarias; el jugador fija prioridades y da órdenes importantes.
-- El juego debe funcionar sin conexión, sin anuncios y sin telemetría.
+- Sin superficie jugable ni tercer nivel.
+- Colonos autónomos en tareas rutinarias; el jugador fija prioridades y da órdenes importantes.
+- Juego sin conexión, sin anuncios, sin telemetría y sin servicios externos.
 - No se copiarán código, personajes, mapas, sonidos ni imágenes de otros juegos.
+- Tres modos previstos: Campaña, Supervivencia y Sandbox.
 
 ## Distribución de los niveles
 
 ### Nivel 1 — Refugio y producción
+
 Vivienda, camas, almacenamiento, agua, alimentos, cultivos y espacios de trabajo.
 
 ### Nivel 2 — Extracción y materiales
-Minería, piedra, minerales, materias primas y acceso al taller. El ascensor conecta ambos niveles.
 
-## Sistemas de supervivencia
+Minería, piedra, minerales, materias primas y taller. El ascensor conecta ambos niveles.
 
-Necesidades individuales previstas:
+## Necesidades de cada colono
+
 - Hambre.
 - Sed.
 - Sueño y fatiga.
 - Salud.
-- Temperatura y condiciones ambientales.
+- Temperatura corporal y condiciones ambientales.
 
-Recursos colectivos previstos:
+## Recursos colectivos
+
 - Comida y agua.
 - Madera, piedra y minerales.
 - Herramientas y materiales de construcción.
 - Reservas y capacidad de almacenamiento.
 
-## Gestión de colonos
-
-Los colonos realizan trabajos rutinarios de forma autónoma. El jugador podrá establecer prioridades, asignar trabajos y atender alertas. La simulación debe considerar necesidades, disponibilidad de recursos y desplazamiento entre niveles.
-
-## Modos previstos
-
-1. Campaña.
-2. Supervivencia.
-3. Sandbox.
-
-Los modos se implementarán después de estabilizar el núcleo de simulación.
-
 ## Estado de implementación
 
-La base visual inicial se está sustituyendo progresivamente por sistemas separados y mantenibles. Ya existe una primera versión de:
-- Modelo individual de colono con hambre, sed, fatiga, salud y temperatura corporal.
-- Inventario con cantidades y capacidad máxima.
+Ya existe una primera base funcional del núcleo de simulación:
+
+- Modelo individual de colono con necesidades, salud, temperatura y profesión.
+- Inventario con capacidad máxima.
 - Fuentes subterráneas finitas y renovables: cultivo de hongos, manantial, madera fúngica, cantera y veta mineral.
 - Regeneración diaria de fuentes renovables y agotamiento de depósitos minerales.
 - Reloj de simulación por horas.
-- Cola de trabajos con prioridades y asignación autónoma de colonos.
-- Ritmos de trabajo diferenciados por profesión.
-- Pausa del trabajo ante hambre, sed o fatiga críticas.
-- Producción de comida, agua, madera y piedra mediante trabajos que consumen tiempo.
-- Desplazamiento lógico entre los dos niveles y alertas de reservas.
+- Cola de trabajos con prioridades.
+- Asignación de tareas favoreciendo la profesión más adecuada.
+- Pausa de trabajo ante hambre, sed o fatiga críticas.
+- Producción con tiempo de trabajo y entrega real al inventario.
+- Cuadrícula de dos niveles con ruta obligatoria por el ascensor.
+- Indicadores básicos de necesidades y reservas en pantalla.
+- Pruebas automatizadas de inventario, fuentes, navegación, necesidades y trabajos.
 
-Estos sistemas son una primera capa técnica. Todavía no equivalen a la simulación completa: faltan rutas y desplazamiento espacial real, ciclos de cultivo visuales, construcción funcional, habitaciones, herramientas, enfermedades, eventos, guardado y modos de juego.
-
-## Prototipo 0.1.0
-
-La primera escena verifica:
-- Renderizado lateral de los dos niveles.
-- Representación básica de colonos.
-- Reservas de comida, agua, madera y piedra.
-- Avance del tiempo y consumo diario.
-- Cambio de nivel.
-- Acciones básicas de recolección, extracción y descanso.
-- Interfaz adaptable a pantalla táctil.
-
-Esta versión es una base de validación, no representa el contenido final ni todos los sistemas acordados.
+Esta base todavía no representa el juego final. El movimiento es por pasos de simulación y faltan sistemas completos de construcción, agricultura, vivienda, fabricación, eventos, persistencia y modos.
 
 ## Próximos hitos
 
-1. Validar apertura y compilación del proyecto.
-2. Separar entidades, necesidades, inventario y simulación en sistemas mantenibles.
-3. Implementar navegación y trabajos autónomos reales.
-4. Construcción y producción con costes y tiempos.
-5. Eventos, salud, temperatura y condiciones ambientales.
-6. Guardado local y pruebas de rendimiento en Android.
-7. Incorporar arte y audio originales.
-8. Completar Campaña, Supervivencia y Sandbox.
+1. Movimiento visual continuo, colisiones y navegación alrededor de instalaciones.
+2. Comportamiento autónomo completo para comer, beber, dormir, trabajar y recuperarse.
+3. Cultivos con siembra, crecimiento y cosecha.
+4. Construcción, habitaciones, camas, almacenes y talleres funcionales.
+5. Minería, herramientas, fabricación, desgaste y transporte.
+6. Temperatura ambiental, aislamiento, enfermedades, accidentes y eventos.
+7. Guardado local seguro y recuperación de partidas.
+8. Interfaz móvil completa, arte y audio originales.
+9. Campaña, Supervivencia y Sandbox.
+10. Pruebas completas en dispositivo Android y corrección final.
+
+## Regla de entrega
+
+No se compilará ni publicará una APK hasta que el juego esté completo, las pruebas estén superadas y exista autorización expresa para la compilación final.
