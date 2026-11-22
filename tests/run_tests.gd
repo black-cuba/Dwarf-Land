@@ -391,6 +391,15 @@ func _test_resource_hauling_to_storage() -> void:
 			break
 	assert(restored_carrier.carried_amount == 0, "El colono no entregó la carga en el almacén.")
 	assert(restored.inventory.get_amount(&"wood") > wood_before, "La madera transportada no llegó al inventario de la colonia.")
+	var tools_before := restored.inventory.get_amount(&"tools")
+	assert(restored.queue_work(&"mushrooms"), "No se pudo ordenar la recolección de hongos subterráneos.")
+	for _hour in range(25):
+		restored.advance_hour()
+		restored.update_frame(2.0)
+		if restored.inventory.get_amount(&"mushrooms") > 0:
+			break
+	assert(restored.inventory.get_amount(&"mushrooms") > 0, "Los hongos no se transportaron al almacén.")
+	assert(restored.inventory.get_amount(&"tools") == tools_before, "La recolección de hongos consumió una herramienta innecesariamente.")
 
 
 func _test_workshop_tool_crafting() -> void:
