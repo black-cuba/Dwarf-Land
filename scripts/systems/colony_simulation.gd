@@ -6,6 +6,7 @@ signal colony_changed
 signal alert_raised(message: String, severity: int)
 
 const LEVEL_COUNT := 3
+const DEFAULT_STOCKPILE_CELL := Vector3i(14, ColonyNavigationGrid.ELEVATOR_ROW, 1)
 const ALERT_INFO := 0
 const ALERT_WARNING := 1
 const ALERT_CRITICAL := 2
@@ -39,6 +40,7 @@ func _init() -> void:
 	scheduler.terrain_excavated.connect(_on_terrain_excavated)
 	scheduler.map_terrain_excavated.connect(_on_map_terrain_excavated)
 	scheduler.map_structure_built.connect(_on_map_structure_built)
+	scheduler.resource_delivered.connect(_on_resource_delivered)
 	scheduler.crop_planted.connect(_on_crop_planted)
 	scheduler.structure_built.connect(_on_structure_built)
 	scheduler.task_cancelled.connect(_on_task_cancelled)
@@ -186,7 +188,7 @@ func queue_map_construction(structure_type: StringName, cell: Vector3i, priority
 	for colonist in colonists:
 		if colonist.alive and (colonist.map_position == cell or (colonist.is_map_moving and colonist.map_movement_target == cell)):
 			return false
-	if cell == crop_field.map_cell:
+	if cell == crop_field.map_cell or cell == DEFAULT_STOCKPILE_CELL:
 		return false
 	if get_bed_map_cells().has(cell):
 		return false
@@ -478,6 +480,8 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		colonist.injury_severity = clampf(float(item.get("injury_severity", 0.0)), 0.0, 100.0)
 		colonist.body_temperature = float(item.get("body_temperature", 37.0))
 		colonist.alive = bool(item.get("alive", true))
+		colonist.carried_resource = StringName(item.get("carried_resource", ""))
+		colonist.carried_amount = clampi(int(item.get("carried_amount", 0)), 0, DwarfColonist.CARRY_CAPACITY)
 		var position: Variant = item.get("current_position", Vector2i(7, 0))
 		if typeof(position) != TYPE_VECTOR2I:
 			return false
@@ -707,6 +711,31 @@ func _on_task_completed(task_id: StringName, resource: StringName, amount: int) 
 		return
 	if resource == &"food":
 		crop_field.harvest(amount)
+	var completed_order := _find_order(task_id)
+	if completed_order != null and [&"food", &"water", &"wood", &"clay", &"stone", &"ore", &"coal"].has(completed_order.work_type):
+		for colonist in colonists:
+			if colonist.id != completed_order.assigned_colonist_id:
+				continue
+			colonist.carried_resource = resource
+			colonist.carried_amount = mini(amount, DwarfColonist.CARRY_CAPACITY)
+			if _queue_delivery_for_colonist(colonist):
+				colony_changed.emit()
+				return
+			colonist.carried_resource = &""
+			colonist.carried_amount = 0
+			break
+	_store_output(resource, amount)
+	colony_changed.emit()
+
+
+func _find_order(order_id: StringName) -> ColonyWorkOrder:
+	for order in scheduler.orders:
+		if order.id == order_id:
+			return order
+	return null
+
+
+func _store_output(resource: StringName, amount: int) -> void:
 	var accepted := inventory.add_resource(resource, amount)
 	if accepted < amount:
 		_pending_outputs.append({
@@ -714,7 +743,45 @@ func _on_task_completed(task_id: StringName, resource: StringName, amount: int) 
 			"amount": amount - accepted
 		})
 		alert_raised.emit("Almacén lleno: hay producción pendiente de almacenar.", ALERT_WARNING)
-	colony_changed.emit()
+
+
+func _queue_delivery_for_colonist(colonist: DwarfColonist) -> bool:
+	if colonist.carried_amount <= 0 or colonist.carried_resource == &"":
+		return false
+	var storage_cells: Array[Vector3i] = [DEFAULT_STOCKPILE_CELL]
+	for structure in structures:
+		if StringName(structure.get("type", "")) == &"storage":
+			var storage_cell: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 1))))
+			if not storage_cells.has(storage_cell):
+				storage_cells.append(storage_cell)
+	var best_storage := Vector3i(-1, -1, -1)
+	var best_distance := 2147483647
+	for storage_cell in storage_cells:
+		var destination := storage_cell if navigation.is_map_walkable(storage_cell) else navigation.get_map_adjacent_cell(colonist.map_position, storage_cell)
+		if destination.x < 0:
+			continue
+		var path := navigation.find_map_path(colonist.map_position, destination)
+		if colonist.map_position != destination and path.is_empty():
+			continue
+		if path.size() < best_distance:
+			best_distance = path.size()
+			best_storage = storage_cell
+	if best_storage.x < 0:
+		return false
+	return scheduler.queue_map_delivery(colonist.id, best_storage, colonist.carried_resource, colonist.carried_amount) != &""
+
+
+func _on_resource_delivered(colonist_id: StringName, resource: StringName, amount: int) -> void:
+	for colonist in colonists:
+		if colonist.id != colonist_id:
+			continue
+		if colonist.carried_resource != resource or colonist.carried_amount < amount:
+			return
+		colonist.carried_amount = 0
+		colonist.carried_resource = &""
+		_store_output(resource, amount)
+		colony_changed.emit()
+		return
 
 
 func _on_terrain_excavated(_cell: Vector2i) -> void:
