@@ -319,9 +319,10 @@ func _build_interface() -> void:
 	bottom.size = Vector2(1244, 82)
 	root.add_child(bottom)
 
-	var action_scroll := HScrollContainer.new()
+	var action_scroll := ScrollContainer.new()
 	action_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	action_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	action_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	bottom.add_child(action_scroll)
 
 	var row := HBoxContainer.new()
