@@ -13,6 +13,7 @@ var work_type: StringName
 var level: int
 var target_cell: Vector2i
 var target_map_cell := Vector3i(-1, -1, -1)
+var target_colonist_id: StringName = &""
 var priority: int
 var required_work: float
 var progress := 0.0
@@ -64,6 +65,7 @@ func get_snapshot() -> Dictionary:
 		"level": level,
 		"target_cell": target_cell,
 		"target_map_cell": target_map_cell,
+		"target_colonist_id": String(target_colonist_id),
 		"priority": priority,
 		"required_work": required_work,
 		"progress": progress,
