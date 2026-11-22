@@ -715,7 +715,7 @@ func _on_task_completed(task_id: StringName, resource: StringName, amount: int) 
 	if resource == &"food":
 		crop_field.harvest(amount)
 	var completed_order := _find_order(task_id)
-	if completed_order != null and [&"food", &"water", &"wood", &"clay", &"stone", &"ore", &"coal", &"tools"].has(completed_order.work_type):
+	if completed_order != null and [&"food", &"water", &"wood", &"clay", &"stone", &"ore", &"coal", &"tools", &"map_craft"].has(completed_order.work_type):
 		for colonist in colonists:
 			if colonist.id != completed_order.assigned_colonist_id:
 				continue
