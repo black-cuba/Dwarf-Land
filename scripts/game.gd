@@ -331,6 +331,7 @@ func _build_interface() -> void:
 	_add_button(row, "Madera", _gather_wood)
 	_add_button(row, "Sembrar", _plant_crops)
 	_add_button(row, "Construir", _toggle_build_mode)
+	_add_button(row, "Fabricar", _craft_tool)
 	_add_button(row, "Pausar", _toggle_pause)
 
 	message_label = Label.new()
@@ -344,7 +345,7 @@ func _build_interface() -> void:
 func _add_button(parent: HBoxContainer, caption: String, callback: Callable) -> void:
 	var button := Button.new()
 	button.text = caption
-	button.custom_minimum_size = Vector2(125, 54)
+	button.custom_minimum_size = Vector2(115, 54)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	parent.add_child(button)
@@ -363,18 +364,20 @@ func _refresh_interface() -> void:
 	var clay := simulation.inventory.get_amount(&"clay")
 	var coal := simulation.inventory.get_amount(&"coal")
 	var seeds := simulation.inventory.get_amount(&"seeds")
+	var tools := simulation.inventory.get_amount(&"tools")
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
 	title_label.text = "DWARF LAND     ·     DÍA %d     ·     %02d:00" % [simulation.day, simulation.hour]
-	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   |   Colonos: %d   Trabajos: %d" % [
-		food, water, seeds, wood, clay, stone, coal, ore, simulation.get_living_colonist_count(), active_orders
+	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   Herramientas: %d   |   Colonos: %d   Trabajos: %d" % [
+		food, water, seeds, wood, clay, stone, coal, ore, tools, simulation.get_living_colonist_count(), active_orders
 	]
 	message_label.text = message
 
-	if action_buttons.size() > 8:
+	if action_buttons.size() > 9:
 		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer"
 		action_buttons[7].text = "Plano: " + String(_get_selected_building()).capitalize() if build_mode else "Construir"
-		action_buttons[8].text = "Reanudar" if simulation.paused else "Pausar"
+		action_buttons[8].disabled = not simulation.has_workshop()
+		action_buttons[9].text = "Reanudar" if simulation.paused else "Pausar"
 
 
 func _on_alert_raised(alert_message: String, severity: int) -> void:
@@ -507,6 +510,15 @@ func _plant_crops() -> void:
 		message = "Orden de siembra añadida. Se ha reservado una semilla."
 	else:
 		message = "No se puede sembrar: revisa el estado del campo y las semillas."
+	_refresh_interface()
+
+
+
+func _craft_tool() -> void:
+	if simulation.queue_crafting(&"tool"):
+		message = "Fabricación de herramienta añadida al taller."
+	else:
+		message = "Necesitas un taller, 2 maderas y 1 mineral."
 	_refresh_interface()
 
 
