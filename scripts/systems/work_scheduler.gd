@@ -55,6 +55,32 @@ func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationG
 	_prune_completed_orders()
 
 
+
+func restore_active_orders(snapshots: Array) -> bool:
+	orders.clear()
+	_assignments.clear()
+	_next_order_number = 1
+	for item in snapshots:
+		if typeof(item) != TYPE_DICTIONARY:
+			return false
+		var order := ColonyWorkOrder.new(
+			StringName(item.get("id", "")),
+			StringName(item.get("type", "")),
+			int(item.get("level", 0)),
+			item.get("target_cell", Vector2i.ZERO),
+			int(item.get("priority", 3)),
+			float(item.get("required_work", 1.0)),
+			StringName(item.get("output_resource", "")),
+			int(item.get("output_amount", 0))
+		)
+		order.progress = clampf(float(item.get("progress", 0.0)), 0.0, order.required_work)
+		order.state = ColonyWorkOrder.State.AVAILABLE
+		orders.append(order)
+		var suffix := String(order.id).trim_prefix("work_")
+		_next_order_number = maxi(_next_order_number, int(suffix) + 1 if suffix.is_valid_int() else 1)
+	return true
+
+
 func get_active_orders_snapshot() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for order in orders:
