@@ -4,6 +4,7 @@ extends RefCounted
 signal task_completed(task_id: StringName, resource: StringName, amount: int)
 signal task_started(task_id: StringName, colonist_id: StringName)
 signal terrain_excavated(cell: Vector2i)
+signal map_terrain_excavated(cell: Vector3i)
 signal crop_planted(cell: Vector2i)
 signal structure_built(cell: Vector2i, structure_type: StringName)
 signal task_cancelled(task_id: StringName)
@@ -37,6 +38,25 @@ func queue_order(
 	)
 	orders.append(order)
 	return order_id
+
+
+func queue_map_excavation(cell: Vector3i, priority: int = 3) -> StringName:
+	if not navigation_cell_is_diggable(cell):
+		return &""
+	for existing in orders:
+		if existing.work_type == &"map_dig" and existing.target_map_cell == cell:
+			if existing.state == ColonyWorkOrder.State.AVAILABLE or existing.state == ColonyWorkOrder.State.IN_PROGRESS:
+				return &""
+	var order_id := queue_order(&"map_dig", cell.z, Vector2i(cell.x, cell.z), priority, 3.0, &"", 0)
+	for order in orders:
+		if order.id == order_id:
+			order.target_map_cell = cell
+			break
+	return order_id
+
+
+func navigation_cell_is_diggable(cell: Vector3i) -> bool:
+	return cell.x >= 0 and cell.x < ColonyNavigationGrid.MAP_WIDTH and cell.y >= 0 and cell.y < ColonyNavigationGrid.MAP_HEIGHT and cell.z >= 0 and cell.z < ColonyNavigationGrid.LEVEL_COUNT
 
 
 func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationGrid) -> void:
@@ -79,6 +99,9 @@ func restore_active_orders(snapshots: Array) -> bool:
 			StringName(item.get("output_resource", "")),
 			int(item.get("output_amount", 0))
 		)
+		var saved_map_target: Variant = item.get("target_map_cell", Vector3i(-1, -1, -1))
+		if typeof(saved_map_target) == TYPE_VECTOR3I:
+			order.target_map_cell = saved_map_target
 		order.progress = clampf(float(item.get("progress", 0.0)), 0.0, order.required_work)
 		order.state = ColonyWorkOrder.State.AVAILABLE
 		orders.append(order)
@@ -106,6 +129,9 @@ func _progress_order(
 	navigation: ColonyNavigationGrid
 ) -> void:
 	if colonist.is_moving or colonist.is_map_moving:
+		return
+	if order.work_type == &"map_dig":
+		_progress_map_dig_order(colonist, order, navigation)
 		return
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
@@ -137,6 +163,36 @@ func _progress_order(
 		_release_assignment(colonist.id)
 
 
+
+func _progress_map_dig_order(
+	colonist: DwarfColonist,
+	order: ColonyWorkOrder,
+	navigation: ColonyNavigationGrid
+) -> void:
+	var work_cell := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell)
+	if work_cell.x < 0:
+		order.state = ColonyWorkOrder.State.CANCELLED
+		task_cancelled.emit(order.id)
+		_release_assignment(colonist.id)
+		return
+	if colonist.map_position != work_cell:
+		var path := navigation.find_map_path(colonist.map_position, work_cell)
+		if path.is_empty():
+			_release_assignment(colonist.id)
+			return
+		var movement_steps := mini(4, path.size())
+		colonist.start_map_movement(path[movement_steps - 1])
+		return
+	if order.advance(colonist.get_work_speed(&"stone")):
+		if navigation.excavate_map_cell(order.target_map_cell):
+			map_terrain_excavated.emit(order.target_map_cell)
+			task_completed.emit(order.id, &"", 0)
+		else:
+			order.state = ColonyWorkOrder.State.CANCELLED
+			task_cancelled.emit(order.id)
+		_release_assignment(colonist.id)
+
+
 func _assign_available_orders(
 	colonists: Array[DwarfColonist],
 	navigation: ColonyNavigationGrid
@@ -162,14 +218,25 @@ func _assign_available_orders(
 			if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
 				continue
 
-			var work_target := _get_work_target(order, colonist.current_position, navigation)
-			if work_target.x < 0:
-				continue
-			var path := navigation.find_path(colonist.current_position, work_target)
-			if colonist.current_position != work_target and path.is_empty():
-				continue
+			var path_distance := 0
+			if order.work_type == &"map_dig":
+				var map_work_target := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell)
+				if map_work_target.x < 0:
+					continue
+				var map_path := navigation.find_map_path(colonist.map_position, map_work_target)
+				if colonist.map_position != map_work_target and map_path.is_empty():
+					continue
+				path_distance = map_path.size()
+			else:
+				var work_target := _get_work_target(order, colonist.current_position, navigation)
+				if work_target.x < 0:
+					continue
+				var path := navigation.find_path(colonist.current_position, work_target)
+				if colonist.current_position != work_target and path.is_empty():
+					continue
+				path_distance = path.size()
 
-			var distance_penalty := float(path.size()) * 0.1
+			var distance_penalty := float(path_distance) * 0.1
 			var score := colonist.get_work_speed(order.work_type) * 100.0 - distance_penalty
 			if score > best_score:
 				best_score = score
