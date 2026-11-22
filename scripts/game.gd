@@ -191,11 +191,6 @@ func _draw_structures() -> void:
 	draw_rect(Rect2(425, 330, 105, 20), Color("#b08a50"))
 	draw_string(ThemeDB.fallback_font, Vector2(420, 322), "ALMACÉN", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
 
-	# The workshop is located close to deep extraction sites.
-	draw_rect(Rect2(180, 535, 145, 50), Color("#59616a"))
-	draw_rect(Rect2(195, 515, 115, 20), Color("#8b9298"))
-	draw_string(ThemeDB.fallback_font, Vector2(195, 507), "TALLER", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
-
 	for structure in simulation.structures:
 		var cell: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 0))))
 		var px := 65.0 + float(cell.x) * 28.0 + 14.0
