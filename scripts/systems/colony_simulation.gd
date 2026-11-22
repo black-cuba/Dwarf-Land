@@ -30,6 +30,8 @@ var resource_nodes: Dictionary = {}
 var structures: Array[Dictionary] = []
 var tool_durability := 100.0
 var _reserved_tool_orders: Dictionary = {}
+var _reserved_order_inputs: Dictionary = {}
+var _reserved_resource_nodes: Dictionary = {}
 var _pending_outputs: Array[Dictionary] = []
 var _last_alert_key := ""
 var _bed_assignments: Dictionary = {}
@@ -149,6 +151,7 @@ func queue_work(work_type: StringName, priority: int = 3) -> bool:
 		inventory.remove_resource(&"tools", 1)
 
 	var order_id := scheduler.queue_order(work_type, node.level, node.cell, priority, node.work_hours_per_batch, node.resource, node.output_per_batch)
+	_reserved_resource_nodes[order_id] = {"resource": String(work_type), "amount": node.output_per_batch}
 	if uses_tool:
 		_reserved_tool_orders[order_id] = _get_tool_wear(work_type)
 	colony_changed.emit()
@@ -229,10 +232,12 @@ func queue_map_construction(structure_type: StringName, cell: Vector3i, priority
 		return false
 	inventory.remove_resource(&"wood", wood_cost)
 	inventory.remove_resource(&"stone", stone_cost)
-	if scheduler.queue_map_construction(cell, structure_type, priority, required_work) == &"":
+	var order_id := scheduler.queue_map_construction(cell, structure_type, priority, required_work)
+	if order_id == &"":
 		inventory.add_resource(&"wood", wood_cost)
 		inventory.add_resource(&"stone", stone_cost)
 		return false
+	_reserve_order_inputs(order_id, {&"wood": wood_cost, &"stone": stone_cost})
 	colony_changed.emit()
 	return true
 
@@ -245,7 +250,8 @@ func queue_planting(priority: int = 3) -> bool:
 			return false
 	if not inventory.remove_resource(&"seeds", 1):
 		return false
-	scheduler.queue_order(&"plant", 0, crop_field.cell, priority, 2.0, &"", 0)
+	var order_id := scheduler.queue_order(&"plant", 0, crop_field.cell, priority, 2.0, &"", 0)
+	_reserve_order_inputs(order_id, {&"seeds": 1})
 	colony_changed.emit()
 	return true
 
@@ -292,7 +298,8 @@ func queue_construction(structure_type: StringName, cell: Vector2i, priority: in
 		return false
 	inventory.remove_resource(&"wood", wood_cost)
 	inventory.remove_resource(&"stone", stone_cost)
-	scheduler.queue_order(&"build", cell.y, cell, priority, required_work, structure_type, 0)
+	var order_id := scheduler.queue_order(&"build", cell.y, cell, priority, required_work, structure_type, 0)
+	_reserve_order_inputs(order_id, {&"wood": wood_cost, &"stone": stone_cost})
 	colony_changed.emit()
 	return true
 
@@ -376,10 +383,12 @@ func queue_crafting(recipe: StringName, priority: int = 3) -> bool:
 		return false
 	inventory.remove_resource(first_resource, first_cost)
 	inventory.remove_resource(second_resource, second_cost)
-	if scheduler.queue_map_crafting(workshop_cell, priority, output_resource, 1, required_work) == &"":
+	var order_id := scheduler.queue_map_crafting(workshop_cell, priority, output_resource, 1, required_work)
+	if order_id == &"":
 		inventory.add_resource(first_resource, first_cost)
 		inventory.add_resource(second_resource, second_cost)
 		return false
+	_reserve_order_inputs(order_id, {first_resource: first_cost, second_resource: second_cost})
 	colony_changed.emit()
 	return true
 
