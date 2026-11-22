@@ -160,6 +160,13 @@ func queue_planting(priority: int = 3) -> bool:
 func queue_construction(structure_type: StringName, cell: Vector2i, priority: int = 3) -> bool:
 	if cell.y != active_level or not navigation.is_walkable(cell):
 		return false
+	if crop_field.cell == cell:
+		return false
+	for node in resource_nodes.values():
+		if node.cell == cell:
+			return false
+	if structure_type == &"bed" and get_bed_cells().has(cell):
+		return false
 	var wood_cost := 0
 	var stone_cost := 0
 	var required_work := 1.0
