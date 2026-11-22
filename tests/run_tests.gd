@@ -10,6 +10,7 @@ func _run_tests() -> void:
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
+	_test_excavation_work_order()
 	_test_colonist()
 	_test_work_order_depth()
 	_test_scheduler_reassigns_urgent_colonist_work()
@@ -64,6 +65,23 @@ func _test_excavation() -> void:
 	assert(navigation.excavate(wall), "No se pudo excavar la roca.")
 	assert(navigation.is_walkable(wall), "La celda excavada no se volvió transitable.")
 	assert(not navigation.can_dig(wall), "La roca excavada sigue marcada como pendiente.")
+
+
+
+func _test_excavation_work_order() -> void:
+	var navigation := ColonyNavigationGrid.new()
+	var scheduler := ColonyWorkScheduler.new()
+	var colonist := DwarfColonist.new(&"dig_test", "Excavador", "Minero")
+	colonist.current_position = Vector2i(7, 1)
+	navigation.set_diggable(Vector2i(8, 1))
+	var colonists: Array[DwarfColonist] = [colonist]
+	scheduler.queue_order(&"dig", 1, Vector2i(8, 1), 3, 3.0, &"", 0)
+	scheduler.advance_hour(colonists, navigation)
+	assert(not navigation.is_walkable(Vector2i(8, 1)), "La roca se excavó antes de completar el trabajo.")
+	for _hour in range(3):
+		scheduler.advance_hour(colonists, navigation)
+	assert(navigation.is_walkable(Vector2i(8, 1)), "La orden completada no abrió el paso.")
+	assert(scheduler.get_active_orders_snapshot().is_empty(), "La orden de excavación sigue activa tras completarse.")
 
 
 func _test_colonist() -> void:
