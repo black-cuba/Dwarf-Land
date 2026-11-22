@@ -14,6 +14,8 @@ var status_label: Label
 var message_label: Label
 var action_buttons: Array[Button] = []
 var selected_extraction_index := 0
+var build_mode := false
+var selected_building_index := 0
 
 
 func _ready() -> void:
@@ -126,6 +128,15 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	var cell_x := clampi(roundi((position.x - 65.0) / 28.0), 0, ColonyNavigationGrid.GRID_WIDTH - 1)
 	var target := Vector2i(cell_x, simulation.active_level)
+	if build_mode:
+		var building := _get_selected_building()
+		if simulation.queue_construction(building, target):
+			message = "Construcción de %s ordenada en la celda %d." % [String(building), cell_x]
+		else:
+			message = "No se puede construir ahí: revisa espacio, materiales y capa."
+		_refresh_interface()
+		queue_redraw()
+		return
 	if simulation.navigation.can_dig(target):
 		if simulation.queue_excavation(target):
 			message = "Excavación ordenada en la celda %d." % cell_x
@@ -133,7 +144,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			message = "No se pudo crear la orden de excavación."
 		_refresh_interface()
 		return
-	message = "Selecciona un bloque de roca marcado para excavar."
+	message = "Toca roca marcada para excavar o activa Construir para colocar una estructura."
 	_refresh_interface()
 
 
@@ -157,6 +168,23 @@ func _draw_structures() -> void:
 	draw_rect(Rect2(180, 535, 145, 50), Color("#59616a"))
 	draw_rect(Rect2(195, 515, 115, 20), Color("#8b9298"))
 	draw_string(ThemeDB.fallback_font, Vector2(195, 507), "TALLER", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
+
+	for structure in simulation.structures:
+		var cell: Vector2i = structure.get("cell", Vector2i.ZERO)
+		if cell.y != simulation.active_level:
+			continue
+		var px := 65.0 + float(cell.x) * 28.0
+		var floor_y: float = [205.0, 390.0, 585.0][cell.y]
+		match StringName(structure.get("type", "")):
+			&"bed":
+				draw_rect(Rect2(px - 12, floor_y - 19, 24, 14), Color("#a9b4c0"))
+				draw_rect(Rect2(px - 10, floor_y - 17, 20, 5), Color("#e4d6bd"))
+			&"storage":
+				draw_rect(Rect2(px - 15, floor_y - 32, 30, 32), Color("#a77d45"))
+				draw_rect(Rect2(px - 15, floor_y - 32, 30, 32), Color("#e2bd78"), false, 2.0)
+			&"workshop":
+				draw_rect(Rect2(px - 17, floor_y - 28, 34, 28), Color("#667583"))
+				draw_rect(Rect2(px - 17, floor_y - 28, 34, 28), Color("#b3c0c9"), false, 2.0)
 
 
 func _draw_resource_nodes() -> void:
@@ -296,10 +324,13 @@ func _build_interface() -> void:
 	bottom.add_child(row)
 
 	_add_button(row, "Cambiar nivel", _switch_level)
-	_add_button(row, "Recolectar comida", _gather_food)
-	_add_button(row, "Recoger agua", _gather_water)
-	_add_button(row, "Extraer piedra", _mine_stone)
-	_add_button(row, "Cortar madera", _gather_wood)
+	_add_button(row, "Comida", _gather_food)
+	_add_button(row, "Agua", _gather_water)
+	_add_button(row, "Extraer", _extract_resource)
+	_add_button(row, "Cambiar recurso", _cycle_extraction_resource)
+	_add_button(row, "Madera", _gather_wood)
+	_add_button(row, "Sembrar", _plant_crops)
+	_add_button(row, "Construir", _toggle_build_mode)
 	_add_button(row, "Pausar", _toggle_pause)
 
 	message_label = Label.new()
@@ -313,7 +344,7 @@ func _build_interface() -> void:
 func _add_button(parent: HBoxContainer, caption: String, callback: Callable) -> void:
 	var button := Button.new()
 	button.text = caption
-	button.custom_minimum_size = Vector2(140, 54)
+	button.custom_minimum_size = Vector2(125, 54)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	parent.add_child(button)
@@ -340,9 +371,10 @@ func _refresh_interface() -> void:
 	]
 	message_label.text = message
 
-	if action_buttons.size() > 7:
-		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer recurso"
-		action_buttons[7].text = "Reanudar" if simulation.paused else "Pausar"
+	if action_buttons.size() > 8:
+		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer"
+		action_buttons[7].text = "Plano: " + String(_get_selected_building()).capitalize() if build_mode else "Construir"
+		action_buttons[8].text = "Reanudar" if simulation.paused else "Pausar"
 
 
 func _on_alert_raised(alert_message: String, severity: int) -> void:
@@ -358,6 +390,7 @@ func _on_alert_raised(alert_message: String, severity: int) -> void:
 func _switch_level() -> void:
 	simulation.switch_level()
 	selected_extraction_index = 0
+	selected_building_index = 0
 	message = "Ahora estás en: %s." % ["Superficie", "Subsuelo", "Profundidad"][simulation.active_level]
 	_refresh_interface()
 	queue_redraw()
@@ -436,6 +469,34 @@ func _gather_wood() -> void:
 		message = "Trabajo de obtención de madera añadido a la cola."
 	else:
 		message = "No se pudo crear el trabajo de madera."
+	_refresh_interface()
+
+
+
+func _get_building_options() -> Array[StringName]:
+	if simulation.active_level == 1:
+		return [&"bed", &"storage", &"workshop"]
+	return [&"storage", &"workshop"]
+
+
+func _get_selected_building() -> StringName:
+	var options := _get_building_options()
+	selected_building_index = clampi(selected_building_index, 0, options.size() - 1)
+	return options[selected_building_index]
+
+
+func _toggle_build_mode() -> void:
+	var options := _get_building_options()
+	if not build_mode:
+		build_mode = true
+		selected_building_index = 0
+		message = "Modo construcción: %s. Toca una celda libre." % String(_get_selected_building())
+	elif selected_building_index < options.size() - 1:
+		selected_building_index += 1
+		message = "Plano seleccionado: %s. Toca una celda libre." % String(_get_selected_building())
+	else:
+		build_mode = false
+		message = "Modo construcción desactivado."
 	_refresh_interface()
 
 
