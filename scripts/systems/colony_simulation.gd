@@ -18,6 +18,7 @@ var ambient_temperature := 18.0
 
 var inventory := ColonyInventory.new()
 var scheduler := ColonyWorkScheduler.new()
+var navigation := ColonyNavigationGrid.new()
 var colonists: Array[DwarfColonist] = []
 var resource_nodes: Dictionary = {}
 var _pending_outputs: Array[Dictionary] = []
@@ -27,15 +28,21 @@ var _last_alert_key := ""
 func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
 	resource_nodes = {
-		&"food": ColonyResourceNode.new(&"cave_garden", &"food", 0, 24, 48, 6, 4.0, 6),
-		&"water": ColonyResourceNode.new(&"underground_spring", &"water", 0, 32, 64, 8, 3.0, 8),
-		&"wood": ColonyResourceNode.new(&"fungal_timber", &"wood", 0, 18, 36, 3, 5.0, 6),
-		&"stone": ColonyResourceNode.new(&"stone_quarry", &"stone", 1, 60, 100, 0, 5.0, 5),
-		&"ore": ColonyResourceNode.new(&"ore_vein", &"ore", 1, 24, 40, 0, 6.0, 3)
+		&"food": ColonyResourceNode.new(&"cave_garden", &"food", 0, Vector2i(8, 0), 24, 48, 6, 4.0, 6),
+		&"water": ColonyResourceNode.new(&"underground_spring", &"water", 0, Vector2i(14, 0), 32, 64, 8, 3.0, 8),
+		&"wood": ColonyResourceNode.new(&"fungal_timber", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
+		&"stone": ColonyResourceNode.new(&"stone_quarry", &"stone", 1, Vector2i(12, 1), 60, 100, 0, 5.0, 5),
+		&"ore": ColonyResourceNode.new(&"ore_vein", &"ore", 1, Vector2i(25, 1), 24, 40, 0, 6.0, 3)
 	}
-	colonists.append(DwarfColonist.new(&"dwarf_001", "Borin", "Recolector"))
-	colonists.append(DwarfColonist.new(&"dwarf_002", "Dora", "Agricultora"))
-	colonists.append(DwarfColonist.new(&"dwarf_003", "Krag", "Minero"))
+	var borin := DwarfColonist.new(&"dwarf_001", "Borin", "Recolector")
+	borin.current_position = Vector2i(7, 0)
+	colonists.append(borin)
+	var dora := DwarfColonist.new(&"dwarf_002", "Dora", "Agricultora")
+	dora.current_position = Vector2i(16, 0)
+	colonists.append(dora)
+	var krag := DwarfColonist.new(&"dwarf_003", "Krag", "Minero")
+	krag.current_position = Vector2i(25, 0)
+	colonists.append(krag)
 
 
 func advance_hour() -> void:
@@ -56,7 +63,7 @@ func advance_hour() -> void:
 		colonist.advance_hour(is_rest_period, ambient_temperature)
 		_satisfy_needs(colonist)
 
-	scheduler.advance_hour(colonists)
+	scheduler.advance_hour(colonists, navigation)
 	_deliver_pending_outputs()
 	time_changed.emit(day, hour)
 	colony_changed.emit()
@@ -93,6 +100,7 @@ func queue_work(work_type: StringName, priority: int = 3) -> bool:
 	scheduler.queue_order(
 		work_type,
 		node.level,
+		node.cell,
 		priority,
 		node.work_hours_per_batch,
 		node.resource,
