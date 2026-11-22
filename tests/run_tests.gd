@@ -7,6 +7,7 @@ func _initialize() -> void:
 
 func _run_tests() -> void:
 	_test_inventory()
+	_test_seeded_world_generation()
 	_test_save_system_backup_recovery()
 	_test_simulation_snapshot_restore()
 	_test_crop_growth_and_harvest()
@@ -37,6 +38,23 @@ func _test_inventory() -> void:
 	assert(inventory.remove_resource(&"food", 6), "No se pudo retirar comida disponible.")
 	assert(not inventory.remove_resource(&"food", 999), "El inventario permitió retirar recursos inexistentes.")
 	assert(inventory.get_total_amount() <= inventory.capacity, "El inventario superó su capacidad.")
+
+
+
+func _test_seeded_world_generation() -> void:
+	var first := ColonyWorldGenerator.new(123456).generate()
+	var repeat := ColonyWorldGenerator.new(123456).generate()
+	var alternate := ColonyWorldGenerator.new(654321).generate()
+	var first_nodes: Dictionary = first["resources"]
+	var repeat_nodes: Dictionary = repeat["resources"]
+	var alternate_nodes: Dictionary = alternate["resources"]
+	assert(first_nodes[&"wood"].cell == repeat_nodes[&"wood"].cell, "La misma semilla no genera el mismo bosque.")
+	assert(first_nodes[&"water"].cell == repeat_nodes[&"water"].cell, "La misma semilla no genera el mismo acuífero.")
+	assert(first_nodes[&"ore"].cell == repeat_nodes[&"ore"].cell, "La misma semilla no genera la misma veta.")
+	assert(first_nodes[&"ore"].cell != alternate_nodes[&"ore"].cell or first_nodes[&"coal"].cell != alternate_nodes[&"coal"].cell, "Semillas distintas no variaron los yacimientos.")
+	assert(first_nodes[&"food"].level == 0 and first_nodes[&"wood"].level == 0, "Los recursos de superficie están mal ubicados.")
+	assert(first_nodes[&"water"].level == 1 and first_nodes[&"clay"].level == 1, "Los recursos del subsuelo están mal ubicados.")
+	assert(first_nodes[&"stone"].level == 2 and first_nodes[&"ore"].level == 2 and first_nodes[&"coal"].level == 2, "Los recursos profundos están mal ubicados.")
 
 
 func _test_resource_node() -> void:
@@ -115,6 +133,7 @@ func _test_simulation_snapshot_restore() -> void:
 	var restored := ColonySimulation.new()
 	assert(restored.restore_snapshot(snapshot), "No se pudo restaurar el estado completo de la colonia.")
 	assert(restored.day == 9 and restored.hour == 14, "El reloj no se restauró.")
+	assert(restored.world_seed == original.world_seed, "La semilla del mundo no se restauró.")
 	assert(restored.active_level == 2, "No se restauró la capa activa.")
 	assert(restored.inventory.get_amount(&"ore") == original.inventory.get_amount(&"ore"), "El inventario no se restauró.")
 	assert(restored.navigation.is_walkable(Vector2i(20, 2)), "El terreno excavado no se conservó.")
