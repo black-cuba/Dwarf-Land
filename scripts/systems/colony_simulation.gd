@@ -203,6 +203,33 @@ func queue_construction(structure_type: StringName, cell: Vector2i, priority: in
 	return true
 
 
+
+func has_workshop() -> bool:
+	for structure in structures:
+		if StringName(structure.get("type", "")) == &"workshop":
+			return true
+	return false
+
+
+func queue_crafting(recipe: StringName, priority: int = 3) -> bool:
+	if not has_workshop() or recipe != &"tool":
+		return false
+	var workshop_cell := Vector2i(-1, -1)
+	for structure in structures:
+		if StringName(structure.get("type", "")) == &"workshop":
+			workshop_cell = structure.get("cell", Vector2i(-1, -1))
+			break
+	if workshop_cell.x < 0:
+		return false
+	if not inventory.has_amount(&"wood", 2) or not inventory.has_amount(&"ore", 1):
+		return false
+	inventory.remove_resource(&"wood", 2)
+	inventory.remove_resource(&"ore", 1)
+	scheduler.queue_order(&"craft", workshop_cell.y, workshop_cell, priority, 3.0, &"tools", 1)
+	colony_changed.emit()
+	return true
+
+
 func get_bed_cells() -> Array[Vector2i]:
 	var result: Array[Vector2i] = [Vector2i(7, 1), Vector2i(8, 1), Vector2i(9, 1)]
 	for structure in structures:
