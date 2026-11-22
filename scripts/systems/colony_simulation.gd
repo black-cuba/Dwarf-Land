@@ -110,6 +110,10 @@ func queue_work(work_type: StringName, priority: int = 3) -> bool:
 func queue_excavation(cell: Vector2i, priority: int = 3) -> bool:
 	if cell.y != active_level or not navigation.can_dig(cell):
 		return false
+	for order in scheduler.orders:
+		if order.work_type == &"dig" and order.target_cell == cell:
+			if order.state == ColonyWorkOrder.State.AVAILABLE or order.state == ColonyWorkOrder.State.IN_PROGRESS:
+				return false
 	scheduler.queue_order(&"dig", cell.y, cell, priority, 3.0, &"", 0)
 	colony_changed.emit()
 	return true
