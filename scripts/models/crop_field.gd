@@ -6,6 +6,7 @@ const HARVEST_PER_CYCLE := 24
 const MAX_MOISTURE := 100
 
 var cell := Vector2i(11, 0)
+var map_cell := Vector3i(11, ColonyNavigationGrid.ELEVATOR_ROW, 0)
 var is_planted := true
 var is_ready := true
 var growth_days := DAYS_TO_MATURE
@@ -56,6 +57,7 @@ func plant() -> bool:
 func get_snapshot() -> Dictionary:
 	return {
 		"cell": cell,
+		"map_cell": map_cell,
 		"is_planted": is_planted,
 		"is_ready": is_ready,
 		"growth_days": growth_days,
@@ -69,6 +71,12 @@ func restore(snapshot: Dictionary) -> bool:
 	if typeof(restored_cell) != TYPE_VECTOR2I:
 		return false
 	cell = restored_cell
+	var restored_map_cell: Variant = snapshot.get("map_cell", Vector3i(cell.x, ColonyNavigationGrid.ELEVATOR_ROW, 0))
+	if typeof(restored_map_cell) != TYPE_VECTOR3I:
+		return false
+	if not ColonyNavigationGrid.new().is_map_cell_inside(restored_map_cell):
+		return false
+	map_cell = restored_map_cell
 	is_planted = bool(snapshot.get("is_planted", false))
 	is_ready = bool(snapshot.get("is_ready", false))
 	growth_days = clampi(int(snapshot.get("growth_days", 0)), 0, DAYS_TO_MATURE)
