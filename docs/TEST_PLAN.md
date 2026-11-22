@@ -18,6 +18,7 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] Las vetas minerales y canteras se agotan y no se regeneran.
 - [ ] No se puede reservar más recurso del que una fuente contiene.
 - [x] Las fuentes de cada recurso están ubicadas en el nivel correcto y tienen coordenadas de mapa 2D.
+- [x] Los hongos subterráneos pueden recolectarse y transportarse sin consumir herramientas de minería.
 
 ## Inventario y producción
 
@@ -25,6 +26,7 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] El inventario no supera su capacidad.
 - [ ] Las salidas de producción que no caben quedan pendientes y no se pierden.
 - [x] Los colonos recogen recursos, los transportan al almacén y conservan la carga durante el guardado.
+- [x] El taller fabrica herramientas y medicina; la medicina trata enfermedad y lesión.
 - [ ] Cada orden requiere el tiempo de trabajo definido.
 - [ ] La prioridad más alta se asigna antes que las prioridades inferiores.
 - [ ] Cada profesión aplica su bonificación solo a trabajos compatibles.
