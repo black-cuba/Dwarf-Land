@@ -31,11 +31,29 @@ func advance_hour(is_rest_period: bool, ambient_temperature: float) -> void:
 
 	if is_rest_period:
 		fatigue = maxf(0.0, fatigue - 7.0)
+	elif fatigue >= 85.0:
+		fatigue = maxf(0.0, fatigue - 4.0)
 	else:
 		fatigue = minf(NEED_MAX, fatigue + 1.0)
 
 	_update_temperature(ambient_temperature)
 	_update_health()
+
+
+func get_work_speed(work_type: StringName) -> float:
+	match profession:
+		"Recolector":
+			if work_type == &"food" or work_type == &"water" or work_type == &"wood":
+				return 1.25
+		"Agricultora":
+			if work_type == &"food":
+				return 1.4
+			if work_type == &"water":
+				return 1.1
+		"Minero":
+			if work_type == &"stone" or work_type == &"ore":
+				return 1.4
+	return 1.0
 
 
 func eat() -> void:
