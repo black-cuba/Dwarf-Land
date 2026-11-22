@@ -470,7 +470,7 @@ func _on_structure_built(cell: Vector2i, structure_type: StringName) -> void:
 	})
 	if structure_type == &"storage":
 		inventory.capacity += 60
-	elif structure_type != &"bed":
+	if structure_type != &"bed":
 		navigation.set_blocked(cell, true)
 	colony_changed.emit()
 
