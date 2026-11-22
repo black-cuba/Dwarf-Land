@@ -84,7 +84,7 @@ func get_map_render_position() -> Vector2:
 
 func sync_map_position_from_legacy() -> void:
 	map_position = Vector3i(current_position.x, ColonyNavigationGrid.ELEVATOR_ROW, current_position.y)
-	map_visual_position = Vector3(map_position)
+	map_visual_position = Vector2(map_position.x, map_position.y)
 	map_movement_target = map_position
 	is_map_moving = false
 
