@@ -5,7 +5,7 @@
 - `scripts/models/resource_node.gd`: fuente finita o renovable, capa, ubicación y reserva.
 - `scripts/models/work_order.gd`: prioridad, destino, progreso y estado.
 - `scripts/systems/inventory.gd`: inventario y capacidad.
-- `scripts/systems/save_system.gd`: guardado JSON local versionado, escritura temporal y recuperación desde copia de seguridad.
+- `scripts/systems/save_system.gd`: guardado JSON local versionado, escritura temporal y recuperación desde copia de seguridad.\n- `scripts/models/crop_field.gd`: ciclo de cultivo, humedad, maduración, cosecha y resiembra.
 - `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor, obstáculos, bloques excavables y celdas excavadas.
 - `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
 - `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
@@ -26,7 +26,7 @@
 - La excavación se ejecuta desde una celda adyacente y abre el paso al completar el trabajo.
 - Los trabajos consumen tiempo y entregan producción al inventario.
 - El inventario limita la entrada; el excedente permanece pendiente.
-- La distribución inicial respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
+- La distribución inicial respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.\n- Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas.
 
 ## Validación
 - GitHub Actions importa el proyecto y ejecuta pruebas de lógica.
