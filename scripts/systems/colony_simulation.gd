@@ -185,6 +185,8 @@ func queue_map_construction(structure_type: StringName, cell: Vector3i, priority
 		return false
 	if cell == crop_field.map_cell:
 		return false
+	if get_bed_map_cells().has(cell):
+		return false
 	for node in resource_nodes.values():
 		var node_cell: Vector3i = node.map_cell
 		if node_cell == cell:
