@@ -37,9 +37,11 @@ La distribución representa una regla ecológica/geológica, no una garantía de
 - Código, arte, música y contenido originales; no se copia material protegido de otros juegos.
 
 ## Estado de implementación
+La base funcional incluye necesidades, inventario, fuentes limitadas, trabajos con prioridades, especializaciones y navegación de tres capas. La primera versión de excavación distingue bloques de roca excavables de celdas transitables; los colonos pueden recibir órdenes de excavación desde la interfaz y abren el paso al completar el trabajo.
+
 La primera base funcional incluye necesidades, inventario, fuentes limitadas, trabajos con prioridades, especializaciones, navegación de tres capas y pruebas automáticas. La distribución inicial ya separa cultivos y árboles en superficie, agua y arcilla en el subsuelo, y roca, carbón y minerales en profundidad.
 
-Todavía faltan movimiento visual continuo, excavación real del terreno, generación de mapas, cultivos completos, construcción, habitaciones, herramientas, transporte, eventos, guardado y los tres modos.
+Todavía faltan movimiento visual continuo, excavación de galerías extensas y terreno generado por mapa, cultivos completos, construcción, habitaciones, herramientas, transporte, eventos, guardado y los tres modos.
 
 ## Próximos hitos
 1. Movimiento visual continuo y excavación de terreno.
