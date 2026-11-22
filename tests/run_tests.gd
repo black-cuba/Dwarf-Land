@@ -408,12 +408,16 @@ func _test_workshop_tool_crafting() -> void:
 	for colonist in simulation.colonists:
 		colonist.current_position = Vector2i(25, 1)
 		colonist.current_level = 1
+		colonist.sync_map_position_from_legacy()
 	assert(simulation.add_resource(&"ore", 1) == 1, "No se pudo añadir el mineral de prueba.")
 	var tools_before := simulation.inventory.get_amount(&"tools")
 	assert(simulation.queue_crafting(&"tool"), "No se pudo encolar la fabricación de una herramienta.")
-	for _hour in range(4):
+	for _hour in range(18):
 		simulation.advance_hour()
-	assert(simulation.inventory.get_amount(&"tools") == tools_before + 1, "El taller no produjo la herramienta.")
+		simulation.update_frame(2.0)
+		if simulation.inventory.get_amount(&"tools") == tools_before + 1:
+			break
+	assert(simulation.inventory.get_amount(&"tools") == tools_before + 1, "El taller no fabricó y entregó la herramienta al almacén.")
 
 
 
