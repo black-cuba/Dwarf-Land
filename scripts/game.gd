@@ -166,9 +166,12 @@ func _draw_resource_nodes() -> void:
 
 		match resource:
 			&"food":
-				draw_rect(Rect2(px - 3, floor_y - 24, 6, 22), Color("#d5d0a0"))
-				draw_circle(Vector2(px, floor_y - 27), 9, Color("#c47b9b"))
-				draw_circle(Vector2(px - 13, floor_y - 20), 7, Color("#d48eaa"))
+				if simulation.crop_field.is_planted:
+					draw_rect(Rect2(px - 3, floor_y - 24, 6, 22), Color("#d5d0a0"))
+					draw_circle(Vector2(px, floor_y - 27), 9, Color("#c47b9b"))
+					draw_circle(Vector2(px - 13, floor_y - 20), 7, Color("#d48eaa"))
+				else:
+					draw_rect(Rect2(px - 18, floor_y - 5, 36, 5), Color("#79573b"))
 			&"water":
 				draw_circle(Vector2(px, floor_y - 10), 20, Color("#397eaa"))
 				draw_arc(Vector2(px, floor_y - 10), 20, 0.0, TAU, 32, Color("#8ed4ed"), 3.0)
@@ -332,8 +335,8 @@ func _refresh_interface() -> void:
 	]
 	message_label.text = message
 
-	if action_buttons.size() > 5:
-		action_buttons[5].text = "Reanudar" if simulation.paused else "Pausar"
+	if action_buttons.size() > 6:
+		action_buttons[6].text = "Reanudar" if simulation.paused else "Pausar"
 
 
 func _on_alert_raised(alert_message: String, severity: int) -> void:
