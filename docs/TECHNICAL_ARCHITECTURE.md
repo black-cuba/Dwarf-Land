@@ -2,44 +2,58 @@
 
 ## Objetivo
 
-Mantener la simulación separada de la interfaz. Las reglas de supervivencia deben poder probarse sin cargar escenas ni depender de controles gráficos.
+Separar las reglas de simulación de la interfaz. Los sistemas principales deben poder probarse sin cargar escenas ni depender de controles gráficos.
 
 ## Estructura por dominios
 
-- `scripts/models/colonist.gd`: estado individual, necesidades, salud y condición de cada colono.
-- `scripts/systems/inventory.gd`: cantidades, capacidad de almacenamiento y operaciones seguras del inventario.
-- `scripts/systems/colony_simulation.gd`: reloj de colonia, avance horario, satisfacción de necesidades y alertas.\n- `scripts/models/work_order.gd`: orden de trabajo con prioridad, progreso y estado.
-- `scripts/models/resource_node.gd`: fuente de recursos finita o renovable con reserva y regeneración.\n- `scripts/systems/navigation_grid.gd`: grid navigation with one elevator connection and blocked-cell support.\n- `scripts/systems/work_scheduler.gd`: asignación de trabajos, prioridad, bonificación profesional y bloqueo por necesidades críticas.
-- `scenes/`: presentación visual y navegación.
-- `docs/`: diseño, arquitectura y decisiones técnicas.
+- `scripts/models/colonist.gd`: estado individual, necesidades, salud, temperatura corporal, profesión y posición.
+- `scripts/models/resource_node.gd`: fuente de recursos finita o renovable, ubicación, reserva y regeneración.
+- `scripts/models/work_order.gd`: orden de trabajo, prioridad, destino, progreso y estado.
+- `scripts/systems/inventory.gd`: cantidades, capacidad de almacenamiento y operaciones seguras.
+- `scripts/systems/navigation_grid.gd`: cuadrícula de dos niveles, celdas bloqueadas y búsqueda de rutas.
+- `scripts/systems/work_scheduler.gd`: asignación por prioridad y especialidad, movimiento y ejecución de trabajos.
+- `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, inventario, producción y alertas.
+- `scenes/`: presentación visual y navegación de interfaz.
+- `tests/`: pruebas automatizadas de reglas de juego.
+- `docs/`: diseño, arquitectura y criterios de aceptación.
 
-## Reglas de simulación iniciales
+## Reglas de simulación implementadas
 
 - El reloj avanza una hora por paso de simulación.
-- La colonia tiene exactamente dos niveles; el índice interno válido es 0 o 1.
-- Hambre, sed y fatiga se calculan por colono.
-- El consumo de agua y comida solo ocurre si existe inventario disponible.
-- La capacidad del almacén limita la entrada de recursos.
-- Las órdenes reservan recursos de una fuente física; no generan recursos ilimitados.
-- Las fuentes renovables recuperan existencias al comenzar un nuevo día; los depósitos minerales no se regeneran.
-- Los colonos recorren una cuadrícula horizontal y solo cambian de nivel mediante el ascensor.\n- Los colonos suspenden el trabajo cuando hambre, sed o fatiga alcanzan umbrales críticos.
-- Cada profesión tiene un rendimiento mayor en sus tareas especializadas.
-- La muerte de un colono no elimina su registro histórico.
-- La interfaz no debe modificar directamente las necesidades ni el inventario: solicita acciones al sistema de simulación.
+- Solo existen dos niveles, identificados internamente como 0 y 1.
+- La conexión vertical entre niveles está limitada al ascensor.
+- Los colonos tienen hambre, sed, fatiga, salud y temperatura corporal.
+- La comida y el agua se consumen del inventario; nunca aparecen automáticamente.
+- Las fuentes de comida, agua y madera se regeneran diariamente hasta su capacidad.
+- La cantera y la veta mineral tienen reservas finitas y no se regeneran.
+- Cada orden reserva existencias de una fuente antes de entrar en la cola.
+- Los trabajos consumen tiempo y entregan recursos al completarse.
+- La capacidad del almacén limita la entrada; el excedente producido queda pendiente y no se pierde.
+- La asignación respeta prioridades y favorece al colono con mayor especialización.
+- Los colonos suspenden el trabajo cuando sus necesidades alcanzan umbrales críticos.
+- Los colonos recorren la cuadrícula; el cambio de nivel solo es posible por el ascensor.
 
-## Próximas capas
+## Capas pendientes
 
-1. Trabajos y prioridades autónomas con selección de tareas válidas.
-2. Construcción, habitaciones, camas y capacidad real de almacenamiento.
-3. Cultivos, ciclos de crecimiento, cosecha y producción.
-4. Minería, vetas, herramientas, desgaste y transporte entre niveles.
-5. Temperatura ambiental, aislamiento, enfermedad y accidentes.
-6. Persistencia local versionada y recuperación segura de partidas.
-7. Modos Campaña, Supervivencia y Sandbox.
-8. Pruebas automatizadas de reglas y validación de rendimiento en Android.
+1. Movimiento visual continuo, colisiones, obstáculos y navegación alrededor de instalaciones.
+2. Comportamiento autónomo completo: buscar comida, agua, cama, refugio y atención médica.
+3. Cultivos con siembra, crecimiento, mantenimiento y cosecha.
+4. Construcción funcional, habitaciones, camas, almacenes y talleres.
+5. Minería por vetas, herramientas, desgaste, transporte y fabricación.
+6. Temperatura de habitaciones, aislamiento, enfermedades, accidentes y eventos.
+7. Guardado local versionado, carga y recuperación segura.
+8. Modos Campaña, Supervivencia y Sandbox.
+9. Interfaz móvil completa, arte y audio originales.
+
+## Validación y compilación
+
+- GitHub Actions ejecuta importación del proyecto y pruebas de lógica.
+- La validación automática no exporta APK.
+- No se generará APK durante el desarrollo.
+- La exportación final requerirá que el juego esté completo, validado y autorización expresa.
 
 ## Restricciones
 
-- Sin servicios remotos, anuncios, analítica ni conexión obligatoria.
-- Recursos y arte originales.
-- No exportar APK durante el desarrollo. La exportación final requiere que el juego esté completo, validado y autorización expresa.
+- Sin servidores, anuncios, analítica ni conexión obligatoria.
+- Sin servicios de pago.
+- Código, arte, audio y contenido originales.
