@@ -2,11 +2,11 @@
 
 ## Estructura
 - `scripts/models/colonist.gd`: necesidades, salud, temperatura, profesión, posición lógica y movimiento interpolado.
-- `scripts/models/resource_node.gd`: fuente finita o renovable, capa, ubicación y reserva.
+- `scripts/models/resource_node.gd`: fuente finita o renovable, capa, celda 2D y reserva.
 - `scripts/models/work_order.gd`: prioridad, destino, progreso y estado.
 - `scripts/systems/inventory.gd`: inventario y capacidad.
 - `scripts/systems/save_system.gd`: guardado JSON local versionado, escritura temporal y recuperación desde copia de seguridad.
-- `scripts/models/crop_field.gd`: ciclo de cultivo, humedad, maduración, cosecha y resiembra.
+- `scripts/models/crop_field.gd`: ciclo de cultivo, humedad, celda 2D, maduración, cosecha y resiembra.
 - `scripts/systems/navigation_grid.gd`: navegación heredada por capa y nueva cuadrícula espacial 2D (X/Y + capa Z), con rutas alternativas, ascensor, obstáculos y excavación.
 - `scripts/systems/world_generator.gd`: distribución reproducible de recursos y bloques geológicos excavables para la cuadrícula 2D.
 - `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
@@ -15,7 +15,7 @@
 
 ## Modelo espacial
 
-El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni renderizado 3D. La cuadrícula lógica usa `Vector3i(x, y, capa)` únicamente como una tupla de datos para identificar la capa; las posiciones visuales y el dibujo se proyectan en `Vector2`. El mapa tiene 40 columnas por 12 filas en cada una de las tres capas. El generador crea bloques excavables reproducibles en las capas subterráneas, dejando abierto el corredor de acceso y la columna del ascensor; el estado de esos bloques se conserva en el guardado local. La navegación admite cuatro direcciones cardinales, obstáculos y rutas alternativas mediante búsqueda en anchura. El ascensor conecta las tres capas únicamente en su celda de acceso. La cuadrícula 2D es ahora la referencia para movimiento, excavación, recursos, cultivos y construcción. Los edificios ocupan celdas sólidas y esa ocupación se restaura desde el guardado. Se mantiene una API `Vector2i` de compatibilidad para pruebas y operaciones heredadas que se está retirando gradualmente.
+El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni renderizado 3D. La cuadrícula lógica usa `Vector3i(x, y, capa)` únicamente como una tupla de datos para identificar la capa; las posiciones visuales y el dibujo se proyectan en `Vector2`. El mapa tiene 40 columnas por 12 filas en cada una de las tres capas, representadas simultáneamente en la vista lateral. El generador crea cámaras y bloques geológicos reproducibles en las capas subterráneas, dejando abierto el corredor de acceso y la columna del ascensor; el estado de esos bloques se conserva en el guardado local. La navegación admite cuatro direcciones cardinales, obstáculos y rutas alternativas mediante búsqueda en anchura. El ascensor conecta las tres capas únicamente en su celda de acceso. La cuadrícula 2D es ahora la referencia para movimiento, excavación, recursos, cultivos y construcción. Los edificios ocupan celdas sólidas y esa ocupación se restaura desde el guardado. Se mantiene una API `Vector2i` de compatibilidad para pruebas y operaciones heredadas que se está retirando gradualmente.
 
 - Capa 0: superficie (árboles, suelo fértil y cultivos).
 - Capa 1: subsuelo (tierra, raíces, arcilla y agua subterránea).
