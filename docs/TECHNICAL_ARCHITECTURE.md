@@ -31,7 +31,7 @@ El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni ren
 - La excavación se ejecuta desde una celda adyacente y abre el paso al completar el trabajo.
 - Los trabajos consumen tiempo; los colonos recogen la producción y la transportan físicamente al punto de almacenamiento.
 - El inventario recibe recursos al completar la entrega; el excedente permanece pendiente si se alcanza la capacidad.
-- Las cargas de los colonos y sus órdenes de entrega se conservan al guardar y restaurar la partida.
+- Las cargas de los colonos, las órdenes de entrega y las reservas de materiales/recursos se conservan al guardar y restaurar la partida. Si una orden se cancela, los materiales, semillas, herramientas y unidades reservadas se devuelven.
 - La distribución respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
 - Una semilla guardada genera variaciones reproducibles en las posiciones de varios recursos; algunos obstáculos y el depósito principal de piedra aún son fijos.
 - Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas. Los hongos subterráneos se regeneran y se procesan en el taller para fabricar medicina; esta reduce enfermedad y lesión.
