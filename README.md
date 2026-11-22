@@ -6,7 +6,7 @@
 
 ## Estado del proyecto
 
-**Fase:** desarrollo del núcleo de simulación  
+**Fase:** núcleo de simulación y trabajos autónomos en desarrollo  
 **Versión:** 0.1.0  
 **Motor:** Godot 4.7.2 estable  
 **Lenguaje:** GDScript  
@@ -17,7 +17,7 @@
 
 - Exactamente dos niveles subterráneos jugables.
 - Vista 2D lateral.
-- Supervivencia basada en necesidades y consumo de recursos.
+- Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
 - Colonos con actividad autónoma y órdenes del jugador.
 - Construcción, extracción y producción.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
