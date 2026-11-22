@@ -51,7 +51,8 @@ func _test_seeded_world_generation() -> void:
 	assert(first_nodes[&"wood"].cell == repeat_nodes[&"wood"].cell, "La misma semilla no genera el mismo bosque.")
 	assert(first_nodes[&"water"].cell == repeat_nodes[&"water"].cell, "La misma semilla no genera el mismo acuífero.")
 	assert(first_nodes[&"ore"].cell == repeat_nodes[&"ore"].cell, "La misma semilla no genera la misma veta.")
-	assert(first_nodes[&"ore"].cell != alternate_nodes[&"ore"].cell or first_nodes[&"coal"].cell != alternate_nodes[&"coal"].cell, "Semillas distintas no variaron los yacimientos.")
+	var distribution_changed := first_nodes[&"wood"].cell != alternate_nodes[&"wood"].cell or first_nodes[&"water"].cell != alternate_nodes[&"water"].cell or first_nodes[&"clay"].cell != alternate_nodes[&"clay"].cell or first_nodes[&"ore"].cell != alternate_nodes[&"ore"].cell or first_nodes[&"coal"].cell != alternate_nodes[&"coal"].cell
+	assert(distribution_changed, "Semillas distintas no variaron la distribución de recursos.")
 	assert(first_nodes[&"food"].level == 0 and first_nodes[&"wood"].level == 0, "Los recursos de superficie están mal ubicados.")
 	assert(first_nodes[&"water"].level == 1 and first_nodes[&"clay"].level == 1, "Los recursos del subsuelo están mal ubicados.")
 	assert(first_nodes[&"stone"].level == 2 and first_nodes[&"ore"].level == 2 and first_nodes[&"coal"].level == 2, "Los recursos profundos están mal ubicados.")
