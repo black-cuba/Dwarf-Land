@@ -87,6 +87,17 @@ func queue_map_delivery(colonist_id: StringName, storage_cell: Vector3i, resourc
 	return order_id
 
 
+func queue_map_crafting(workshop_cell: Vector3i, priority: int, output_resource: StringName, output_amount: int, required_work: float) -> StringName:
+	if not is_map_cell_inside(workshop_cell):
+		return &""
+	var order_id := queue_order(&"map_craft", workshop_cell.z, Vector2i(workshop_cell.x, workshop_cell.z), priority, required_work, output_resource, output_amount)
+	for order in orders:
+		if order.id == order_id:
+			order.target_map_cell = workshop_cell
+			break
+	return order_id
+
+
 func is_map_cell_inside(cell: Vector3i) -> bool:
 	return cell.x >= 0 and cell.x < ColonyNavigationGrid.MAP_WIDTH and cell.y >= 0 and cell.y < ColonyNavigationGrid.MAP_HEIGHT and cell.z >= 0 and cell.z < ColonyNavigationGrid.LEVEL_COUNT
 
@@ -171,6 +182,9 @@ func _progress_order(
 		return
 	if order.work_type == &"map_delivery":
 		_progress_map_delivery_order(colonist, order, navigation)
+		return
+	if order.work_type == &"map_craft":
+		_progress_map_craft_order(colonist, order, navigation)
 		return
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
@@ -281,6 +295,30 @@ func _progress_map_delivery_order(
 		_release_assignment(colonist.id)
 
 
+
+func _progress_map_craft_order(
+	colonist: DwarfColonist,
+	order: ColonyWorkOrder,
+	navigation: ColonyNavigationGrid
+) -> void:
+	var work_cell := navigation.get_map_adjacent_cell(colonist.map_position, order.target_map_cell)
+	if work_cell.x < 0:
+		order.state = ColonyWorkOrder.State.CANCELLED
+		task_cancelled.emit(order.id)
+		_release_assignment(colonist.id)
+		return
+	if colonist.map_position != work_cell:
+		var path := navigation.find_map_path(colonist.map_position, work_cell)
+		if path.is_empty():
+			_release_assignment(colonist.id)
+			return
+		colonist.start_map_movement(path[mini(4, path.size()) - 1])
+		return
+	if order.advance(colonist.get_work_speed(&"craft")):
+		task_completed.emit(order.id, order.output_resource, order.output_amount)
+		_release_assignment(colonist.id)
+
+
 func _assign_available_orders(
 	colonists: Array[DwarfColonist],
 	navigation: ColonyNavigationGrid
@@ -313,7 +351,7 @@ func _assign_available_orders(
 				continue
 
 			var path_distance := 0
-			if order.work_type == &"map_dig" or order.work_type == &"map_build" or order.work_type == &"map_delivery":
+			if order.work_type == &"map_dig" or order.work_type == &"map_build" or order.work_type == &"map_delivery" or order.work_type == &"map_craft":
 				var map_work_target := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell) if order.work_type == &"map_dig" else (order.target_map_cell if order.work_type == &"map_delivery" and navigation.is_map_walkable(order.target_map_cell) else navigation.get_map_adjacent_cell(colonist.map_position, order.target_map_cell))
 				if map_work_target.x < 0:
 					continue
