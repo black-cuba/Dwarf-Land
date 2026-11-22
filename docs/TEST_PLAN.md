@@ -44,7 +44,8 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [x] Las camas usan posiciones de la cuadrícula 2D y admiten asignación independiente.
 - [ ] Un colono tarda tiempo en desplazarse entre niveles.
 - [ ] Las celdas bloqueadas no pueden atravesarse.
-- [ ] Los colonos se muestran en el nivel y posición donde se encuentran.
+- [ ] Los colonos se muestran en la capa y posición 2D donde se encuentran.
+- [x] Las tres capas se muestran simultáneamente y el toque selecciona la capa/celda correcta.
 - [ ] Un colono fallecido no continúa trabajando ni consumiendo recursos.
 
 ## Persistencia y Android
