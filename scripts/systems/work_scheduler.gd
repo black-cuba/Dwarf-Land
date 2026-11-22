@@ -68,6 +68,8 @@ func _progress_order(
 ) -> void:
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
+		if order.work_type == &"dig":
+			order.state = ColonyWorkOrder.State.CANCELLED
 		_release_assignment(colonist.id)
 		return
 
