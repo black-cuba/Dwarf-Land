@@ -41,6 +41,7 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] El ascensor conecta las tres capas y no permite atravesar roca sin excavar.
 - [x] Las órdenes de excavación 2D abren la celda seleccionada al completarse.
 - [x] La construcción 2D ocupa una celda, impide el paso y conserva la colisión al restaurar la partida.
+- [x] Las camas construidas permanecen accesibles y se incorporan a la asignación nocturna.
 - [x] Las camas usan posiciones de la cuadrícula 2D y admiten asignación independiente.
 - [ ] Un colono tarda tiempo en desplazarse entre niveles.
 - [ ] Las celdas bloqueadas no pueden atravesarse.
