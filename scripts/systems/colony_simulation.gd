@@ -23,6 +23,7 @@ var crop_field := ColonyCropField.new()
 var navigation := ColonyNavigationGrid.new()
 var colonists: Array[DwarfColonist] = []
 var resource_nodes: Dictionary = {}
+var structures: Array[Dictionary] = []
 var _pending_outputs: Array[Dictionary] = []
 var _last_alert_key := ""
 var _bed_assignments: Dictionary = {}
@@ -32,6 +33,7 @@ func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
 	scheduler.terrain_excavated.connect(_on_terrain_excavated)
 	scheduler.crop_planted.connect(_on_crop_planted)
+	scheduler.structure_built.connect(_on_structure_built)
 	# Initial geological obstacles. These cells must be excavated before passage.
 	for cell in [Vector2i(5, 1), Vector2i(6, 1), Vector2i(20, 2), Vector2i(21, 2)]:
 		navigation.set_diggable(cell)
@@ -154,6 +156,56 @@ func queue_planting(priority: int = 3) -> bool:
 	return true
 
 
+
+func queue_construction(structure_type: StringName, cell: Vector2i, priority: int = 3) -> bool:
+	if cell.y != active_level or not navigation.is_walkable(cell):
+		return false
+	var wood_cost := 0
+	var stone_cost := 0
+	var required_work := 1.0
+	match structure_type:
+		&"bed":
+			wood_cost = 3
+			required_work = 2.0
+			if cell.y != 1:
+				return false
+		&"storage":
+			wood_cost = 8
+			stone_cost = 4
+			required_work = 4.0
+		&"workshop":
+			wood_cost = 6
+			stone_cost = 6
+			required_work = 5.0
+		_:
+			return false
+
+	for structure in structures:
+		if structure.get("cell", Vector2i(-1, -1)) == cell:
+			return false
+	for order in scheduler.orders:
+		if order.work_type == &"build" and order.target_cell == cell:
+			if order.state == ColonyWorkOrder.State.AVAILABLE or order.state == ColonyWorkOrder.State.IN_PROGRESS:
+				return false
+	if not inventory.has_amount(&"wood", wood_cost) or not inventory.has_amount(&"stone", stone_cost):
+		return false
+	inventory.remove_resource(&"wood", wood_cost)
+	inventory.remove_resource(&"stone", stone_cost)
+	scheduler.queue_order(&"build", cell.y, cell, priority, required_work, structure_type, 0)
+	colony_changed.emit()
+	return true
+
+
+func get_bed_cells() -> Array[Vector2i]:
+	var result: Array[Vector2i] = [Vector2i(7, 1), Vector2i(8, 1), Vector2i(9, 1)]
+	for structure in structures:
+		if StringName(structure.get("type", "")) == &"bed":
+			var cell: Vector2i = structure.get("cell", Vector2i(-1, -1))
+			if not result.has(cell):
+				result.append(cell)
+	return result
+
+
 func get_resource_nodes_snapshot() -> Dictionary:
 	var result: Dictionary = {}
 	for resource in resource_nodes:
@@ -184,6 +236,7 @@ func get_snapshot() -> Dictionary:
 		"inventory": {"capacity": inventory.capacity, "amounts": inventory.get_snapshot()},
 		"resource_nodes": get_resource_nodes_snapshot(),
 		"crop_field": crop_field.get_snapshot(),
+		"structures": structures.duplicate(true),
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
 		"pending_outputs": _pending_outputs.duplicate(true),
@@ -263,6 +316,18 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		node.available_units = clampi(int(resource_data[key].get("available_units", node.available_units)), 0, node.maximum_units)
 
 	navigation.clear_terrain()
+	structures.clear()
+	var structure_data: Variant = snapshot.get("structures", [])
+	if typeof(structure_data) != TYPE_ARRAY:
+		return false
+	for item in structure_data:
+		if typeof(item) != TYPE_DICTIONARY or typeof(item.get("cell")) != TYPE_VECTOR2I:
+			return false
+		var restored_structure := item.duplicate(true)
+		structures.append(restored_structure)
+		if StringName(restored_structure.get("type", "")) != &"bed":
+			navigation.set_blocked(restored_structure["cell"], true)
+
 	var terrain_data: Variant = snapshot.get("diggable_cells", [])
 	if typeof(terrain_data) != TYPE_ARRAY:
 		return false
@@ -329,7 +394,7 @@ func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
 
 
 func _assign_bed(colonist: DwarfColonist) -> void:
-	var beds: Array[Vector2i] = [Vector2i(7, 1), Vector2i(8, 1), Vector2i(9, 1)]
+	var beds := get_bed_cells()
 	var occupied: Array = _bed_assignments.values()
 	var best_bed := Vector2i(-1, -1)
 	var best_distance := 2147483647
@@ -391,6 +456,22 @@ func _on_terrain_excavated(_cell: Vector2i) -> void:
 
 func _on_crop_planted(_cell: Vector2i) -> void:
 	crop_field.plant()
+	colony_changed.emit()
+
+
+
+func _on_structure_built(cell: Vector2i, structure_type: StringName) -> void:
+	var structure_id := "structure_%04d" % (structures.size() + 1)
+	structures.append({
+		"id": structure_id,
+		"type": String(structure_type),
+		"cell": cell,
+		"level": cell.y
+	})
+	if structure_type == &"storage":
+		inventory.capacity += 60
+	elif structure_type != &"bed":
+		navigation.set_blocked(cell, true)
 	colony_changed.emit()
 
 
