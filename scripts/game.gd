@@ -29,7 +29,7 @@ func _process(delta: float) -> void:
 		return
 
 	tick_timer += delta
-	if tick_timer >= TICK_SECONDS:
+	while tick_timer >= TICK_SECONDS:
 		tick_timer -= TICK_SECONDS
 		simulation.advance_hour()
 		queue_redraw()
@@ -97,8 +97,11 @@ func _draw_colonists() -> void:
 		if not colonist.alive:
 			continue
 
+		var colonist_floor_y := 330.0 if colonist.current_level == 0 else 570.0
+		if colonist.current_level != simulation.active_level:
+			continue
 		var px := worker_positions[i % worker_positions.size()]
-		var py := floor_y - 24.0
+		var py := colonist_floor_y - 24.0
 		draw_circle(Vector2(px, py - 22), 13, Color("#d9b58b"))
 		draw_rect(Rect2(px - 12, py - 12, 24, 27), body_colors[i % body_colors.size()])
 		draw_rect(Rect2(px - 10, py + 13, 8, 12), Color("#403b3a"))
@@ -150,7 +153,7 @@ func _build_interface() -> void:
 	_add_button(row, "Recolectar comida", _gather_food)
 	_add_button(row, "Recoger agua", _gather_water)
 	_add_button(row, "Extraer piedra", _mine_stone)
-	_add_button(row, "Descansar", _rest_colonists)
+	_add_button(row, "Cortar madera", _gather_wood)
 	_add_button(row, "Pausar", _toggle_pause)
 
 	message_label = Label.new()
@@ -180,10 +183,11 @@ func _refresh_interface() -> void:
 	var wood := simulation.inventory.get_amount(&"wood")
 	var stone := simulation.inventory.get_amount(&"stone")
 	var ore := simulation.inventory.get_amount(&"ore")
+	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
 	title_label.text = "DWARF LAND     ·     DÍA %d     ·     %02d:00" % [simulation.day, simulation.hour]
-	status_label.text = "Comida: %d   Agua: %d   Madera: %d   Piedra: %d   Mineral: %d   |   Colonos: %d" % [
-		food, water, wood, stone, ore, simulation.get_living_colonist_count()
+	status_label.text = "Comida: %d   Agua: %d   Madera: %d   Piedra: %d   Mineral: %d   |   Colonos: %d   Trabajos: %d" % [
+		food, water, wood, stone, ore, simulation.get_living_colonist_count(), active_orders
 	]
 	message_label.text = message
 
@@ -247,10 +251,16 @@ func _mine_stone() -> void:
 	_refresh_interface()
 
 
-func _rest_colonists() -> void:
-	for colonist in simulation.colonists:
-		colonist.rest(2.0)
-	message = "Los colonos han recuperado parte de su energía."
+func _gather_wood() -> void:
+	if simulation.active_level != 0:
+		message = "La tala y preparación de madera se gestiona en el nivel 1."
+		_refresh_interface()
+		return
+
+	if simulation.queue_work(&"wood", 3):
+		message = "Trabajo de obtención de madera añadido a la cola."
+	else:
+		message = "No se pudo crear el trabajo de madera."
 	_refresh_interface()
 
 
