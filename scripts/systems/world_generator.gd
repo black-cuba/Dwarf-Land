@@ -13,7 +13,7 @@ func _init(p_world_seed: int) -> void:
 func generate() -> Dictionary:
 	var wood_x := random.randi_range(20, 30)
 	var water_x := random.randi_range(18, 24)
-	var clay_x := random.randi_range(8, 11)
+	var clay_x := random.randi_range(10, 11)
 	var ore_x := random.randi_range(22, 27)
 	var coal_x := random.randi_range(28, 33)
 
