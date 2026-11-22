@@ -16,6 +16,7 @@ func _run_tests() -> void:
 	_test_storage_construction_and_restore()
 	_test_workshop_tool_crafting()
 	_test_mining_tool_durability()
+	_test_game_modes()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -276,6 +277,31 @@ func _test_mining_tool_durability() -> void:
 	var stone_before := stone_node.available_units
 	assert(not no_tools.queue_work(&"stone"), "Se permitió minar sin herramientas.")
 	assert(stone_node.available_units == stone_before, "La fuente perdió recursos al rechazar una orden sin herramientas.")
+
+
+
+func _test_game_modes() -> void:
+	var simulation := ColonySimulation.new()
+	assert(simulation.game_mode == &"survival", "El modo inicial no es Supervivencia.")
+	var colonist: DwarfColonist = simulation.colonists[0]
+	colonist.hunger = 25.0
+	colonist.thirst = 30.0
+	colonist.fatigue = 40.0
+	assert(simulation.set_game_mode(&"sandbox"), "No se pudo activar Sandbox.")
+	simulation.advance_hour()
+	assert(is_equal_approx(colonist.hunger, 25.0) and is_equal_approx(colonist.thirst, 30.0), "Sandbox alteró las necesidades.")
+	assert(is_equal_approx(colonist.fatigue, 40.0), "Sandbox alteró la fatiga.")
+	assert(not simulation.set_game_mode(&"invalid"), "Se aceptó un modo inexistente.")
+
+	assert(simulation.set_game_mode(&"campaign"), "No se pudo activar Campaña.")
+	assert(not simulation.get_campaign_progress().complete, "La campaña aparece completada sin objetivos.")
+	simulation.day = 10
+	simulation.structures.append({"id": "test_storage", "type": "storage", "cell": Vector2i(30, 1), "level": 1})
+	simulation.structures.append({"id": "test_workshop", "type": "workshop", "cell": Vector2i(31, 1), "level": 1})
+	assert(simulation.get_campaign_progress().complete, "Los objetivos de campaña no se reconocieron.")
+	var restored := ColonySimulation.new()
+	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se pudo restaurar el modo de juego.")
+	assert(restored.game_mode == &"campaign", "El modo de juego no se guardó.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
