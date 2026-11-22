@@ -11,6 +11,7 @@ func _run_tests() -> void:
 	_test_simulation_snapshot_restore()
 	_test_crop_growth_and_harvest()
 	_test_simulation_planting_queue()
+	_test_autonomous_bed_assignment()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -152,6 +153,22 @@ func _test_simulation_planting_queue() -> void:
 	assert(simulation.inventory.get_amount(&"water") == water_before - 1, "El cultivo en crecimiento no consumió agua disponible.")
 
 
+
+func _test_autonomous_bed_assignment() -> void:
+	var simulation := ColonySimulation.new()
+	var colonist: DwarfColonist = simulation.colonists[0]
+	colonist.current_position = Vector2i(7, 1)
+	colonist.current_level = 1
+	colonist.fatigue = 80.0
+	simulation.hour = 21
+	simulation.advance_hour()
+	assert(colonist.is_resting and colonist.is_sleeping, "El colono no ocupó una cama durante el descanso nocturno.")
+	assert(colonist.fatigue < 80.0, "El descanso nocturno no redujo la fatiga.")
+	simulation.hour = 5
+	simulation.advance_hour()
+	assert(not colonist.is_resting and not colonist.is_sleeping, "El colono siguió descansando después del amanecer.")
+
+
 func _test_simulation_rejects_duplicate_excavation() -> void:
 	var simulation := ColonySimulation.new()
 	simulation.active_level = 1
@@ -190,6 +207,14 @@ func _test_colonist() -> void:
 	assert(colonist.visual_position.x > 7.0 and colonist.visual_position.x < 9.0, "El movimiento no interpola posiciones.")
 	colonist.advance_movement(1.0)
 	assert(not colonist.is_moving and colonist.current_position == Vector2i(9, 0), "El colono no finalizó el movimiento.")
+	colonist.fatigue = 80.0
+	colonist.is_sleeping = true
+	colonist.advance_hour(true, 18.0)
+	assert(is_equal_approx(colonist.fatigue, 65.0), "Dormir en una cama no recuperó la fatiga esperada.")
+	colonist.is_sleeping = false
+	colonist.fatigue = 50.0
+	colonist.advance_hour(true, 18.0)
+	assert(colonist.fatigue > 50.0, "El colono recuperó fatiga sin dormir.")
 
 
 func _test_work_order_depth() -> void:
