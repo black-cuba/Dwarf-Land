@@ -34,5 +34,20 @@ func generate() -> Dictionary:
 			Vector2i(6, 1),
 			Vector2i(20, 2),
 			Vector2i(21, 2)
-		]
+		],
+		"map_diggable_cells": _generate_map_diggable_cells()
 	}
+
+
+func _generate_map_diggable_cells() -> Array[Vector3i]:
+	var cells: Array[Vector3i] = []
+	# Underground layers begin as solid geology. A continuous access corridor
+	# and the lift shaft remain open; seeded pockets form the mineable terrain.
+	for layer in [1, 2]:
+		for y in range(ColonyNavigationGrid.MAP_HEIGHT):
+			for x in range(ColonyNavigationGrid.MAP_WIDTH):
+				if y == ColonyNavigationGrid.ELEVATOR_ROW or x == ColonyNavigationGrid.ELEVATOR_COLUMN:
+					continue
+				if random.randf() < 0.62:
+					cells.append(Vector3i(x, y, layer))
+	return cells
