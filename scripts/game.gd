@@ -38,6 +38,12 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
+		simulation.save_game()
+
+
 func _draw() -> void:
 	_draw_cavern()
 	_draw_excavation_blocks()
