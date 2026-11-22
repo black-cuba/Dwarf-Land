@@ -14,6 +14,7 @@ func generate() -> Dictionary:
 	var wood_x := random.randi_range(20, 30)
 	var water_x := random.randi_range(18, 24)
 	var clay_x := random.randi_range(10, 11)
+	var mushroom_x := random.randi_range(5, 8)
 	var ore_x := random.randi_range(22, 27)
 	var coal_x := random.randi_range(28, 33)
 
@@ -22,6 +23,7 @@ func generate() -> Dictionary:
 		&"wood": ColonyResourceNode.new(&"surface_forest", &"wood", 0, Vector2i(wood_x, 0), 18, 36, 3, 5.0, 6),
 		&"water": ColonyResourceNode.new(&"shallow_aquifer", &"water", 1, Vector2i(water_x, 1), 32, 64, 8, 3.0, 8),
 		&"clay": ColonyResourceNode.new(&"clay_deposit", &"clay", 1, Vector2i(clay_x, 1), 30, 50, 0, 4.0, 5),
+		&"mushrooms": ColonyResourceNode.new(&"fungal_grove", &"mushrooms", 1, Vector2i(mushroom_x, 1), 18, 30, 4, 2.5, 4),
 		&"stone": ColonyResourceNode.new(&"deep_bedrock", &"stone", 2, Vector2i(13, 2), 60, 100, 0, 5.0, 5),
 		&"ore": ColonyResourceNode.new(&"deep_ore_vein", &"ore", 2, Vector2i(ore_x, 2), 24, 40, 0, 6.0, 3),
 		&"coal": ColonyResourceNode.new(&"deep_coal_seam", &"coal", 2, Vector2i(coal_x, 2), 30, 50, 0, 5.0, 4)
