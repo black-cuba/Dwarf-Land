@@ -43,31 +43,11 @@ func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationG
 		if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
 			continue
 
-		var order := _get_assigned_order(colonist.id)
-		if order == null:
-			order = _select_order(colonist)
-			if order == null:
-				continue
-			_assignments[colonist.id] = order.id
-			order.assigned_colonist_id = colonist.id
-			order.state = ColonyWorkOrder.State.IN_PROGRESS
-			task_started.emit(order.id, colonist.id)
+		var assigned_order := _get_assigned_order(colonist.id)
+		if assigned_order != null:
+			_progress_order(colonist, assigned_order, navigation)
 
-		if colonist.current_position != order.target_cell:
-			var path := navigation.find_path(colonist.current_position, order.target_cell)
-			if path.is_empty():
-				_release_assignment(colonist.id)
-				continue
-
-			var movement_steps := mini(4, path.size())
-			colonist.current_position = path[movement_steps - 1]
-			colonist.current_level = colonist.current_position.y
-			continue
-
-		if order.advance(colonist.get_work_speed(order.work_type)):
-			task_completed.emit(order.id, order.output_resource, order.output_amount)
-			_release_assignment(colonist.id)
-
+	_assign_available_orders(colonists, navigation)
 	_prune_completed_orders()
 
 
@@ -79,21 +59,69 @@ func get_active_orders_snapshot() -> Array[Dictionary]:
 	return result
 
 
-func _select_order(_colonist: DwarfColonist) -> ColonyWorkOrder:
-	var candidates: Array[ColonyWorkOrder] = []
+func _progress_order(
+	colonist: DwarfColonist,
+	order: ColonyWorkOrder,
+	navigation: ColonyNavigationGrid
+) -> void:
+	if colonist.current_position != order.target_cell:
+		var path := navigation.find_path(colonist.current_position, order.target_cell)
+		if path.is_empty():
+			_release_assignment(colonist.id)
+			return
+
+		var movement_steps := mini(4, path.size())
+		colonist.current_position = path[movement_steps - 1]
+		colonist.current_level = colonist.current_position.y
+		return
+
+	if order.advance(colonist.get_work_speed(order.work_type)):
+		task_completed.emit(order.id, order.output_resource, order.output_amount)
+		_release_assignment(colonist.id)
+
+
+func _assign_available_orders(
+	colonists: Array[DwarfColonist],
+	navigation: ColonyNavigationGrid
+) -> void:
+	var available_orders: Array[ColonyWorkOrder] = []
 	for order in orders:
 		if order.state == ColonyWorkOrder.State.AVAILABLE:
-			candidates.append(order)
+			available_orders.append(order)
 
-	if candidates.is_empty():
-		return null
-
-	candidates.sort_custom(func(a: ColonyWorkOrder, b: ColonyWorkOrder) -> bool:
+	available_orders.sort_custom(func(a: ColonyWorkOrder, b: ColonyWorkOrder) -> bool:
 		if a.priority == b.priority:
 			return String(a.id) < String(b.id)
 		return a.priority > b.priority
 	)
-	return candidates[0]
+
+	for order in available_orders:
+		var best_colonist: DwarfColonist
+		var best_score := -1000000.0
+
+		for colonist in colonists:
+			if not colonist.alive or _assignments.has(colonist.id):
+				continue
+			if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
+				continue
+
+			var path := navigation.find_path(colonist.current_position, order.target_cell)
+			if colonist.current_position != order.target_cell and path.is_empty():
+				continue
+
+			var distance_penalty := float(path.size()) * 0.1
+			var score := colonist.get_work_speed(order.work_type) * 100.0 - distance_penalty
+			if score > best_score:
+				best_score = score
+				best_colonist = colonist
+
+		if best_colonist == null:
+			continue
+
+		_assignments[best_colonist.id] = order.id
+		order.assigned_colonist_id = best_colonist.id
+		order.state = ColonyWorkOrder.State.IN_PROGRESS
+		task_started.emit(order.id, best_colonist.id)
 
 
 func _get_assigned_order(colonist_id: StringName) -> ColonyWorkOrder:
