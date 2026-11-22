@@ -17,6 +17,7 @@ func _run_tests() -> void:
 	_test_workshop_tool_crafting()
 	_test_mining_tool_durability()
 	_test_game_modes()
+	_test_illness_and_injury()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -302,6 +303,24 @@ func _test_game_modes() -> void:
 	var restored := ColonySimulation.new()
 	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se pudo restaurar el modo de juego.")
 	assert(restored.game_mode == &"campaign", "El modo de juego no se guardó.")
+
+
+
+func _test_illness_and_injury() -> void:
+	var sick := DwarfColonist.new(&"sick_test", "Enfermo", "Recolector")
+	sick.apply_illness(50.0)
+	sick.advance_hour(false, 18.0)
+	assert(sick.get_condition() == "Enfermo", "La enfermedad no aparece en el estado del colono.")
+	assert(sick.health < 100.0, "La enfermedad no afecta la salud.")
+
+	var injured := DwarfColonist.new(&"injured_test", "Herido", "Minero")
+	injured.apply_injury(30.0)
+	injured.advance_hour(false, 18.0)
+	assert(injured.get_condition() == "Herido", "La lesión no aparece en el estado del colono.")
+	var injury_before := injured.injury_severity
+	injured.is_sleeping = true
+	injured.advance_hour(true, 18.0)
+	assert(injured.injury_severity < injury_before, "El descanso no ayuda a recuperarse de una lesión.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
