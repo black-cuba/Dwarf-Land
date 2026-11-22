@@ -52,7 +52,7 @@ func get_work_speed(work_type: StringName) -> float:
 			if work_type == &"water":
 				return 1.1
 		"Minero":
-			if work_type == &"stone" or work_type == &"ore":
+			if work_type == &"stone" or work_type == &"ore" or work_type == &"clay" or work_type == &"coal":
 				return 1.4
 	return 1.0
 
