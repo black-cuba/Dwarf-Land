@@ -145,7 +145,7 @@ func _test_map_excavation_work_order() -> void:
 	scheduler.advance_hour(colonists, navigation)
 	scheduler.advance_hour(colonists, navigation)
 	assert(colonist.is_map_moving, "El minero no inició la ruta hacia la roca 2D.")
-	for _step in range(4):
+	for _step in range(8):
 		if colonist.is_map_moving:
 			colonist.advance_map_movement(2.0)
 		scheduler.advance_hour(colonists, navigation)
@@ -596,9 +596,16 @@ func _test_scheduler_uses_2d_map_routes() -> void:
 	scheduler.advance_hour(colonists, navigation)
 	assert(colonist.is_map_moving, "El planificador no inició el desplazamiento por la cuadrícula 2D.")
 	colonist.advance_map_movement(2.0)
-	assert(colonist.map_position == Vector3i(34, ColonyNavigationGrid.ELEVATOR_ROW, 2), "El colono no utilizó el ascensor para cambiar de capa.")
+	assert(colonist.map_position == Vector3i(34, ColonyNavigationGrid.ELEVATOR_ROW, 0), "El colono no llegó al ascensor antes de cambiar de capa.")
 	scheduler.advance_hour(colonists, navigation)
-	assert(colonist.is_map_moving, "El colono no reanudó la ruta 2D después de usar el ascensor.")
+	assert(colonist.is_map_moving, "El colono no inició el primer tramo del ascensor.")
+	colonist.advance_map_movement(1.0)
+	assert(colonist.map_position == Vector3i(34, ColonyNavigationGrid.ELEVATOR_ROW, 1), "El ascensor no completó la transición a la capa intermedia.")
+	scheduler.advance_hour(colonists, navigation)
+	colonist.advance_map_movement(1.0)
+	assert(colonist.map_position == Vector3i(34, ColonyNavigationGrid.ELEVATOR_ROW, 2), "El ascensor no completó la transición a la profundidad.")
+	scheduler.advance_hour(colonists, navigation)
+	assert(colonist.is_map_moving, "El colono no reanudó la ruta 2D después de salir del ascensor.")
 
 
 func _test_simulation_work_order() -> void:
