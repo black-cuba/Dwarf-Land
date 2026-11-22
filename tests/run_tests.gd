@@ -356,12 +356,12 @@ func _test_cancelled_orders_refund_reservations() -> void:
 	var stone_before := simulation.inventory.get_amount(&"stone")
 	var storage_cell := Vector3i(38, ColonyNavigationGrid.ELEVATOR_ROW, 1)
 	assert(simulation.queue_map_construction(&"storage", storage_cell), "No se pudo reservar material para la construcción.")
-	var build_order := simulation.scheduler.orders.back()
+	var build_order: ColonyWorkOrder = simulation.scheduler.orders.back()
 	assert(simulation.inventory.get_amount(&"wood") == wood_before - 8 and simulation.inventory.get_amount(&"stone") == stone_before - 4, "La construcción no reservó los materiales correctos.")
 	var mushroom_node: ColonyResourceNode = simulation.resource_nodes[&"mushrooms"]
 	var mushrooms_before := mushroom_node.available_units
 	assert(simulation.queue_work(&"mushrooms"), "No se pudo reservar una fuente de hongos.")
-	var gather_order := simulation.scheduler.orders.back()
+	var gather_order: ColonyWorkOrder = simulation.scheduler.orders.back()
 	var restored := ColonySimulation.new()
 	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se restauraron las reservas de órdenes.")
 	restored.scheduler.task_cancelled.emit(build_order.id)
