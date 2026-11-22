@@ -13,6 +13,7 @@ var fatigue := 10.0
 var health := 100.0
 var body_temperature := 37.0
 var alive := true
+var current_level := 0
 
 
 func _init(p_id: StringName, p_display_name: String, p_profession: String) -> void:
@@ -82,6 +83,7 @@ func get_snapshot() -> Dictionary:
 		"health": health,
 		"body_temperature": body_temperature,
 		"alive": alive,
+		"current_level": current_level,
 		"condition": get_condition()
 	}
 
@@ -89,7 +91,13 @@ func get_snapshot() -> Dictionary:
 func _update_temperature(ambient_temperature: float) -> void:
 	# A simple first-pass thermal model. Clothing and room insulation
 	# will modify this in the environmental simulation milestone.
-	body_temperature = move_toward(body_temperature, ambient_temperature, 0.08)
+	var target_temperature := 37.0
+	if ambient_temperature < 16.0:
+		target_temperature -= (16.0 - ambient_temperature) * 0.25
+	elif ambient_temperature > 26.0:
+		target_temperature += (ambient_temperature - 26.0) * 0.18
+
+	body_temperature = move_toward(body_temperature, target_temperature, 0.04)
 	if body_temperature < 35.5 or body_temperature > 38.5:
 		take_damage(0.15)
 
