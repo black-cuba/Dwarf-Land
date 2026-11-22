@@ -265,14 +265,14 @@ func _draw_colonists() -> void:
 		if not colonist.alive:
 			continue
 
-		var render_position := colonist.get_render_position()
-		if roundi(render_position.y) != simulation.active_level:
+		var map_render_position: Vector2 = colonist.get_map_render_position()
+		var render_layer := colonist.map_position.z
+		if render_layer != simulation.active_level:
 			continue
-		var px := 65.0 + render_position.x * 28.0
+		var px := 65.0 + map_render_position.x * 28.0
 		var floors := [205.0, 390.0, 585.0]
-		var lower_level := clampi(floori(render_position.y), 0, 1)
-		var floor_y := lerpf(floors[lower_level], floors[lower_level + 1], render_position.y - float(lower_level))
-		var py := floor_y - 24.0
+		var floor_y: float = floors[render_layer]
+		var py := floor_y - 24.0 + (map_render_position.y - float(ColonyNavigationGrid.ELEVATOR_ROW)) * 12.0
 		draw_circle(Vector2(px, py - 22), 13, Color("#d9b58b"))
 		draw_rect(Rect2(px - 12, py - 12, 24, 27), body_colors[i % body_colors.size()])
 		draw_rect(Rect2(px - 10, py + 13, 8, 12), Color("#403b3a"))
