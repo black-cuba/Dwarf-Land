@@ -90,6 +90,31 @@ func get_adjacent_work_cell(start: Vector2i, target: Vector2i) -> Vector2i:
 	return best_cell
 
 
+
+func get_adjacent_build_cell(start: Vector2i, target: Vector2i) -> Vector2i:
+	if not is_walkable(start) or not is_walkable(target):
+		return Vector2i(-1, -1)
+	var candidates: Array[Vector2i] = [
+		Vector2i(target.x - 1, target.y),
+		Vector2i(target.x + 1, target.y)
+	]
+	var best_cell := Vector2i(-1, -1)
+	var best_distance := 2147483647
+	for candidate in candidates:
+		if not is_walkable(candidate):
+			continue
+		var distance := 0
+		if candidate != start:
+			var path := find_path(start, candidate)
+			if path.is_empty():
+				continue
+			distance = path.size()
+		if distance < best_distance:
+			best_distance = distance
+			best_cell = candidate
+	return best_cell
+
+
 func find_path(start: Vector2i, goal: Vector2i) -> Array[Vector2i]:
 	var path: Array[Vector2i] = []
 	if not is_walkable(start) or not is_walkable(goal):
