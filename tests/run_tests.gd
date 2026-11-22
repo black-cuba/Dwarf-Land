@@ -21,6 +21,7 @@ func _run_tests() -> void:
 	_test_resource_node()
 	_test_navigation()
 	_test_navigation_2d_map()
+	_test_map_excavation_work_order()
 	_test_seeded_terrain_restore()
 	_test_excavation()
 	_test_excavation_work_order()
@@ -115,6 +116,28 @@ func _test_navigation_2d_map() -> void:
 	assert(not navigation.can_dig_map_cell(wall), "La roca excavada sigue pendiente.")
 	assert(not navigation.is_map_cell_inside(Vector3i(0, ColonyNavigationGrid.MAP_HEIGHT, 0)), "El mapa aceptó una fila fuera de sus límites.")
 
+
+
+func _test_map_excavation_work_order() -> void:
+	var scheduler := ColonyWorkScheduler.new()
+	var navigation := ColonyNavigationGrid.new()
+	var target := Vector3i(36, 4, 2)
+	navigation.set_map_diggable(target)
+	var colonist := DwarfColonist.new(&"map_miner", "Minero", "Minero")
+	colonist.current_position = Vector2i(32, 0)
+	colonist.sync_map_position_from_legacy()
+	var colonists: Array[DwarfColonist] = [colonist]
+	var order_id := scheduler.queue_map_excavation(target)
+	assert(order_id != &"", "No se pudo crear una orden de excavación en el mapa 2D.")
+	scheduler.advance_hour(colonists, navigation)
+	scheduler.advance_hour(colonists, navigation)
+	assert(colonist.is_map_moving, "El minero no inició la ruta hacia la roca 2D.")
+	for _step in range(4):
+		if colonist.is_map_moving:
+			colonist.advance_map_movement(2.0)
+		scheduler.advance_hour(colonists, navigation)
+	assert(not navigation.can_dig_map_cell(target), "El minero no completó la excavación en la cuadrícula 2D.")
+	assert(navigation.is_map_walkable(target), "La celda excavada no quedó transitable.")
 
 
 func _test_seeded_terrain_restore() -> void:
