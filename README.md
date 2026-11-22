@@ -25,6 +25,7 @@
 - Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.
 - Descanso nocturno autónomo con asignación de camas y recuperación de fatiga.
 - Temperatura ambiental variable por capa y horario, con exposición al frío/calor y alertas.
+- Construcción con costes de materiales, órdenes de trabajo, camas adicionales y almacenes que amplían la capacidad.
 - Construcción, extracción y producción.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
