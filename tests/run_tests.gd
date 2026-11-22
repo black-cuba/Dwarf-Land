@@ -196,12 +196,12 @@ func _test_storage_construction_and_restore() -> void:
 		simulation.advance_hour()
 	assert(simulation.structures.size() == 1, "La estructura no se creó al completar el trabajo.")
 	assert(simulation.inventory.capacity == ColonyInventory.DEFAULT_CAPACITY + 60, "El almacén no aumentó la capacidad.")
-	assert(not simulation.navigation.is_walkable(Vector2i(25, 1)), "El almacén terminado no ocupa su celda.")
+	assert(simulation.navigation.is_walkable(Vector2i(25, 1)), "La construcción no debe bloquear la ruta en la cuadrícula actual.")
 	var restored := ColonySimulation.new()
 	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se pudo restaurar una colonia con estructuras.")
 	assert(restored.structures.size() == 1, "La estructura no se conservó en el guardado.")
 	assert(restored.inventory.capacity == ColonyInventory.DEFAULT_CAPACITY + 60, "La capacidad del almacén no se conservó.")
-	assert(not restored.navigation.is_walkable(Vector2i(25, 1)), "La estructura restaurada no bloqueó su celda.")
+	assert(restored.navigation.is_walkable(Vector2i(25, 1)), "La estructura restaurada debe conservar una ruta transitable.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
