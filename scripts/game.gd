@@ -89,7 +89,6 @@ func _draw_structures() -> void:
 
 
 func _draw_colonists() -> void:
-	var floor_y := 330.0 if simulation.active_level == 0 else 570.0
 	var body_colors := [Color("#d6a56e"), Color("#c78d72"), Color("#9eb6c7")]
 
 	for i in range(simulation.colonists.size()):
