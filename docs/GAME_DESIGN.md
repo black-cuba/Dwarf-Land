@@ -48,6 +48,18 @@ Los colonos realizan trabajos rutinarios de forma autónoma. El jugador podrá e
 
 Los modos se implementarán después de estabilizar el núcleo de simulación.
 
+## Estado de implementación
+
+La base visual inicial se está sustituyendo progresivamente por sistemas separados y mantenibles. Ya existe una primera versión de:
+- Modelo individual de colono con hambre, sed, fatiga, salud y temperatura corporal.
+- Inventario con cantidades y capacidad máxima.
+- Reloj de simulación por horas.
+- Cola de trabajos con prioridades y asignación autónoma de colonos.
+- Producción de comida, agua, madera y piedra mediante trabajos que consumen tiempo.
+- Desplazamiento lógico entre los dos niveles y alertas de reservas.
+
+Estos sistemas son una primera capa técnica. Todavía no equivalen a la simulación completa: faltan fuentes físicas de recursos, rutas y desplazamiento espacial, profesiones con rendimiento diferenciado, cultivos, construcción funcional, habitaciones, herramientas, enfermedades, eventos, guardado y modos de juego.
+
 ## Prototipo 0.1.0
 
 La primera escena verifica:
