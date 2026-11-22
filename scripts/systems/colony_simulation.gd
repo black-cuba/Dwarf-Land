@@ -19,6 +19,7 @@ var ambient_temperature := 18.0
 var inventory := ColonyInventory.new()
 var scheduler := ColonyWorkScheduler.new()
 var save_system := ColonySaveSystem.new()
+var crop_field := ColonyCropField.new()
 var navigation := ColonyNavigationGrid.new()
 var colonists: Array[DwarfColonist] = []
 var resource_nodes: Dictionary = {}
@@ -29,11 +30,12 @@ var _last_alert_key := ""
 func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
 	scheduler.terrain_excavated.connect(_on_terrain_excavated)
+	scheduler.crop_planted.connect(_on_crop_planted)
 	# Initial geological obstacles. These cells must be excavated before passage.
 	for cell in [Vector2i(5, 1), Vector2i(6, 1), Vector2i(20, 2), Vector2i(21, 2)]:
 		navigation.set_diggable(cell)
 	resource_nodes = {
-		&"food": ColonyResourceNode.new(&"surface_crops", &"food", 0, Vector2i(11, 0), 24, 48, 6, 4.0, 6),
+		&"food": ColonyResourceNode.new(&"surface_crops", &"food", 0, Vector2i(11, 0), 24, 48, 0, 4.0, 6),
 		&"wood": ColonyResourceNode.new(&"surface_forest", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
 		&"water": ColonyResourceNode.new(&"shallow_aquifer", &"water", 1, Vector2i(18, 1), 32, 64, 8, 3.0, 8),
 		&"clay": ColonyResourceNode.new(&"clay_deposit", &"clay", 1, Vector2i(8, 1), 30, 50, 0, 4.0, 5),
@@ -112,6 +114,8 @@ func queue_work(work_type: StringName, priority: int = 3) -> bool:
 		return false
 
 	var node: ColonyResourceNode = resource_nodes[work_type]
+	if work_type == &"food" and not crop_field.is_ready:
+		return false
 	if not node.reserve(node.output_per_batch):
 		alert_raised.emit("No quedan recursos disponibles en esta fuente.", ALERT_WARNING)
 		return false
@@ -129,6 +133,15 @@ func queue_excavation(cell: Vector2i, priority: int = 3) -> bool:
 			if order.state == ColonyWorkOrder.State.AVAILABLE or order.state == ColonyWorkOrder.State.IN_PROGRESS:
 				return false
 	scheduler.queue_order(&"dig", cell.y, cell, priority, 3.0, &"", 0)
+	colony_changed.emit()
+	return true
+
+
+
+func queue_planting(priority: int = 3) -> bool:
+	if active_level != 0 or crop_field.is_planted or not inventory.remove_resource(&"seeds", 1):
+		return false
+	scheduler.queue_order(&"plant", 0, crop_field.cell, priority, 2.0, &"", 0)
 	colony_changed.emit()
 	return true
 
@@ -162,6 +175,7 @@ func get_snapshot() -> Dictionary:
 		"ambient_temperature": ambient_temperature,
 		"inventory": {"capacity": inventory.capacity, "amounts": inventory.get_snapshot()},
 		"resource_nodes": get_resource_nodes_snapshot(),
+		"crop_field": crop_field.get_snapshot(),
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
 		"pending_outputs": _pending_outputs.duplicate(true),
@@ -224,6 +238,10 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		restored_colonists.append(colonist)
 	colonists = restored_colonists
 
+	var crop_data: Variant = snapshot.get("crop_field", {})
+	if typeof(crop_data) != TYPE_DICTIONARY or not crop_field.restore(crop_data):
+		return false
+
 	var resource_data: Variant = snapshot.get("resource_nodes", {})
 	if typeof(resource_data) != TYPE_DICTIONARY:
 		return false
@@ -267,13 +285,20 @@ func _satisfy_needs(colonist: DwarfColonist) -> void:
 func _on_new_day() -> void:
 	for node in resource_nodes.values():
 		node.regenerate()
-	alert_raised.emit("Ha comenzado el día %d. Las fuentes renovables se han recuperado." % day, ALERT_INFO)
+	var watered := inventory.remove_resource(&"water", 1)
+	var new_food := crop_field.advance_day(watered)
+	if new_food > 0:
+		var food_node: ColonyResourceNode = resource_nodes[&"food"]
+		food_node.available_units = mini(food_node.maximum_units, food_node.available_units + new_food)
+	alert_raised.emit("Ha comenzado el día %d. Los cultivos han avanzado su ciclo." % day, ALERT_INFO)
 
 
 func _on_task_completed(_task_id: StringName, resource: StringName, amount: int) -> void:
 	if resource == &"" or amount <= 0:
 		colony_changed.emit()
 		return
+	if resource == &"food":
+		crop_field.harvest(amount)
 	var accepted := inventory.add_resource(resource, amount)
 	if accepted < amount:
 		_pending_outputs.append({
@@ -285,6 +310,11 @@ func _on_task_completed(_task_id: StringName, resource: StringName, amount: int)
 
 
 func _on_terrain_excavated(_cell: Vector2i) -> void:
+	colony_changed.emit()
+
+
+func _on_crop_planted(_cell: Vector2i) -> void:
+	crop_field.plant()
 	colony_changed.emit()
 
 
