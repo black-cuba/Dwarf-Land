@@ -5,8 +5,8 @@
 - `scripts/models/resource_node.gd`: fuente finita o renovable, capa, ubicación y reserva.
 - `scripts/models/work_order.gd`: prioridad, destino, progreso y estado.
 - `scripts/systems/inventory.gd`: inventario y capacidad.
-- `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor y celdas bloqueadas.
-- `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento y ejecución.
+- `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor, obstáculos, bloques excavables y celdas excavadas.
+- `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
 - `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
 - `tests/`: pruebas automatizadas.
 
@@ -21,7 +21,8 @@
 ## Reglas de recursos
 - Las fuentes renovables se regeneran diariamente sin superar su capacidad.
 - Los depósitos de piedra y mineral son finitos.
-- Cada orden reserva existencias antes de entrar en cola.
+- Cada orden de extracción reserva existencias antes de entrar en cola.
+- La excavación se ejecuta desde una celda adyacente y abre el paso al completar el trabajo.
 - Los trabajos consumen tiempo y entregan producción al inventario.
 - El inventario limita la entrada; el excedente permanece pendiente.
 - La distribución inicial respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
