@@ -46,6 +46,8 @@ func _init() -> void:
 	resource_nodes = generated_world["resources"]
 	for cell in generated_world["diggable_cells"]:
 		navigation.set_diggable(cell)
+	for map_cell in generated_world.get("map_diggable_cells", []):
+		navigation.set_map_diggable(map_cell)
 	var borin := DwarfColonist.new(&"dwarf_001", "Borin", "Recolector")
 	borin.current_position = Vector2i(7, 0)
 	colonists.append(borin)
@@ -329,7 +331,8 @@ func get_snapshot() -> Dictionary:
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
 		"pending_outputs": _pending_outputs.duplicate(true),
-		"diggable_cells": navigation.get_diggable_cells()
+		"diggable_cells": navigation.get_diggable_cells(),
+		"map_diggable_cells": navigation.diggable_map_cells.keys()
 	}
 
 
@@ -432,6 +435,12 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	for cell in terrain_data:
 		if typeof(cell) == TYPE_VECTOR2I:
 			navigation.set_diggable(cell)
+	var map_terrain_data: Variant = snapshot.get("map_diggable_cells", [])
+	if typeof(map_terrain_data) != TYPE_ARRAY:
+		return false
+	for map_cell in map_terrain_data:
+		if typeof(map_cell) == TYPE_VECTOR3I:
+			navigation.set_map_diggable(map_cell)
 
 	var orders_data: Variant = snapshot.get("active_work_orders", [])
 	if typeof(orders_data) != TYPE_ARRAY or not scheduler.restore_active_orders(orders_data):
