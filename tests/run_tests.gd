@@ -15,6 +15,7 @@ func _run_tests() -> void:
 	_test_autonomous_bed_assignment()
 	_test_storage_construction_and_restore()
 	_test_map_construction_and_restore()
+	_test_resource_hauling_to_storage()
 	_test_workshop_tool_crafting()
 	_test_mining_tool_durability()
 	_test_game_modes()
@@ -345,6 +346,31 @@ func _test_map_construction_and_restore() -> void:
 		restored.update_frame(2.0)
 	assert(restored.get_bed_map_cells().has(new_bed), "La cama construida no se añadió a la asignación nocturna.")
 	assert(restored.navigation.is_map_walkable(new_bed), "La cama construida bloquea el acceso del colono.")
+
+
+func _test_resource_hauling_to_storage() -> void:
+	var simulation := ColonySimulation.new()
+	var carrier: DwarfColonist = simulation.colonists[0]
+	var wood_before := simulation.inventory.get_amount(&"wood")
+	assert(simulation.queue_work(&"wood"), "No se pudo ordenar la recolección de madera.")
+	for _hour in range(18):
+		simulation.advance_hour()
+		simulation.update_frame(2.0)
+		if carrier.carried_amount > 0:
+			break
+	assert(carrier.carried_amount > 0 and carrier.carried_resource == &"wood", "El colono no cargó la madera recolectada.")
+	var snapshot := simulation.get_snapshot()
+	var restored := ColonySimulation.new()
+	assert(restored.restore_snapshot(snapshot), "No se pudo restaurar una carga en tránsito.")
+	var restored_carrier: DwarfColonist = restored.colonists[0]
+	assert(restored_carrier.carried_resource == &"wood" and restored_carrier.carried_amount > 0, "El guardado perdió la carga del colono.")
+	for _hour in range(24):
+		restored.advance_hour()
+		restored.update_frame(2.0)
+		if restored_carrier.carried_amount == 0:
+			break
+	assert(restored_carrier.carried_amount == 0, "El colono no entregó la carga en el almacén.")
+	assert(restored.inventory.get_amount(&"wood") > wood_before, "La madera transportada no llegó al inventario de la colonia.")
 
 
 func _test_workshop_tool_crafting() -> void:
