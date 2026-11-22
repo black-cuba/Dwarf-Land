@@ -17,14 +17,15 @@
 
 - Tres capas jugables: superficie, subsuelo y profundidad.
 - Semilla de mundo reproducible con variación inicial de bosques, acuíferos, arcilla y vetas minerales.
-- Vista 2D lateral.
+- Vista 2D lateral, sin renderizado ni escenas 3D.
+- Mapa de 40 × 12 celdas por capa, excavación en distintas filas y desplazamiento entre capas mediante ascensor.
 - Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
 - Colonos con actividad autónoma, profesiones y órdenes del jugador.
 - Recursos distribuidos por capa: árboles y cultivos en superficie, agua y tierra en subsuelo, roca y minerales en profundidad.
 - Excavación de bloques geológicos mediante órdenes de trabajo y apertura de rutas transitables.
 - Movimiento interpolado de colonos y guardado local automático con copia de seguridad.
 - Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.
-- Descanso nocturno autónomo con asignación de camas y recuperación de fatiga.
+- Descanso nocturno autónomo con asignación de camas, rutas por la cuadrícula 2D y recuperación de fatiga.
 - Temperatura ambiental variable por capa y horario, con exposición al frío/calor y alertas.
 - Construcción con costes de materiales, órdenes de trabajo, camas adicionales y almacenes que amplían la capacidad.
 - Taller que fabrica herramientas; la minería consume herramientas y aplica desgaste hasta romperlas.
