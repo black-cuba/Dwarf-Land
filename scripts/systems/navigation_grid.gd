@@ -105,6 +105,27 @@ func find_map_path(start: Vector3i, goal: Vector3i) -> Array[Vector3i]:
 	return path
 
 
+func get_map_adjacent_cell(start: Vector3i, target: Vector3i) -> Vector3i:
+	if not is_map_walkable(start) or not is_map_walkable(target):
+		return Vector3i(-1, -1, -1)
+	var best := Vector3i(-1, -1, -1)
+	var best_distance := 2147483647
+	for direction in CARDINAL_DIRECTIONS:
+		var candidate := Vector3i(target.x + direction.x, target.y + direction.y, target.z)
+		if not is_map_walkable(candidate):
+			continue
+		var distance := 0
+		if candidate != start:
+			var path := find_map_path(start, candidate)
+			if path.is_empty():
+				continue
+			distance = path.size()
+		if distance < best_distance:
+			best_distance = distance
+			best = candidate
+	return best
+
+
 func get_map_adjacent_work_cell(start: Vector3i, target: Vector3i) -> Vector3i:
 	if not can_dig_map_cell(target) or not is_map_walkable(start):
 		return Vector3i(-1, -1, -1)
