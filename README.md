@@ -29,7 +29,7 @@
 - Construcción con costes de materiales, órdenes de trabajo, camas adicionales y almacenes que amplían la capacidad.
 - Taller que fabrica herramientas; la minería consume herramientas y aplica desgaste hasta romperlas.
 - Construcción, extracción y producción.
-- Tres modos previstos: Campaña, Supervivencia y Sandbox.
+- Tres modos: Campaña (almacén + taller + día 10), Supervivencia sin objetivo final y Sandbox sin desgaste de necesidades.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
 
 ## Ejecutar el prototipo
