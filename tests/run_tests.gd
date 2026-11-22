@@ -15,6 +15,7 @@ func _run_tests() -> void:
 	_test_autonomous_bed_assignment()
 	_test_storage_construction_and_restore()
 	_test_map_construction_and_restore()
+	_test_cancelled_orders_refund_reservations()
 	_test_resource_hauling_to_storage()
 	_test_workshop_tool_crafting()
 	_test_mining_tool_durability()
@@ -346,6 +347,27 @@ func _test_map_construction_and_restore() -> void:
 		restored.update_frame(2.0)
 	assert(restored.get_bed_map_cells().has(new_bed), "La cama construida no se añadió a la asignación nocturna.")
 	assert(restored.navigation.is_map_walkable(new_bed), "La cama construida bloquea el acceso del colono.")
+
+
+func _test_cancelled_orders_refund_reservations() -> void:
+	var simulation := ColonySimulation.new()
+	simulation.active_level = 1
+	var wood_before := simulation.inventory.get_amount(&"wood")
+	var stone_before := simulation.inventory.get_amount(&"stone")
+	var storage_cell := Vector3i(38, ColonyNavigationGrid.ELEVATOR_ROW, 1)
+	assert(simulation.queue_map_construction(&"storage", storage_cell), "No se pudo reservar material para la construcción.")
+	var build_order := simulation.scheduler.orders.back()
+	assert(simulation.inventory.get_amount(&"wood") == wood_before - 8 and simulation.inventory.get_amount(&"stone") == stone_before - 4, "La construcción no reservó los materiales correctos.")
+	var mushroom_node: ColonyResourceNode = simulation.resource_nodes[&"mushrooms"]
+	var mushrooms_before := mushroom_node.available_units
+	assert(simulation.queue_work(&"mushrooms"), "No se pudo reservar una fuente de hongos.")
+	var gather_order := simulation.scheduler.orders.back()
+	var restored := ColonySimulation.new()
+	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se restauraron las reservas de órdenes.")
+	restored.scheduler.task_cancelled.emit(build_order.id)
+	restored.scheduler.task_cancelled.emit(gather_order.id)
+	assert(restored.inventory.get_amount(&"wood") == wood_before and restored.inventory.get_amount(&"stone") == stone_before, "La cancelación no devolvió los materiales de construcción.")
+	assert(restored.resource_nodes[&"mushrooms"].available_units == mushrooms_before, "La cancelación no devolvió los hongos reservados.")
 
 
 func _test_resource_hauling_to_storage() -> void:
