@@ -637,11 +637,15 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	var reserved_inputs: Variant = snapshot.get("reserved_order_inputs", {})
 	if typeof(reserved_inputs) != TYPE_DICTIONARY:
 		return false
-	_reserved_order_inputs = reserved_inputs.duplicate(true)
+	_reserved_order_inputs.clear()
+	for order_id in reserved_inputs:
+		_reserved_order_inputs[StringName(order_id)] = reserved_inputs[order_id].duplicate(true)
 	var reserved_nodes: Variant = snapshot.get("reserved_resource_nodes", {})
 	if typeof(reserved_nodes) != TYPE_DICTIONARY:
 		return false
-	_reserved_resource_nodes = reserved_nodes.duplicate(true)
+	_reserved_resource_nodes.clear()
+	for order_id in reserved_nodes:
+		_reserved_resource_nodes[StringName(order_id)] = reserved_nodes[order_id].duplicate(true)
 	var pending_data: Variant = snapshot.get("pending_outputs", [])
 	if typeof(pending_data) != TYPE_ARRAY:
 		return false
