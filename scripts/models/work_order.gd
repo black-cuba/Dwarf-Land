@@ -11,6 +11,7 @@ enum State {
 var id: StringName
 var work_type: StringName
 var level: int
+var target_cell: Vector2i
 var priority: int
 var required_work: float
 var progress := 0.0
@@ -24,6 +25,7 @@ func _init(
 	p_id: StringName,
 	p_work_type: StringName,
 	p_level: int,
+	p_target_cell: Vector2i,
 	p_priority: int,
 	p_required_work: float,
 	p_output_resource: StringName,
@@ -32,6 +34,7 @@ func _init(
 	id = p_id
 	work_type = p_work_type
 	level = clampi(p_level, 0, 1)
+	target_cell = Vector2i(p_target_cell.x, level)
 	priority = clampi(p_priority, 1, 5)
 	required_work = maxf(0.1, p_required_work)
 	output_resource = p_output_resource
@@ -58,6 +61,7 @@ func get_snapshot() -> Dictionary:
 		"id": String(id),
 		"type": String(work_type),
 		"level": level,
+		"target_cell": target_cell,
 		"priority": priority,
 		"required_work": required_work,
 		"progress": progress,
