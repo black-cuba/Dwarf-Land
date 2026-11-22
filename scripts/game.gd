@@ -18,6 +18,8 @@ var action_buttons: Array[Button] = []
 func _ready() -> void:
 	simulation.alert_raised.connect(_on_alert_raised)
 	simulation.colony_changed.connect(_refresh_interface)
+	if simulation.load_game():
+		message = "Partida local recuperada correctamente."
 	_build_interface()
 	_refresh_interface()
 	queue_redraw()
