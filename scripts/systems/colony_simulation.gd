@@ -10,6 +10,7 @@ const ALERT_INFO := 0
 const ALERT_WARNING := 1
 const ALERT_CRITICAL := 2
 
+var world_seed := 20261122
 var day := 1
 var hour := 7
 var active_level := 0
@@ -37,18 +38,11 @@ func _init() -> void:
 	scheduler.crop_planted.connect(_on_crop_planted)
 	scheduler.structure_built.connect(_on_structure_built)
 	scheduler.task_cancelled.connect(_on_task_cancelled)
-	# Initial geological obstacles. These cells must be excavated before passage.
-	for cell in [Vector2i(5, 1), Vector2i(6, 1), Vector2i(20, 2), Vector2i(21, 2)]:
+	world_seed = int(Time.get_unix_time_from_system())
+	var generated_world := ColonyWorldGenerator.new(world_seed).generate()
+	resource_nodes = generated_world["resources"]
+	for cell in generated_world["diggable_cells"]:
 		navigation.set_diggable(cell)
-	resource_nodes = {
-		&"food": ColonyResourceNode.new(&"surface_crops", &"food", 0, Vector2i(11, 0), 24, 48, 0, 4.0, 6),
-		&"wood": ColonyResourceNode.new(&"surface_forest", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
-		&"water": ColonyResourceNode.new(&"shallow_aquifer", &"water", 1, Vector2i(18, 1), 32, 64, 8, 3.0, 8),
-		&"clay": ColonyResourceNode.new(&"clay_deposit", &"clay", 1, Vector2i(8, 1), 30, 50, 0, 4.0, 5),
-		&"stone": ColonyResourceNode.new(&"deep_bedrock", &"stone", 2, Vector2i(13, 2), 60, 100, 0, 5.0, 5),
-		&"ore": ColonyResourceNode.new(&"deep_ore_vein", &"ore", 2, Vector2i(27, 2), 24, 40, 0, 6.0, 3),
-		&"coal": ColonyResourceNode.new(&"deep_coal_seam", &"coal", 2, Vector2i(33, 2), 30, 50, 0, 5.0, 4)
-	}
 	var borin := DwarfColonist.new(&"dwarf_001", "Borin", "Recolector")
 	borin.current_position = Vector2i(7, 0)
 	colonists.append(borin)
@@ -273,6 +267,7 @@ func get_snapshot() -> Dictionary:
 		people.append(colonist.get_snapshot())
 
 	return {
+		"world_seed": world_seed,
 		"day": day,
 		"hour": hour,
 		"active_level": active_level,
@@ -312,6 +307,7 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	if not inventory.restore(inventory_data["amounts"], int(inventory_data.get("capacity", ColonyInventory.DEFAULT_CAPACITY))):
 		return false
 
+	world_seed = int(snapshot.get("world_seed", world_seed))
 	day = maxi(1, int(snapshot.get("day", 1)))
 	hour = clampi(int(snapshot.get("hour", 7)), 0, 23)
 	active_level = clampi(int(snapshot.get("active_level", 0)), 0, LEVEL_COUNT - 1)
@@ -361,6 +357,10 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 			continue
 		var node: ColonyResourceNode = resource_nodes[resource_key]
 		node.available_units = clampi(int(resource_data[key].get("available_units", node.available_units)), 0, node.maximum_units)
+		node.level = clampi(int(resource_data[key].get("level", node.level)), 0, LEVEL_COUNT - 1)
+		var saved_cell: Variant = resource_data[key].get("cell", node.cell)
+		if typeof(saved_cell) == TYPE_VECTOR2I:
+			node.cell = saved_cell
 
 	navigation.clear_terrain()
 	structures.clear()
