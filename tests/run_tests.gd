@@ -64,6 +64,12 @@ func _test_seeded_world_generation() -> void:
 	assert(first_nodes[&"stone"].level == 2 and first_nodes[&"ore"].level == 2 and first_nodes[&"coal"].level == 2, "Los recursos profundos están mal ubicados.")
 	assert(first["map_diggable_cells"] == repeat["map_diggable_cells"], "La misma semilla no genera el mismo terreno 2D.")
 	assert(first["map_diggable_cells"] != alternate["map_diggable_cells"], "Semillas distintas no alteran el terreno 2D.")
+	for layer in [1, 2]:
+		for map_cell in first["map_diggable_cells"]:
+			if map_cell.z == layer:
+				assert(map_cell.y != ColonyNavigationGrid.ELEVATOR_ROW and map_cell.x != ColonyNavigationGrid.ELEVATOR_COLUMN, "La generación bloqueó el corredor o el ascensor.")
+	for resource_node in first_nodes.values():
+		assert(resource_node.map_cell.y == ColonyNavigationGrid.ELEVATOR_ROW, "Una fuente de recursos no quedó situada en su galería 2D.")
 
 
 func _test_resource_node() -> void:
@@ -73,6 +79,7 @@ func _test_resource_node() -> void:
 	assert(not node.reserve(7), "La fuente permitió reservar más recursos de los disponibles.")
 	node.regenerate()
 	assert(node.available_units == 10, "La regeneración no respetó el límite máximo.")
+	assert(node.map_cell == Vector3i(5, ColonyNavigationGrid.ELEVATOR_ROW, 0), "La fuente no tiene una celda de mapa 2D válida.")
 
 
 func _test_navigation() -> void:
@@ -232,6 +239,9 @@ func _test_crop_growth_and_harvest() -> void:
 	for _day in range(4):
 		field.advance_day(true)
 	assert(field.is_ready and field.harvestable_units == ColonyCropField.HARVEST_PER_CYCLE, "El cultivo no maduró tras cuatro días con agua.")
+	var restored_field := ColonyCropField.new()
+	assert(restored_field.restore(field.get_snapshot()), "No se pudo restaurar el campo.")
+	assert(restored_field.map_cell == field.map_cell, "El guardado perdió la celda 2D del cultivo.")
 
 
 
