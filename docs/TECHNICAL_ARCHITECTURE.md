@@ -8,7 +8,7 @@ Mantener la simulación separada de la interfaz. Las reglas de supervivencia deb
 
 - `scripts/models/colonist.gd`: estado individual, necesidades, salud y condición de cada colono.
 - `scripts/systems/inventory.gd`: cantidades, capacidad de almacenamiento y operaciones seguras del inventario.
-- `scripts/systems/colony_simulation.gd`: reloj de colonia, avance horario, satisfacción de necesidades y alertas.
+- `scripts/systems/colony_simulation.gd`: reloj de colonia, avance horario, satisfacción de necesidades y alertas.\n- `scripts/models/work_order.gd`: orden de trabajo con prioridad, progreso y estado.\n- `scripts/systems/work_scheduler.gd`: asignación de trabajos y movimiento lógico entre niveles.
 - `scenes/`: presentación visual y navegación.
 - `docs/`: diseño, arquitectura y decisiones técnicas.
 
