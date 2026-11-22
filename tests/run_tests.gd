@@ -78,6 +78,11 @@ func _test_simulation_work_order() -> void:
 	assert(simulation.queue_work(&"food", 3), "No se pudo encolar una tarea de comida.")
 	assert(source.available_units == initial_source - source.output_per_batch, "La tarea no reservó recursos de la fuente.")
 
+	simulation.advance_hour()
+	var active_orders := simulation.scheduler.get_active_orders_snapshot()
+	assert(active_orders.size() == 1, "La orden no aparece en la cola activa.")
+	assert(active_orders[0]["assigned_colonist_id"] == "dwarf_002", "La tarea agrícola no se asignó a la colona especializada.")
+
 	for _hour in range(5):
 		simulation.advance_hour()
 
