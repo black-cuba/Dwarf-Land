@@ -7,7 +7,6 @@ signal task_started(task_id: StringName, colonist_id: StringName)
 var orders: Array[ColonyWorkOrder] = []
 var _next_order_number := 1
 var _assignments: Dictionary = {}
-var _travel_hours: Dictionary = {}
 
 
 func queue_order(
@@ -69,7 +68,7 @@ func get_active_orders_snapshot() -> Array[Dictionary]:
 	return result
 
 
-func _select_order(colonist: DwarfColonist) -> ColonyWorkOrder:
+func _select_order(_colonist: DwarfColonist) -> ColonyWorkOrder:
 	var candidates: Array[ColonyWorkOrder] = []
 	for order in orders:
 		if order.state == ColonyWorkOrder.State.AVAILABLE:
@@ -107,7 +106,6 @@ func _release_assignment(colonist_id: StringName) -> void:
 		order.assigned_colonist_id = &""
 
 	_assignments.erase(colonist_id)
-	_travel_hours.erase(colonist_id)
 
 
 func _prune_completed_orders() -> void:
