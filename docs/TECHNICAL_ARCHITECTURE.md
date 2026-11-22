@@ -1,7 +1,7 @@
 # Dwarf Land — Arquitectura técnica
 
 ## Estructura
-- `scripts/models/colonist.gd`: necesidades, salud, temperatura, profesión, posición lógica y movimiento interpolado.
+- `scripts/models/colonist.gd`: necesidades, salud, temperatura, profesión, posición lógica, movimiento interpolado y carga transportada.
 - `scripts/models/resource_node.gd`: fuente finita o renovable, capa, celda 2D y reserva.
 - `scripts/models/work_order.gd`: prioridad, destino, progreso y estado.
 - `scripts/systems/inventory.gd`: inventario y capacidad.
@@ -9,7 +9,7 @@
 - `scripts/models/crop_field.gd`: ciclo de cultivo, humedad, celda 2D, maduración, cosecha y resiembra.
 - `scripts/systems/navigation_grid.gd`: navegación heredada por capa y nueva cuadrícula espacial 2D (X/Y + capa Z), con rutas alternativas, ascensor, obstáculos y excavación.
 - `scripts/systems/world_generator.gd`: distribución reproducible de recursos y bloques geológicos excavables para la cuadrícula 2D.
-- `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
+- `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo, excavación, construcción y entregas de recursos.
 - `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
 - `tests/`: pruebas automatizadas.
 
@@ -29,8 +29,9 @@ El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni ren
 - Los depósitos de piedra y mineral son finitos.
 - Cada orden de extracción reserva existencias antes de entrar en cola.
 - La excavación se ejecuta desde una celda adyacente y abre el paso al completar el trabajo.
-- Los trabajos consumen tiempo y entregan producción al inventario.
-- El inventario limita la entrada; el excedente permanece pendiente.
+- Los trabajos consumen tiempo; los colonos recogen la producción y la transportan físicamente al punto de almacenamiento.
+- El inventario recibe recursos al completar la entrega; el excedente permanece pendiente si se alcanza la capacidad.
+- Las cargas de los colonos y sus órdenes de entrega se conservan al guardar y restaurar la partida.
 - La distribución respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
 - Una semilla guardada genera variaciones reproducibles en las posiciones de varios recursos; algunos obstáculos y el depósito principal de piedra aún son fijos.
 - Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas.
@@ -52,7 +53,7 @@ El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni ren
 ## Pendiente
 - Retirar por completo la API heredada `Vector2i` tras migrar los últimos casos de compatibilidad y las pruebas.
 - Ampliar la generación procedural con vetas y depósitos geológicos diferenciados por tipo de recurso.
-- Logística/transporte entre fuentes, colonos, almacenes y talleres.
+- Ampliar la logística con prioridades de almacenamiento, distribución entre varios almacenes y suministro automatizado a talleres.
 - Habitaciones, aislamiento y sistemas avanzados de producción.
 - Enfermedades, accidentes y eventos ambientales.
 - Interfaz móvil adaptable, arte/audio finales y pruebas Android reales.
