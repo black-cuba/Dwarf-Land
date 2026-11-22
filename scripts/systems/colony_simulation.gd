@@ -31,8 +31,10 @@ func _init() -> void:
 		&"food": ColonyResourceNode.new(&"surface_crops", &"food", 0, Vector2i(11, 0), 24, 48, 6, 4.0, 6),
 		&"wood": ColonyResourceNode.new(&"surface_forest", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
 		&"water": ColonyResourceNode.new(&"shallow_aquifer", &"water", 1, Vector2i(18, 1), 32, 64, 8, 3.0, 8),
+		&"clay": ColonyResourceNode.new(&"clay_deposit", &"clay", 1, Vector2i(8, 1), 30, 50, 0, 4.0, 5),
 		&"stone": ColonyResourceNode.new(&"deep_bedrock", &"stone", 2, Vector2i(13, 2), 60, 100, 0, 5.0, 5),
-		&"ore": ColonyResourceNode.new(&"deep_ore_vein", &"ore", 2, Vector2i(27, 2), 24, 40, 0, 6.0, 3)
+		&"ore": ColonyResourceNode.new(&"deep_ore_vein", &"ore", 2, Vector2i(27, 2), 24, 40, 0, 6.0, 3),
+		&"coal": ColonyResourceNode.new(&"deep_coal_seam", &"coal", 2, Vector2i(33, 2), 30, 50, 0, 5.0, 4)
 	}
 	var borin := DwarfColonist.new(&"dwarf_001", "Borin", "Recolector")
 	borin.current_position = Vector2i(7, 0)
