@@ -677,6 +677,11 @@ func _check_colony_alerts() -> void:
 				alert_message = "%s está enfermo y necesita recuperarse." % colonist.display_name
 				severity = ALERT_WARNING
 				break
+			if colonist.injury_severity >= 30.0:
+				alert_key = "injury"
+				alert_message = "%s está herido y necesita descanso." % colonist.display_name
+				severity = ALERT_WARNING
+				break
 
 	if alert_key != _last_alert_key:
 		_last_alert_key = alert_key
