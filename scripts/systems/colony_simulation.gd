@@ -387,7 +387,9 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	var reserved_tools: Variant = snapshot.get("reserved_tool_orders", {})
 	if typeof(reserved_tools) != TYPE_DICTIONARY:
 		return false
-	_reserved_tool_orders = reserved_tools.duplicate(true)
+	_reserved_tool_orders.clear()
+	for order_id in reserved_tools:
+		_reserved_tool_orders[StringName(order_id)] = float(reserved_tools[order_id])
 	var pending_data: Variant = snapshot.get("pending_outputs", [])
 	if typeof(pending_data) != TYPE_ARRAY:
 		return false
