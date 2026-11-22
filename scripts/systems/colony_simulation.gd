@@ -85,6 +85,8 @@ func advance_hour() -> void:
 	time_changed.emit(day, hour)
 	colony_changed.emit()
 	_check_colony_alerts()
+	if hour % 6 == 0 and not save_game():
+		alert_raised.emit("No se pudo guardar automáticamente la partida.", ALERT_WARNING)
 
 
 func set_paused(value: bool) -> void:
@@ -243,7 +245,13 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	var orders_data: Variant = snapshot.get("active_work_orders", [])
 	if typeof(orders_data) != TYPE_ARRAY or not scheduler.restore_active_orders(orders_data):
 		return false
-	_pending_outputs = snapshot.get("pending_outputs", [])
+	var pending_data: Variant = snapshot.get("pending_outputs", [])
+	if typeof(pending_data) != TYPE_ARRAY:
+		return false
+	_pending_outputs.clear()
+	for pending in pending_data:
+		if typeof(pending) == TYPE_DICTIONARY:
+			_pending_outputs.append(pending)
 	_last_alert_key = ""
 	colony_changed.emit()
 	return true
