@@ -55,7 +55,8 @@ La versión de desarrollo ya incorpora:
 - Guardado local versionado, copia de seguridad, recuperación y guardado manual.
 - Tres modos: Campaña (almacén, taller y día 10), Supervivencia abierta y Sandbox sin desgaste de necesidades.
 - Generación reproducible mediante semilla para variar parte de los recursos.
-- Enfermedades progresivas por estrés, eventos diarios y lesiones ocasionales por accidentes mineros; descanso para recuperación.\n- Pruebas automatizadas de lógica ejecutadas en GitHub Actions.
+- Enfermedades progresivas por estrés, eventos diarios y lesiones ocasionales por accidentes mineros; descanso para recuperación.
+- Pruebas automatizadas de lógica ejecutadas en GitHub Actions.
 
 Limitaciones actuales:
 - El mapa usa una sola línea de navegación por capa; todavía no tiene movimiento libre 2D, rutas alternativas ni colisiones completas.
