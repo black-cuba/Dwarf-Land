@@ -85,11 +85,12 @@ func _draw_cavern() -> void:
 		draw_rect(Rect2(45, floor_y + 16, 1190, 6), Color("#3d3029"))
 		draw_string(ThemeDB.fallback_font, Vector2(65, floor_y - 12), labels[layer], HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("#e8d6b5"))
 
-	# One elevator shaft connects all three layers.
-	draw_rect(Rect2(1080, 195, 70, 400), Color("#495565"), false, 5.0)
-	draw_line(Vector2(1115, 200), Vector2(1115, 590), Color("#c7a66a"), 3.0)
+	# One elevator shaft connects all three layers at the actual navigation column.
+	var elevator_x := 65.0 + float(ColonyNavigationGrid.ELEVATOR_COLUMN) * 28.0 + 14.0
+	draw_rect(Rect2(elevator_x - 35.0, 195.0, 70.0, 400.0), Color("#495565"), false, 5.0)
+	draw_line(Vector2(elevator_x, 200.0), Vector2(elevator_x, 590.0), Color("#c7a66a"), 3.0)
 	var lift_y: float = floors[simulation.active_level]
-	draw_circle(Vector2(1115, lift_y), 10.0, Color("#f4c76b"))
+	draw_circle(Vector2(elevator_x, lift_y), 10.0, Color("#f4c76b"))
 
 
 
