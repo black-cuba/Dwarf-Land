@@ -26,6 +26,7 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] El inventario no supera su capacidad.
 - [ ] Las salidas de producción que no caben quedan pendientes y no se pierden.
 - [x] Los colonos recogen recursos, los transportan al almacén y conservan la carga durante el guardado.
+- [x] La cancelación de órdenes devuelve materiales y recursos reservados, incluso después de restaurar una partida.
 - [x] El taller fabrica herramientas y medicina; la medicina trata enfermedad y lesión.
 - [ ] Cada orden requiere el tiempo de trabajo definido.
 - [ ] La prioridad más alta se asigna antes que las prioridades inferiores.
