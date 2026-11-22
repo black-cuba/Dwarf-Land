@@ -12,6 +12,7 @@ func _run_tests() -> void:
 	_test_crop_growth_and_harvest()
 	_test_simulation_planting_queue()
 	_test_autonomous_bed_assignment()
+	_test_storage_construction_and_restore()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -175,6 +176,32 @@ func _test_autonomous_bed_assignment() -> void:
 	simulation.hour = 5
 	simulation.advance_hour()
 	assert(not colonist.is_resting and not colonist.is_sleeping, "El colono siguió descansando después del amanecer.")
+
+
+
+func _test_storage_construction_and_restore() -> void:
+	var simulation := ColonySimulation.new()
+	simulation.active_level = 1
+	for colonist in simulation.colonists:
+		colonist.current_position = Vector2i(14, 1)
+		colonist.current_level = 1
+	var wood_before := simulation.inventory.get_amount(&"wood")
+	var stone_before := simulation.inventory.get_amount(&"stone")
+	assert(simulation.queue_construction(&"storage", Vector2i(15, 1)), "No se pudo ordenar la construcción del almacén.")
+	assert(not simulation.queue_construction(&"storage", Vector2i(15, 1)), "Se permitió duplicar la construcción en una celda.")
+	assert(simulation.inventory.get_amount(&"wood") == wood_before - 8, "No se reservaron los tablones necesarios.")
+	assert(simulation.inventory.get_amount(&"stone") == stone_before - 4, "No se reservaron las piedras necesarias.")
+	simulation.advance_hour()
+	for _hour in range(4):
+		simulation.advance_hour()
+	assert(simulation.structures.size() == 1, "La estructura no se creó al completar el trabajo.")
+	assert(simulation.inventory.capacity == ColonyInventory.DEFAULT_CAPACITY + 60, "El almacén no aumentó la capacidad.")
+	assert(not simulation.navigation.is_walkable(Vector2i(15, 1)), "El almacén terminado no ocupa su celda.")
+	var restored := ColonySimulation.new()
+	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se pudo restaurar una colonia con estructuras.")
+	assert(restored.structures.size() == 1, "La estructura no se conservó en el guardado.")
+	assert(restored.inventory.capacity == ColonyInventory.DEFAULT_CAPACITY + 60, "La capacidad del almacén no se conservó.")
+	assert(not restored.navigation.is_walkable(Vector2i(15, 1)), "La estructura restaurada no bloqueó su celda.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
