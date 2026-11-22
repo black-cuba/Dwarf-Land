@@ -141,7 +141,7 @@ func get_snapshot() -> Dictionary:
 		"health": health,
 		"body_temperature": body_temperature,
 		"alive": alive,
-		"current_level": current_level,
+		"current_level": current_position.y,
 		"current_position": current_position,
 		"visual_position": get_render_position(),
 		"is_moving": is_moving,
