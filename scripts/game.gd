@@ -83,7 +83,7 @@ func _draw_cavern() -> void:
 		var floor_y: float = floors[layer]
 		draw_rect(Rect2(45, floor_y, 1190, 16), Color("#7b5a3d") if layer < 2 else Color("#737b83"))
 		draw_rect(Rect2(45, floor_y + 16, 1190, 6), Color("#3d3029"))
-		draw_string(ThemeDB.fallback_font, Vector2(65, py - 12), labels[layer], HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("#e8d6b5"))
+		draw_string(ThemeDB.fallback_font, Vector2(65, floor_y - 12), labels[layer], HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("#e8d6b5"))
 
 	# One elevator shaft connects all three layers.
 	draw_rect(Rect2(1080, 195, 70, 400), Color("#495565"), false, 5.0)
@@ -100,10 +100,10 @@ func _draw_excavation_blocks() -> void:
 			continue
 		var px := 65.0 + float(cell.x) * 28.0
 		var floor_y: float = floors[cell.y]
-		draw_rect(Rect2(px - 13, py - 31, 26, 31), Color("#76563f"))
+		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#76563f"))
 		draw_rect(Rect2(px - 13, py - 31, 26, 31), Color("#a98761"), false, 2.0)
-		draw_line(Vector2(px - 8, floor_y - 22), Vector2(px + 7, py - 10), Color("#4d392d"), 2.0)
-		draw_line(Vector2(px + 5, py - 27), Vector2(px - 4, floor_y - 14), Color("#4d392d"), 2.0)
+		draw_line(Vector2(px - 8, floor_y - 22), Vector2(px + 7, floor_y - 10), Color("#4d392d"), 2.0)
+		draw_line(Vector2(px + 5, floor_y - 27), Vector2(px - 4, floor_y - 14), Color("#4d392d"), 2.0)
 
 	var active_floor: float = floors[simulation.active_level]
 	var grid_color := Color(0.82, 0.86, 0.9, 0.16)
@@ -298,10 +298,10 @@ func _draw_colonists() -> void:
 		var render_layer := colonist.map_position.z
 		if render_layer != simulation.active_level:
 			continue
-		var px := 65.0 + map_render_position.x * 28.0
+		var px := 65.0 + map_render_position.x * 28.0 + 14.0
 		var floors := [205.0, 390.0, 585.0]
 		var floor_y: float = floors[render_layer]
-		var py := py - 24.0 + (map_render_position.y - float(ColonyNavigationGrid.ELEVATOR_ROW)) * 12.0
+		var py := floor_y - 24.0 + (map_render_position.y - float(ColonyNavigationGrid.ELEVATOR_ROW)) * 12.0
 		draw_circle(Vector2(px, py - 22), 13, Color("#d9b58b"))
 		draw_rect(Rect2(px - 12, py - 12, 24, 27), body_colors[i % body_colors.size()])
 		draw_rect(Rect2(px - 10, py + 13, 8, 12), Color("#403b3a"))
