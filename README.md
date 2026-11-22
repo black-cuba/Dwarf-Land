@@ -21,7 +21,7 @@
 - Mapa de 40 × 12 celdas por capa, excavación en distintas filas y desplazamiento entre capas mediante ascensor.
 - Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
 - Colonos con actividad autónoma, profesiones y órdenes del jugador.
-- Recursos distribuidos por capa: árboles y cultivos en superficie, agua y tierra en subsuelo, roca y minerales en profundidad.
+- Recursos distribuidos por capa: árboles y cultivos en superficie, agua, arcilla y hongos medicinales en subsuelo, roca y minerales en profundidad.
 - Generación de cavernas reproducibles, excavación de bloques geológicos y apertura de rutas transitables.
 - Construcción sobre celdas 2D con ocupación sólida, persistencia y asignación de camas mediante rutas.
 - Transporte físico de recursos: los colonos recogen materiales, los cargan y los llevan al almacén; la carga sobrevive al guardado.
@@ -31,7 +31,7 @@
 - Descanso nocturno autónomo con asignación de camas, rutas por la cuadrícula 2D y recuperación de fatiga.
 - Temperatura ambiental variable por capa y horario, con exposición al frío/calor y alertas.
 - Construcción con costes de materiales, órdenes de trabajo, camas adicionales y almacenes que amplían la capacidad.
-- Taller que fabrica herramientas; la minería consume herramientas y aplica desgaste hasta romperlas.
+- Taller que fabrica herramientas y medicina; la minería consume herramientas y aplica desgaste hasta romperlas, y la medicina permite tratar enfermedades y lesiones.
 - Construcción, extracción y producción.
 - Tres modos: Campaña (almacén + taller + día 10), Supervivencia sin objetivo final y Sandbox sin desgaste de necesidades.
 - Enfermedades por estrés y eventos diarios; los accidentes de minería pueden causar lesiones recuperables con descanso.
