@@ -454,6 +454,23 @@ func _test_scheduler_reassigns_urgent_colonist_work() -> void:
 	assert(active[0]["assigned_colonist_id"] == "second", "La tarea no se reasignó al siguiente colono disponible.")
 
 
+func _test_scheduler_uses_2d_map_routes() -> void:
+	var scheduler := ColonyWorkScheduler.new()
+	var navigation := ColonyNavigationGrid.new()
+	var colonist := DwarfColonist.new(&"route_test", "Explorador", "Minero")
+	colonist.current_position = Vector2i(32, 0)
+	colonist.sync_map_position_from_legacy()
+	var colonists: Array[DwarfColonist] = [colonist]
+	scheduler.queue_order(&"stone", 2, Vector2i(36, 2), 3, 2.0, &"stone", 1)
+	scheduler.advance_hour(colonists, navigation)
+	scheduler.advance_hour(colonists, navigation)
+	assert(colonist.is_map_moving, "El planificador no inició el desplazamiento por la cuadrícula 2D.")
+	colonist.advance_map_movement(2.0)
+	assert(colonist.map_position == Vector3i(34, ColonyNavigationGrid.ELEVATOR_ROW, 2), "El colono no utilizó el ascensor para cambiar de capa.")
+	scheduler.advance_hour(colonists, navigation)
+	assert(colonist.is_map_moving, "El colono no reanudó la ruta 2D después de usar el ascensor.")
+
+
 func _test_simulation_work_order() -> void:
 	var simulation := ColonySimulation.new()
 	var source: ColonyResourceNode = simulation.resource_nodes[&"food"]
