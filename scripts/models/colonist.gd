@@ -12,6 +12,8 @@ var hunger := 15.0
 var thirst := 12.0
 var fatigue := 10.0
 var health := 100.0
+var illness_severity := 0.0
+var injury_severity := 0.0
 var body_temperature := 37.0
 var alive := true
 var current_level := 0
@@ -77,6 +79,7 @@ func advance_hour(is_rest_period: bool, ambient_temperature: float, sandbox_mode
 	else:
 		fatigue = minf(NEED_MAX, fatigue + 1.0)
 	_update_temperature(ambient_temperature)
+	_update_illness(is_rest_period)
 	_update_health()
 
 
@@ -108,6 +111,14 @@ func rest(hours: float = 2.0) -> void:
 	fatigue = maxf(0.0, fatigue - 12.0 * hours)
 
 
+func apply_illness(amount: float) -> void:
+	illness_severity = clampf(illness_severity + maxf(0.0, amount), 0.0, 100.0)
+
+
+func apply_injury(amount: float) -> void:
+	injury_severity = clampf(injury_severity + maxf(0.0, amount), 0.0, 100.0)
+
+
 func take_damage(amount: float) -> void:
 	if amount <= 0.0 or not alive:
 		return
@@ -121,6 +132,10 @@ func get_condition() -> String:
 		return "Fallecido"
 	if health < 30.0:
 		return "Grave"
+	if illness_severity >= 40.0:
+		return "Enfermo"
+	if injury_severity >= 30.0:
+		return "Herido"
 	if hunger >= CRITICAL_NEED or thirst >= CRITICAL_NEED:
 		return "Crítico"
 	if fatigue >= 85.0:
@@ -139,6 +154,8 @@ func get_snapshot() -> Dictionary:
 		"thirst": thirst,
 		"fatigue": fatigue,
 		"health": health,
+		"illness_severity": illness_severity,
+		"injury_severity": injury_severity,
 		"body_temperature": body_temperature,
 		"alive": alive,
 		"current_level": current_position.y,
@@ -162,7 +179,23 @@ func _update_temperature(ambient_temperature: float) -> void:
 		take_damage(0.15)
 
 
+func _update_illness(is_rest_period: bool) -> void:
+	var under_stress := hunger >= 80.0 or thirst >= 80.0 or body_temperature < 35.5 or body_temperature > 38.5
+	if under_stress:
+		illness_severity = minf(100.0, illness_severity + 0.35)
+	elif is_sleeping and is_rest_period:
+		illness_severity = maxf(0.0, illness_severity - 0.8)
+	else:
+		illness_severity = maxf(0.0, illness_severity - 0.05)
+	if is_sleeping:
+		injury_severity = maxf(0.0, injury_severity - 0.15)
+
+
 func _update_health() -> void:
+	if illness_severity >= 40.0:
+		take_damage(0.12)
+	if injury_severity >= 30.0:
+		take_damage(0.08)
 	if hunger >= CRITICAL_NEED:
 		take_damage(0.35)
 	if thirst >= CRITICAL_NEED:
