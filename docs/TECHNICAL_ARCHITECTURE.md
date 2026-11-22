@@ -15,7 +15,7 @@
 
 ## Modelo espacial
 
-La cuadrícula espacial nueva usa coordenadas `Vector3i(x, y, capa)`: 40 columnas por 12 filas en cada una de las tres capas. El generador crea bloques excavables reproducibles en las capas subterráneas, dejando abierto el corredor de acceso y la columna del ascensor; el estado de esos bloques se conserva en el guardado local. La navegación admite cuatro direcciones cardinales, obstáculos y rutas alternativas mediante búsqueda en anchura. El ascensor conecta las tres capas únicamente en su celda de acceso. La API anterior basada en `Vector2i` se conserva durante la migración gradual de colonos, órdenes, guardado e interfaz.
+El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni renderizado 3D. La cuadrícula lógica usa `Vector3i(x, y, capa)` únicamente como una tupla de datos para identificar la capa; las posiciones visuales y el dibujo se proyectan en `Vector2`. El mapa tiene 40 columnas por 12 filas en cada una de las tres capas. El generador crea bloques excavables reproducibles en las capas subterráneas, dejando abierto el corredor de acceso y la columna del ascensor; el estado de esos bloques se conserva en el guardado local. La navegación admite cuatro direcciones cardinales, obstáculos y rutas alternativas mediante búsqueda en anchura. El ascensor conecta las tres capas únicamente en su celda de acceso. La API anterior basada en `Vector2i` se conserva temporalmente para edificios y algunas fuentes mientras continúa la migración. El movimiento de colonos, la excavación geológica y la representación de bloques ya utilizan la cuadrícula 2D.
 
 - Capa 0: superficie (árboles, suelo fértil y cultivos).
 - Capa 1: subsuelo (tierra, raíces, arcilla y agua subterránea).
@@ -50,7 +50,7 @@ La cuadrícula espacial nueva usa coordenadas `Vector3i(x, y, capa)`: 40 columna
 - La exportación final requiere juego completo, pruebas superadas y autorización expresa.
 
 ## Pendiente
-- Migrar colonos, órdenes, guardado e interfaz a la nueva cuadrícula 2D; después activar colisiones de estructuras.
+- Migrar construcción, camas, cultivos y todas las fuentes a coordenadas de celdas 2D; después activar colisiones de estructuras.
 - Generación procedural de mapas y depósitos con semilla persistente.
 - Logística/transporte entre fuentes, colonos, almacenes y talleres.
 - Habitaciones, aislamiento y sistemas avanzados de producción.
