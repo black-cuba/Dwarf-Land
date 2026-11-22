@@ -1,59 +1,36 @@
 # Dwarf Land — Arquitectura técnica
 
-## Objetivo
+## Estructura
+- `scripts/models/colonist.gd`: necesidades, salud, temperatura, profesión y posición.
+- `scripts/models/resource_node.gd`: fuente finita o renovable, capa, ubicación y reserva.
+- `scripts/models/work_order.gd`: prioridad, destino, progreso y estado.
+- `scripts/systems/inventory.gd`: inventario y capacidad.
+- `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor y celdas bloqueadas.
+- `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento y ejecución.
+- `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
+- `tests/`: pruebas automatizadas.
 
-Separar las reglas de simulación de la interfaz. Los sistemas principales deben poder probarse sin cargar escenas ni depender de controles gráficos.
+## Modelo espacial
+- Capa 0: superficie (árboles, suelo fértil y cultivos).
+- Capa 1: subsuelo (tierra, raíces, arcilla y agua subterránea).
+- Capa 2: profundidad (roca madre, piedra y vetas minerales).
+- La cuadrícula solo permite tres capas.
+- El ascensor es la conexión vertical entre capas adyacentes.
+- Las fuentes de recursos declaran su capa y celda; las órdenes navegan hasta ellas.
 
-## Estructura por dominios
+## Reglas de recursos
+- Las fuentes renovables se regeneran diariamente sin superar su capacidad.
+- Los depósitos de piedra y mineral son finitos.
+- Cada orden reserva existencias antes de entrar en cola.
+- Los trabajos consumen tiempo y entregan producción al inventario.
+- El inventario limita la entrada; el excedente permanece pendiente.
+- La distribución inicial respeta el entorno: madera y cultivos en superficie, agua en subsuelo, roca y mineral en profundidad.
 
-- `scripts/models/colonist.gd`: estado individual, necesidades, salud, temperatura corporal, profesión y posición.
-- `scripts/models/resource_node.gd`: fuente de recursos finita o renovable, ubicación, reserva y regeneración.
-- `scripts/models/work_order.gd`: orden de trabajo, prioridad, destino, progreso y estado.
-- `scripts/systems/inventory.gd`: cantidades, capacidad de almacenamiento y operaciones seguras.
-- `scripts/systems/navigation_grid.gd`: cuadrícula de dos niveles, celdas bloqueadas y búsqueda de rutas.
-- `scripts/systems/work_scheduler.gd`: asignación por prioridad y especialidad, movimiento y ejecución de trabajos.
-- `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, inventario, producción y alertas.
-- `scenes/`: presentación visual y navegación de interfaz.
-- `tests/`: pruebas automatizadas de reglas de juego.
-- `docs/`: diseño, arquitectura y criterios de aceptación.
+## Validación
+- GitHub Actions importa el proyecto y ejecuta pruebas de lógica.
+- El flujo de validación no exporta APK.
+- No se compilará APK durante el desarrollo.
+- La exportación final requiere juego completo, pruebas superadas y autorización expresa.
 
-## Reglas de simulación implementadas
-
-- El reloj avanza una hora por paso de simulación.
-- Solo existen dos niveles, identificados internamente como 0 y 1.
-- La conexión vertical entre niveles está limitada al ascensor.
-- Los colonos tienen hambre, sed, fatiga, salud y temperatura corporal.
-- La comida y el agua se consumen del inventario; nunca aparecen automáticamente.
-- Las fuentes de comida, agua y madera se regeneran diariamente hasta su capacidad.
-- La cantera y la veta mineral tienen reservas finitas y no se regeneran.
-- Cada orden reserva existencias de una fuente antes de entrar en la cola.
-- Los trabajos consumen tiempo y entregan recursos al completarse.
-- La capacidad del almacén limita la entrada; el excedente producido queda pendiente y no se pierde.
-- La asignación respeta prioridades y favorece al colono con mayor especialización.
-- Los colonos suspenden el trabajo cuando sus necesidades alcanzan umbrales críticos.
-- Los colonos recorren la cuadrícula; el cambio de nivel solo es posible por el ascensor.
-
-## Capas pendientes
-
-1. Movimiento visual continuo, colisiones, obstáculos y navegación alrededor de instalaciones.
-2. Comportamiento autónomo completo: buscar comida, agua, cama, refugio y atención médica.
-3. Cultivos con siembra, crecimiento, mantenimiento y cosecha.
-4. Construcción funcional, habitaciones, camas, almacenes y talleres.
-5. Minería por vetas, herramientas, desgaste, transporte y fabricación.
-6. Temperatura de habitaciones, aislamiento, enfermedades, accidentes y eventos.
-7. Guardado local versionado, carga y recuperación segura.
-8. Modos Campaña, Supervivencia y Sandbox.
-9. Interfaz móvil completa, arte y audio originales.
-
-## Validación y compilación
-
-- GitHub Actions ejecuta importación del proyecto y pruebas de lógica.
-- La validación automática no exporta APK.
-- No se generará APK durante el desarrollo.
-- La exportación final requerirá que el juego esté completo, validado y autorización expresa.
-
-## Restricciones
-
-- Sin servidores, anuncios, analítica ni conexión obligatoria.
-- Sin servicios de pago.
-- Código, arte, audio y contenido originales.
+## Pendiente
+Movimiento continuo, excavación y generación de mapas; autonomía completa; cultivos; construcción; habitaciones; talleres; herramientas; transporte; eventos; guardado; modos de juego; interfaz móvil y arte/audio finales.
