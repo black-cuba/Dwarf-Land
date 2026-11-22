@@ -340,9 +340,9 @@ func _refresh_interface() -> void:
 	]
 	message_label.text = message
 
-	if action_buttons.size() > 6:
+	if action_buttons.size() > 7:
 		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer recurso"
-		action_buttons[6].text = "Reanudar" if simulation.paused else "Pausar"
+		action_buttons[7].text = "Reanudar" if simulation.paused else "Pausar"
 
 
 func _on_alert_raised(alert_message: String, severity: int) -> void:
