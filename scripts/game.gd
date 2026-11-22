@@ -326,7 +326,7 @@ func _build_interface() -> void:
 
 	var top := PanelContainer.new()
 	top.position = Vector2(18, 14)
-	top.size = Vector2(1244, 102)
+	top.size = Vector2(1244, 94)
 	root.add_child(top)
 
 	var top_box := VBoxContainer.new()
@@ -342,8 +342,12 @@ func _build_interface() -> void:
 	top_box.add_child(status_label)
 
 	var bottom := PanelContainer.new()
-	bottom.position = Vector2(18, 620)
-	bottom.size = Vector2(1244, 82)
+	bottom.position = Vector2(18, 666)
+	bottom.size = Vector2(1244, 54)
+	var bottom_style := StyleBoxFlat.new()
+	bottom_style.bg_color = Color("#1f2937")
+	bottom_style.set_content_margin_all(0.0)
+	bottom.add_theme_stylebox_override("panel", bottom_style)
 	root.add_child(bottom)
 
 	var action_scroll := ScrollContainer.new()
@@ -371,8 +375,8 @@ func _build_interface() -> void:
 	_add_button(row, "Pausar", _toggle_pause)
 
 	message_label = Label.new()
-	message_label.position = Vector2(24, 575)
-	message_label.size = Vector2(900, 32)
+	message_label.position = Vector2(24, 116)
+	message_label.size = Vector2(1200, 20)
 	message_label.add_theme_font_size_override("font_size", 17)
 	message_label.add_theme_color_override("font_color", Color("#ffe0a1"))
 	root.add_child(message_label)
