@@ -23,7 +23,8 @@
 - Excavación de bloques geológicos mediante órdenes de trabajo y apertura de rutas transitables.
 - Movimiento interpolado de colonos y guardado local automático con copia de seguridad.
 - Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.
-- Descanso nocturno autónomo con asignación de camas y recuperación de fatiga.\n- Temperatura ambiental variable por capa y horario, con exposición al frío/calor y alertas.
+- Descanso nocturno autónomo con asignación de camas y recuperación de fatiga.
+- Temperatura ambiental variable por capa y horario, con exposición al frío/calor y alertas.
 - Construcción, extracción y producción.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
