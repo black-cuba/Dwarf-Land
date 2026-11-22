@@ -44,24 +44,37 @@ func _draw() -> void:
 
 func _draw_cavern() -> void:
 	draw_rect(Rect2(0, 0, WORLD_WIDTH, WORLD_HEIGHT), Color("#111827"))
-	draw_rect(Rect2(0, 130, WORLD_WIDTH, 480), Color("#202a36"))
 
-	for i in range(16):
-		var x := float(i) * 88.0
-		draw_rect(Rect2(x, 155 + (i % 3) * 12, 56, 9), Color("#344252"))
-		draw_rect(Rect2(x + 24, 570 + (i % 4) * 8, 70, 7), Color("#303d4b"))
+	# Surface: sky, distant hills, grass and a continuous soil profile.
+	draw_rect(Rect2(0, 120, WORLD_WIDTH, 88), Color("#344b55"))
+	draw_rect(Rect2(0, 185, WORLD_WIDTH, 28), Color("#5e8b50"))
+	draw_rect(Rect2(0, 213, WORLD_WIDTH, 407), Color("#4a382d"))
+	draw_rect(Rect2(0, 250, WORLD_WIDTH, 150), Color("#63452f"))
+	draw_rect(Rect2(0, 420, WORLD_WIDTH, 200), Color("#34343a"))
 
-	# Dos plataformas jugables y un único eje de conexión.
-	draw_rect(Rect2(45, 330, 1190, 18), Color("#8b6548"))
-	draw_rect(Rect2(45, 570, 1190, 18), Color("#8b6548"))
-	draw_rect(Rect2(45, 348, 1190, 7), Color("#513d32"))
-	draw_rect(Rect2(45, 588, 1190, 7), Color("#513d32"))
-	draw_string(ThemeDB.fallback_font, Vector2(65, 305), "NIVEL 1 · REFUGIO Y PRODUCCIÓN", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color("#e8d6b5"))
-	draw_string(ThemeDB.fallback_font, Vector2(65, 545), "NIVEL 2 · EXTRACCIÓN Y MATERIALES", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color("#e8d6b5"))
+	for i in range(18):
+		var x := float(i) * 78.0
+		draw_rect(Rect2(x, 216 + (i % 3) * 14, 48, 5), Color("#76513a"))
+		draw_circle(Vector2(x + 28, 282 + (i % 4) * 20), 3, Color("#9a7958"))
+		draw_circle(Vector2(x + 12, 462 + (i % 5) * 20), 4, Color("#59616a"))
 
-	draw_rect(Rect2(1080, 260, 70, 330), Color("#495565"), false, 5.0)
-	draw_line(Vector2(1115, 265), Vector2(1115, 575), Color("#c7a66a"), 3.0)
-	var lift_y := 330.0 if simulation.active_level == 0 else 570.0
+	# Three walkable layers: surface, shallow subsurface and deep bedrock.
+	var floors := [205.0, 390.0, 585.0]
+	var labels := [
+		"SUPERFICIE · ÁRBOLES Y SUELO",
+		"SUBSUELO · RAÍCES, ARCILLA Y AGUA",
+		"PROFUNDIDAD · ROCA Y VETAS MINERALES"
+	]
+	for layer in range(3):
+		var floor_y: float = floors[layer]
+		draw_rect(Rect2(45, floor_y, 1190, 16), Color("#7b5a3d") if layer < 2 else Color("#737b83"))
+		draw_rect(Rect2(45, floor_y + 16, 1190, 6), Color("#3d3029"))
+		draw_string(ThemeDB.fallback_font, Vector2(65, floor_y - 12), labels[layer], HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("#e8d6b5"))
+
+	# One elevator shaft connects all three layers.
+	draw_rect(Rect2(1080, 195, 70, 400), Color("#495565"), false, 5.0)
+	draw_line(Vector2(1115, 200), Vector2(1115, 590), Color("#c7a66a"), 3.0)
+	var lift_y: float = floors[simulation.active_level]
 	draw_circle(Vector2(1115, lift_y), 10.0, Color("#f4c76b"))
 
 
@@ -96,7 +109,7 @@ func _draw_resource_nodes() -> void:
 			continue
 
 		var px := 65.0 + float(node.cell.x) * 28.0
-		var floor_y := 330.0 if node.level == 0 else 570.0
+		var floor_y: float = [205.0, 390.0, 585.0][node.level]
 		var amount := node.available_units
 
 		match resource:
@@ -151,7 +164,7 @@ func _draw_colonists() -> void:
 		if colonist.current_position.y != simulation.active_level:
 			continue
 		var px := 65.0 + float(colonist.current_position.x) * 28.0
-		var floor_y := 330.0 if colonist.current_position.y == 0 else 570.0
+		var floor_y: float = [205.0, 390.0, 585.0][colonist.current_position.y]
 		var py := floor_y - 24.0
 		draw_circle(Vector2(px, py - 22), 13, Color("#d9b58b"))
 		draw_rect(Rect2(px - 12, py - 12, 24, 27), body_colors[i % body_colors.size()])
@@ -163,7 +176,8 @@ func _draw_colonists() -> void:
 
 
 func _draw_level_marker() -> void:
-	var label := "REFUGIO ACTIVO" if simulation.active_level == 0 else "MINA ACTIVA"
+	var labels := ["SUPERFICIE ACTIVA", "SUBSUELO ACTIVO", "PROFUNDIDAD ACTIVA"]
+	var label: String = labels[simulation.active_level]
 	draw_rect(Rect2(930, 150, 260, 38), Color("#17212c"))
 	draw_string(ThemeDB.fallback_font, Vector2(950, 176), label, HORIZONTAL_ALIGNMENT_LEFT, 230, 17, Color("#f0c879"))
 
@@ -260,14 +274,14 @@ func _on_alert_raised(alert_message: String, severity: int) -> void:
 
 func _switch_level() -> void:
 	simulation.switch_level()
-	message = "Ahora estás en el nivel %d de 2." % (simulation.active_level + 1)
+	message = "Ahora estás en: %s." % ["Superficie", "Subsuelo", "Profundidad"][simulation.active_level]
 	_refresh_interface()
 	queue_redraw()
 
 
 func _gather_food() -> void:
 	if simulation.active_level != 0:
-		message = "La producción de alimentos se gestiona en el nivel 1."
+		message = "Los cultivos y la recolección de alimentos están en la superficie."
 		_refresh_interface()
 		return
 
@@ -279,8 +293,8 @@ func _gather_food() -> void:
 
 
 func _gather_water() -> void:
-	if simulation.active_level != 0:
-		message = "El abastecimiento de agua se gestiona en el nivel 1."
+	if simulation.active_level != 1:
+		message = "El agua subterránea se obtiene en el subsuelo."
 		_refresh_interface()
 		return
 
@@ -292,8 +306,8 @@ func _gather_water() -> void:
 
 
 func _mine_stone() -> void:
-	if simulation.active_level != 1:
-		message = "La extracción de piedra se realiza en el nivel 2."
+	if simulation.active_level != 2:
+		message = "La piedra se extrae en la zona profunda."
 		_refresh_interface()
 		return
 
@@ -306,7 +320,7 @@ func _mine_stone() -> void:
 
 func _gather_wood() -> void:
 	if simulation.active_level != 0:
-		message = "La tala y preparación de madera se gestiona en el nivel 1."
+		message = "La madera se obtiene de los árboles de la superficie."
 		_refresh_interface()
 		return
 
