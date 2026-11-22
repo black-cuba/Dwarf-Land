@@ -1,10 +1,10 @@
 # Dwarf Land — Arquitectura técnica
 
 ## Estructura
-- `scripts/models/colonist.gd`: necesidades, salud, temperatura, profesión y posición.
+- `scripts/models/colonist.gd`: necesidades, salud, temperatura, profesión, posición lógica y movimiento interpolado.
 - `scripts/models/resource_node.gd`: fuente finita o renovable, capa, ubicación y reserva.
 - `scripts/models/work_order.gd`: prioridad, destino, progreso y estado.
-- `scripts/systems/inventory.gd`: inventario y capacidad.
+- `scripts/systems/inventory.gd`: inventario y capacidad.\n- `scripts/systems/save_system.gd`: guardado JSON local versionado, escritura temporal y recuperación desde copia de seguridad.
 - `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor, obstáculos, bloques excavables y celdas excavadas.
 - `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
 - `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
@@ -29,7 +29,7 @@
 
 ## Validación
 - GitHub Actions importa el proyecto y ejecuta pruebas de lógica.
-- El flujo de validación no exporta APK.
+- El guardado automático se ejecuta cada seis horas de juego y al suspender o cerrar la aplicación.\n- El flujo de validación no exporta APK.
 - No se compilará APK durante el desarrollo.
 - La exportación final requiere juego completo, pruebas superadas y autorización expresa.
 
