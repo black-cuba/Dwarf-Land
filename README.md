@@ -15,7 +15,7 @@
 
 ## Pilares de diseño
 
-- Tres capas jugables: superficie, subsuelo y profundidad.
+- Tres capas jugables: superficie, subsuelo y profundidad.\n- Semilla de mundo reproducible con variación inicial de bosques, acuíferos, arcilla y vetas minerales.
 - Vista 2D lateral.
 - Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
 - Colonos con actividad autónoma, profesiones y órdenes del jugador.
