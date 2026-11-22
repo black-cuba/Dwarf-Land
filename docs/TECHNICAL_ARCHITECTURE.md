@@ -9,7 +9,7 @@ Mantener la simulación separada de la interfaz. Las reglas de supervivencia deb
 - `scripts/models/colonist.gd`: estado individual, necesidades, salud y condición de cada colono.
 - `scripts/systems/inventory.gd`: cantidades, capacidad de almacenamiento y operaciones seguras del inventario.
 - `scripts/systems/colony_simulation.gd`: reloj de colonia, avance horario, satisfacción de necesidades y alertas.\n- `scripts/models/work_order.gd`: orden de trabajo con prioridad, progreso y estado.
-- `scripts/models/resource_node.gd`: fuente de recursos finita o renovable con reserva y regeneración.\n- `scripts/systems/work_scheduler.gd`: asignación de trabajos, prioridad, bonificación profesional y bloqueo por necesidades críticas.
+- `scripts/models/resource_node.gd`: fuente de recursos finita o renovable con reserva y regeneración.\n- `scripts/systems/navigation_grid.gd`: grid navigation with one elevator connection and blocked-cell support.\n- `scripts/systems/work_scheduler.gd`: asignación de trabajos, prioridad, bonificación profesional y bloqueo por necesidades críticas.
 - `scenes/`: presentación visual y navegación.
 - `docs/`: diseño, arquitectura y decisiones técnicas.
 
@@ -22,7 +22,7 @@ Mantener la simulación separada de la interfaz. Las reglas de supervivencia deb
 - La capacidad del almacén limita la entrada de recursos.
 - Las órdenes reservan recursos de una fuente física; no generan recursos ilimitados.
 - Las fuentes renovables recuperan existencias al comenzar un nuevo día; los depósitos minerales no se regeneran.
-- Los colonos suspenden el trabajo cuando hambre, sed o fatiga alcanzan umbrales críticos.
+- Los colonos recorren una cuadrícula horizontal y solo cambian de nivel mediante el ascensor.\n- Los colonos suspenden el trabajo cuando hambre, sed o fatiga alcanzan umbrales críticos.
 - Cada profesión tiene un rendimiento mayor en sus tareas especializadas.
 - La muerte de un colono no elimina su registro histórico.
 - La interfaz no debe modificar directamente las necesidades ni el inventario: solicita acciones al sistema de simulación.
