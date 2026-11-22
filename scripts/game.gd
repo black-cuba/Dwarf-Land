@@ -339,6 +339,7 @@ func _build_interface() -> void:
 	_add_button(row, "Sembrar", _plant_crops)
 	_add_button(row, "Construir", _toggle_build_mode)
 	_add_button(row, "Fabricar", _craft_tool)
+	_add_button(row, "Guardar", _save_game)
 	_add_button(row, "Pausar", _toggle_pause)
 
 	message_label = Label.new()
@@ -381,11 +382,11 @@ func _refresh_interface() -> void:
 	]
 	message_label.text = message
 
-	if action_buttons.size() > 9:
+	if action_buttons.size() > 10:
 		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer"
 		action_buttons[7].text = "Plano: " + String(_get_selected_building()).capitalize() if build_mode else "Construir"
 		action_buttons[8].disabled = not simulation.has_workshop()
-		action_buttons[9].text = "Reanudar" if simulation.paused else "Pausar"
+		action_buttons[10].text = "Reanudar" if simulation.paused else "Pausar"
 
 
 func _on_alert_raised(alert_message: String, severity: int) -> void:
@@ -520,6 +521,15 @@ func _plant_crops() -> void:
 		message = "No se puede sembrar: revisa el estado del campo y las semillas."
 	_refresh_interface()
 
+
+
+
+func _save_game() -> void:
+	if simulation.save_game():
+		message = "Partida guardada correctamente en el dispositivo."
+	else:
+		message = "No se pudo guardar la partida."
+	_refresh_interface()
 
 
 func _craft_tool() -> void:
