@@ -489,6 +489,8 @@ func get_snapshot() -> Dictionary:
 		"structures": structures.duplicate(true),
 		"tool_durability": tool_durability,
 		"reserved_tool_orders": _reserved_tool_orders.duplicate(true),
+		"reserved_order_inputs": _reserved_order_inputs.duplicate(true),
+		"reserved_resource_nodes": _reserved_resource_nodes.duplicate(true),
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
 		"pending_outputs": _pending_outputs.duplicate(true),
@@ -632,6 +634,14 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	_reserved_tool_orders.clear()
 	for order_id in reserved_tools:
 		_reserved_tool_orders[StringName(order_id)] = float(reserved_tools[order_id])
+	var reserved_inputs: Variant = snapshot.get("reserved_order_inputs", {})
+	if typeof(reserved_inputs) != TYPE_DICTIONARY:
+		return false
+	_reserved_order_inputs = reserved_inputs.duplicate(true)
+	var reserved_nodes: Variant = snapshot.get("reserved_resource_nodes", {})
+	if typeof(reserved_nodes) != TYPE_DICTIONARY:
+		return false
+	_reserved_resource_nodes = reserved_nodes.duplicate(true)
 	var pending_data: Variant = snapshot.get("pending_outputs", [])
 	if typeof(pending_data) != TYPE_ARRAY:
 		return false
@@ -771,11 +781,41 @@ func _on_task_cancelled(task_id: StringName) -> void:
 	if _reserved_tool_orders.has(task_id):
 		_reserved_tool_orders.erase(task_id)
 		inventory.add_resource(&"tools", 1)
+	_refund_order_inputs(task_id)
+	_refund_resource_node(task_id)
 	colony_changed.emit()
+
+
+func _reserve_order_inputs(order_id: StringName, inputs: Dictionary) -> void:
+	if order_id != &"" and not inputs.is_empty():
+		_reserved_order_inputs[order_id] = inputs.duplicate(true)
+
+
+func _refund_order_inputs(order_id: StringName) -> void:
+	if not _reserved_order_inputs.has(order_id):
+		return
+	var inputs: Dictionary = _reserved_order_inputs[order_id]
+	_reserved_order_inputs.erase(order_id)
+	for resource in inputs:
+		_store_output(StringName(resource), int(inputs[resource]))
+
+
+func _refund_resource_node(order_id: StringName) -> void:
+	if not _reserved_resource_nodes.has(order_id):
+		return
+	var reservation: Dictionary = _reserved_resource_nodes[order_id]
+	_reserved_resource_nodes.erase(order_id)
+	var resource := StringName(reservation.get("resource", ""))
+	if not resource_nodes.has(resource):
+		return
+	var node: ColonyResourceNode = resource_nodes[resource]
+	node.available_units = mini(node.maximum_units, node.available_units + int(reservation.get("amount", 0)))
 
 
 func _on_task_completed(task_id: StringName, resource: StringName, amount: int) -> void:
 	_complete_reserved_tool(task_id)
+	_reserved_order_inputs.erase(task_id)
+	_reserved_resource_nodes.erase(task_id)
 	if resource == &"" or amount <= 0:
 		colony_changed.emit()
 		return
