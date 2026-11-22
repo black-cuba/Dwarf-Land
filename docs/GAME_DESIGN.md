@@ -35,7 +35,9 @@ La distribución respeta reglas ecológicas/geológicas. La generación inicial 
 - Las construcciones consumen materiales y requieren trabajo; los almacenes amplían capacidad y las camas aumentan los puestos de descanso.
 - Recursos: comida, agua, madera, tierra/arcilla, piedra, minerales, herramientas y materiales.
 - Vivienda, almacenes, talleres, cultivos e instalaciones.
-- Campaña: construir un almacén y un taller y alcanzar el día 10.\n- Supervivencia: administrar la colonia sin objetivo final.\n- Sandbox: construir y producir sin desgaste de hambre, sed, fatiga ni temperatura.
+- Campaña: construir un almacén y un taller y alcanzar el día 10.
+- Supervivencia: administrar la colonia sin objetivo final.
+- Sandbox: construir y producir sin desgaste de hambre, sed, fatiga ni temperatura.
 - Juego offline, sin anuncios, telemetría, servidores ni servicios de pago.
 - Código, arte, música y contenido originales; no se copia material protegido de otros juegos.
 
@@ -50,26 +52,26 @@ La versión de desarrollo ya incorpora:
 - Temperatura variable por capa y horario, exposición térmica y alertas.
 - Construcción con costes de madera/piedra; almacenes amplían la capacidad.
 - Taller con receta de fabricación de herramientas y desgaste por extracción.
-- Guardado local versionado, copia de seguridad y recuperación.
+- Guardado local versionado, copia de seguridad, recuperación y guardado manual.
+- Tres modos: Campaña (almacén, taller y día 10), Supervivencia abierta y Sandbox sin desgaste de necesidades.
+- Generación reproducible mediante semilla para variar parte de los recursos.
 - Pruebas automatizadas de lógica ejecutadas en GitHub Actions.
 
 Limitaciones actuales:
 - El mapa usa una sola línea de navegación por capa; todavía no tiene movimiento libre 2D, rutas alternativas ni colisiones completas.
 - Las estructuras se dibujan y tienen efectos funcionales, pero siguen siendo transitables.
-- La semilla varía parte de los recursos; todavía falta generación procedural completa de galerías, vetas, obstáculos y distribución geológica.
-- Faltan transporte de materiales entre instalaciones, construcción avanzada, enfermedades, accidentes y eventos.
-- Los modos Campaña, Supervivencia y Sandbox todavía no están implementados.
+- La semilla varía varios depósitos, pero faltan galerías, vetas y obstáculos generados proceduralmente.
+- Faltan transporte físico de materiales, habitaciones avanzadas, enfermedades, accidentes y eventos.
 - La interfaz, el arte y el audio siguen siendo provisionales; falta validación en dispositivos Android reales.
 
 ## Próximos hitos
 1. Rehacer la navegación como mapa 2D con rutas alternativas, colisiones y excavación de galerías.
-2. Generación procedural y guardado de semilla del mundo, con distribución variable de vetas.
-3. Transporte de materiales, logística y comportamiento autónomo avanzado.
-4. Habitaciones, aislamiento, camas, talleres y producción ampliada.
+2. Generación procedural completa de terreno y vetas.
+3. Transporte de materiales y logística entre fuentes, colonos, almacenes y talleres.
+4. Habitaciones, aislamiento y sistemas avanzados de producción.
 5. Enfermedades, accidentes, eventos y ecología ambiental.
-6. Modos Campaña, Supervivencia y Sandbox.
-7. Interfaz móvil adaptable, controles táctiles completos, arte y audio originales.
-8. Pruebas funcionales y de rendimiento en Android.
+6. Interfaz móvil adaptable, controles táctiles completos, arte y audio originales.
+7. Pruebas funcionales y de rendimiento en Android.
 
 ## Regla de entrega
 No se compilará ni publicará APK hasta que el juego esté completo, las pruebas estén superadas y exista autorización expresa.
