@@ -40,7 +40,7 @@ La firma de distribución se configurará al llegar a esa etapa, usando un secre
 - `scenes/`: escenas Godot.
 - `scripts/`: lógica del juego.
 - `docs/`: diseño y decisiones técnicas.
-- `.github/workflows/`: automatización de validación y compilación.
+- `.github/workflows/`: validación automática del proyecto y las reglas de juego; no compila APK.
 
 ## Coste
 
