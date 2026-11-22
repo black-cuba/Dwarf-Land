@@ -18,7 +18,7 @@
 - Exactamente dos niveles subterráneos jugables.
 - Vista 2D lateral.
 - Supervivencia basada en necesidades, fuentes limitadas y consumo de recursos.
-- Colonos con actividad autónoma y órdenes del jugador.
+- Colonos con actividad autónoma, profesiones y órdenes del jugador.\n- Fuentes de recursos finitas y renovables con navegación entre dos niveles.
 - Construcción, extracción y producción.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
