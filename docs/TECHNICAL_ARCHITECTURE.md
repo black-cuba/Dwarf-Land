@@ -34,7 +34,7 @@ El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni ren
 - Las cargas de los colonos y sus órdenes de entrega se conservan al guardar y restaurar la partida.
 - La distribución respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
 - Una semilla guardada genera variaciones reproducibles en las posiciones de varios recursos; algunos obstáculos y el depósito principal de piedra aún son fijos.
-- Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas.
+- Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas. Los hongos subterráneos se regeneran y se procesan en el taller para fabricar medicina; esta reduce enfermedad y lesión.
 - En el horario nocturno, el planificador libera trabajos, asigna camas libres y los colonos recuperan fatiga al llegar al refugio.
 - La temperatura local depende de la capa, la hora y el refugio; la exposición extrema reduce la salud y activa alertas.
 - Campaña registra objetivos de almacén, taller y día 10; Supervivencia es abierta; Sandbox suspende el desgaste de necesidades y temperatura.
