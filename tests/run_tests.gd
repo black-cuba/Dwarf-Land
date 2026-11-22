@@ -80,8 +80,10 @@ func _test_simulation_work_order() -> void:
 	var water_source: ColonyResourceNode = simulation.resource_nodes[&"water"]
 	var stone_source: ColonyResourceNode = simulation.resource_nodes[&"stone"]
 	var ore_source: ColonyResourceNode = simulation.resource_nodes[&"ore"]
-	assert(water_source.level == 1, "El acuífero debe estar en el subsuelo.")
-	assert(stone_source.level == 2 and ore_source.level == 2, "La piedra y los minerales deben estar en profundidad.")
+	var clay_source: ColonyResourceNode = simulation.resource_nodes[&"clay"]
+	var coal_source: ColonyResourceNode = simulation.resource_nodes[&"coal"]
+	assert(water_source.level == 1 and clay_source.level == 1, "El acuífero y la arcilla deben estar en el subsuelo.")
+	assert(stone_source.level == 2 and ore_source.level == 2 and coal_source.level == 2, "La roca, el carbón y los minerales deben estar en profundidad.")
 	var initial_inventory := simulation.inventory.get_amount(&"food")
 
 	assert(simulation.queue_work(&"food", 3), "No se pudo encolar una tarea de comida.")
