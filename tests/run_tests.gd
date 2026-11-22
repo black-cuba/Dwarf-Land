@@ -10,6 +10,7 @@ func _run_tests() -> void:
 	_test_save_system_backup_recovery()
 	_test_simulation_snapshot_restore()
 	_test_crop_growth_and_harvest()
+	_test_simulation_planting_queue()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -130,6 +131,16 @@ func _test_crop_growth_and_harvest() -> void:
 	for _day in range(4):
 		field.advance_day(true)
 	assert(field.is_ready and field.harvestable_units == ColonyCropField.HARVEST_PER_CYCLE, "El cultivo no maduró tras cuatro días con agua.")
+
+
+
+func _test_simulation_planting_queue() -> void:
+	var simulation := ColonySimulation.new()
+	simulation.crop_field.harvest(ColonyCropField.HARVEST_PER_CYCLE)
+	var seeds_before := simulation.inventory.get_amount(&"seeds")
+	assert(simulation.queue_planting(), "No se pudo crear la orden de siembra.")
+	assert(not simulation.queue_planting(), "Se permitió duplicar una orden de siembra.")
+	assert(simulation.inventory.get_amount(&"seeds") == seeds_before - 1, "La semilla no se reservó al crear la orden.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
