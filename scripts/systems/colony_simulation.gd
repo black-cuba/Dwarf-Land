@@ -38,6 +38,7 @@ func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
 	scheduler.terrain_excavated.connect(_on_terrain_excavated)
 	scheduler.map_terrain_excavated.connect(_on_map_terrain_excavated)
+	scheduler.map_structure_built.connect(_on_map_structure_built)
 	scheduler.crop_planted.connect(_on_crop_planted)
 	scheduler.structure_built.connect(_on_structure_built)
 	scheduler.task_cancelled.connect(_on_task_cancelled)
@@ -179,6 +180,54 @@ func queue_map_excavation(cell: Vector3i, priority: int = 3) -> bool:
 	return true
 
 
+func queue_map_construction(structure_type: StringName, cell: Vector3i, priority: int = 3) -> bool:
+	if not navigation.is_map_cell_inside(cell) or cell.z != active_level or not navigation.is_map_walkable(cell):
+		return false
+	if cell == Vector3i(crop_field.cell.x, ColonyNavigationGrid.ELEVATOR_ROW, 0):
+		return false
+	for node in resource_nodes.values():
+		var node_cell := Vector3i(node.cell.x, ColonyNavigationGrid.ELEVATOR_ROW, node.level)
+		if node_cell == cell:
+			return false
+	for structure in structures:
+		var existing: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 0))))
+		if existing == cell:
+			return false
+	for order in scheduler.orders:
+		if order.work_type == &"map_build" and order.target_map_cell == cell and (order.state == ColonyWorkOrder.State.AVAILABLE or order.state == ColonyWorkOrder.State.IN_PROGRESS):
+			return false
+
+	var wood_cost := 0
+	var stone_cost := 0
+	var required_work := 1.0
+	match structure_type:
+		&"bed":
+			wood_cost = 3
+			required_work = 2.0
+			if cell.z != 1:
+				return false
+		&"storage":
+			wood_cost = 8
+			stone_cost = 4
+			required_work = 4.0
+		&"workshop":
+			wood_cost = 6
+			stone_cost = 6
+			required_work = 5.0
+		_:
+			return false
+	if not inventory.has_amount(&"wood", wood_cost) or not inventory.has_amount(&"stone", stone_cost):
+		return false
+	inventory.remove_resource(&"wood", wood_cost)
+	inventory.remove_resource(&"stone", stone_cost)
+	if scheduler.queue_map_construction(cell, structure_type, priority, required_work) == &"":
+		inventory.add_resource(&"wood", wood_cost)
+		inventory.add_resource(&"stone", stone_cost)
+		return false
+	colony_changed.emit()
+	return true
+
+
 func queue_planting(priority: int = 3) -> bool:
 	if active_level != 0 or crop_field.is_planted:
 		return false
@@ -301,6 +350,21 @@ func queue_crafting(recipe: StringName, priority: int = 3) -> bool:
 	scheduler.queue_order(&"craft", workshop_cell.y, workshop_cell, priority, 3.0, &"tools", 1)
 	colony_changed.emit()
 	return true
+
+
+func get_bed_map_cells() -> Array[Vector3i]:
+	var result: Array[Vector3i] = [
+		Vector3i(7, ColonyNavigationGrid.ELEVATOR_ROW, 1),
+		Vector3i(8, ColonyNavigationGrid.ELEVATOR_ROW, 1),
+		Vector3i(9, ColonyNavigationGrid.ELEVATOR_ROW, 1)
+	]
+	for structure in structures:
+		if StringName(structure.get("type", "")) != &"bed":
+			continue
+		var map_cell: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 1))))
+		if not result.has(map_cell):
+			result.append(map_cell)
+	return result
 
 
 func get_bed_cells() -> Array[Vector2i]:
@@ -523,8 +587,8 @@ func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
 		colonist.is_sleeping = false
 		return
 
-	var bed: Vector2i = _bed_assignments[colonist.id]
-	var bed_map_cell := Vector3i(bed.x, ColonyNavigationGrid.ELEVATOR_ROW, bed.y)
+	var bed: Vector3i = _bed_assignments[colonist.id]
+	var bed_map_cell := bed
 	if colonist.map_position == bed_map_cell and not colonist.is_map_moving:
 		colonist.is_sleeping = true
 		return
@@ -538,19 +602,16 @@ func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
 
 
 func _assign_bed(colonist: DwarfColonist) -> void:
-	var beds := get_bed_cells()
+	var beds := get_bed_map_cells()
 	var occupied: Array = _bed_assignments.values()
-	var best_bed := Vector2i(-1, -1)
+	var best_bed := Vector3i(-1, -1, -1)
 	var best_distance := 2147483647
 	for bed in beds:
-		if occupied.has(bed) or not navigation.is_walkable(bed):
-			continue
-		var bed_map_cell := Vector3i(bed.x, ColonyNavigationGrid.ELEVATOR_ROW, bed.y)
-		if not navigation.is_map_walkable(bed_map_cell):
+		if occupied.has(bed) or not navigation.is_map_walkable(bed):
 			continue
 		var distance := 0
-		if colonist.map_position != bed_map_cell:
-			var path := navigation.find_map_path(colonist.map_position, bed_map_cell)
+		if colonist.map_position != bed:
+			var path := navigation.find_map_path(colonist.map_position, bed)
 			if path.is_empty():
 				continue
 			distance = path.size()
@@ -648,6 +709,20 @@ func _on_terrain_excavated(_cell: Vector2i) -> void:
 
 
 func _on_map_terrain_excavated(_cell: Vector3i) -> void:
+	colony_changed.emit()
+
+
+func _on_map_structure_built(cell: Vector3i, structure_type: StringName) -> void:
+	var structure_id := "structure_%04d" % (structures.size() + 1)
+	structures.append({
+		"id": structure_id,
+		"type": String(structure_type),
+		"cell": Vector2i(cell.x, cell.z),
+		"map_cell": cell,
+		"level": cell.z
+	})
+	if structure_type == &"storage":
+		inventory.capacity += 60
 	colony_changed.emit()
 
 
