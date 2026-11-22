@@ -7,13 +7,16 @@
 - `scripts/systems/inventory.gd`: inventario y capacidad.
 - `scripts/systems/save_system.gd`: guardado JSON local versionado, escritura temporal y recuperación desde copia de seguridad.
 - `scripts/models/crop_field.gd`: ciclo de cultivo, humedad, maduración, cosecha y resiembra.
-- `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor, obstáculos, bloques excavables y celdas excavadas.
+- `scripts/systems/navigation_grid.gd`: navegación heredada por capa y nueva cuadrícula espacial 2D (X/Y + capa Z), con rutas alternativas, ascensor, obstáculos y excavación.
 - `scripts/systems/world_generator.gd`: distribución reproducible de recursos a partir de una semilla persistente.
 - `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
 - `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
 - `tests/`: pruebas automatizadas.
 
 ## Modelo espacial
+
+La cuadrícula espacial nueva usa coordenadas `Vector3i(x, y, capa)`: 40 columnas por 12 filas en cada una de las tres capas. La navegación admite cuatro direcciones cardinales, obstáculos y rutas alternativas mediante búsqueda en anchura. El ascensor conecta las tres capas únicamente en su celda de acceso. La API anterior basada en `Vector2i` se conserva durante la migración gradual de colonos, órdenes, guardado e interfaz.
+
 - Capa 0: superficie (árboles, suelo fértil y cultivos).
 - Capa 1: subsuelo (tierra, raíces, arcilla y agua subterránea).
 - Capa 2: profundidad (roca madre, piedra y vetas minerales).
@@ -47,7 +50,7 @@
 - La exportación final requiere juego completo, pruebas superadas y autorización expresa.
 
 ## Pendiente
-- Navegación 2D real, rutas alternativas y colisiones de estructuras.
+- Migrar colonos, órdenes, guardado e interfaz a la nueva cuadrícula 2D; después activar colisiones de estructuras.
 - Generación procedural de mapas y depósitos con semilla persistente.
 - Logística/transporte entre fuentes, colonos, almacenes y talleres.
 - Habitaciones, aislamiento y sistemas avanzados de producción.
