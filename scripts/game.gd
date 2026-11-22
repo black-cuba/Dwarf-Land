@@ -101,7 +101,7 @@ func _draw_excavation_blocks() -> void:
 		var px := 65.0 + float(cell.x) * 28.0
 		var floor_y: float = floors[cell.y]
 		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#76563f"))
-		draw_rect(Rect2(px - 13, py - 31, 26, 31), Color("#a98761"), false, 2.0)
+		draw_rect(Rect2(px - 13, floor_y - 31, 26, 31), Color("#a98761"), false, 2.0)
 		draw_line(Vector2(px - 8, floor_y - 22), Vector2(px + 7, floor_y - 10), Color("#4d392d"), 2.0)
 		draw_line(Vector2(px + 5, floor_y - 27), Vector2(px - 4, floor_y - 14), Color("#4d392d"), 2.0)
 
