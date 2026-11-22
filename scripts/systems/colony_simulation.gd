@@ -19,12 +19,20 @@ var ambient_temperature := 18.0
 var inventory := ColonyInventory.new()
 var scheduler := ColonyWorkScheduler.new()
 var colonists: Array[DwarfColonist] = []
+var resource_nodes: Dictionary = {}
 var _pending_outputs: Array[Dictionary] = []
 var _last_alert_key := ""
 
 
 func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
+	resource_nodes = {
+		&"food": ColonyResourceNode.new(&"cave_garden", &"food", 0, 24, 48, 6, 4.0, 6),
+		&"water": ColonyResourceNode.new(&"underground_spring", &"water", 0, 32, 64, 8, 3.0, 8),
+		&"wood": ColonyResourceNode.new(&"fungal_timber", &"wood", 0, 18, 36, 3, 5.0, 6),
+		&"stone": ColonyResourceNode.new(&"stone_quarry", &"stone", 1, 60, 100, 0, 5.0, 5),
+		&"ore": ColonyResourceNode.new(&"ore_vein", &"ore", 1, 24, 40, 0, 6.0, 3)
+	}
 	colonists.append(DwarfColonist.new(&"dwarf_001", "Borin", "Recolector"))
 	colonists.append(DwarfColonist.new(&"dwarf_002", "Dora", "Agricultora"))
 	colonists.append(DwarfColonist.new(&"dwarf_003", "Krag", "Minero"))
@@ -74,31 +82,32 @@ func add_resource(resource: StringName, quantity: int) -> int:
 
 
 func queue_work(work_type: StringName, priority: int = 3) -> bool:
-	var order_data: Dictionary
-	match work_type:
-		&"food":
-			order_data = {"level": 0, "hours": 4.0, "resource": &"food", "amount": 6}
-		&"water":
-			order_data = {"level": 0, "hours": 3.0, "resource": &"water", "amount": 8}
-		&"wood":
-			order_data = {"level": 0, "hours": 5.0, "resource": &"wood", "amount": 6}
-		&"stone":
-			order_data = {"level": 1, "hours": 5.0, "resource": &"stone", "amount": 5}
-		&"ore":
-			order_data = {"level": 1, "hours": 6.0, "resource": &"ore", "amount": 3}
-		_:
-			return false
+	if not resource_nodes.has(work_type):
+		return false
+
+	var node: ColonyResourceNode = resource_nodes[work_type]
+	if not node.reserve(node.output_per_batch):
+		alert_raised.emit("No quedan recursos disponibles en esta fuente.", ALERT_WARNING)
+		return false
 
 	scheduler.queue_order(
 		work_type,
-		int(order_data["level"]),
+		node.level,
 		priority,
-		float(order_data["hours"]),
-		order_data["resource"],
-		int(order_data["amount"])
+		node.work_hours_per_batch,
+		node.resource,
+		node.output_per_batch
 	)
 	colony_changed.emit()
 	return true
+
+
+func get_resource_nodes_snapshot() -> Dictionary:
+	var result: Dictionary = {}
+	for resource in resource_nodes:
+		var node: ColonyResourceNode = resource_nodes[resource]
+		result[String(resource)] = node.get_snapshot()
+	return result
 
 
 func get_living_colonist_count() -> int:
@@ -121,6 +130,7 @@ func get_snapshot() -> Dictionary:
 		"paused": paused,
 		"ambient_temperature": ambient_temperature,
 		"inventory": inventory.get_snapshot(),
+		"resource_nodes": get_resource_nodes_snapshot(),
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
 		"pending_outputs": _pending_outputs.duplicate(true)
@@ -135,7 +145,9 @@ func _satisfy_needs(colonist: DwarfColonist) -> void:
 
 
 func _on_new_day() -> void:
-	alert_raised.emit("Ha comenzado el día %d." % day, ALERT_INFO)
+	for node in resource_nodes.values():
+		node.regenerate()
+	alert_raised.emit("Ha comenzado el día %d. Las fuentes renovables se han recuperado." % day, ALERT_INFO)
 
 
 func _on_task_completed(_task_id: StringName, resource: StringName, amount: int) -> void:
