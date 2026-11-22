@@ -142,6 +142,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if selected_layer < 0:
 		return
 	simulation.active_level = selected_layer
+	queue_redraw()
 	var cell_x := clampi(floori((position.x - 65.0) / 28.0), 0, ColonyNavigationGrid.MAP_WIDTH - 1)
 	var cell_y := clampi(roundi((position.y - floor_y) / 12.0) + ColonyNavigationGrid.ELEVATOR_ROW, 0, ColonyNavigationGrid.MAP_HEIGHT - 1)
 	var map_target := Vector3i(cell_x, cell_y, selected_layer)
