@@ -7,7 +7,6 @@ const TICK_SECONDS := 4.0
 var simulation := ColonySimulation.new()
 var tick_timer := 0.0
 var message := "La colonia necesita comida, agua y refugio."
-var worker_positions: Array[float] = [250.0, 500.0, 760.0]
 
 var hud: CanvasLayer
 var title_label: Label
@@ -96,11 +95,11 @@ func _draw_colonists() -> void:
 		if not colonist.alive:
 			continue
 
-		var colonist_floor_y := 330.0 if colonist.current_level == 0 else 570.0
-		if colonist.current_level != simulation.active_level:
+		if colonist.current_position.y != simulation.active_level:
 			continue
-		var px := worker_positions[i % worker_positions.size()]
-		var py := colonist_floor_y - 24.0
+		var px := 65.0 + float(colonist.current_position.x) * 28.0
+		var floor_y := 330.0 if colonist.current_position.y == 0 else 570.0
+		var py := floor_y - 24.0
 		draw_circle(Vector2(px, py - 22), 13, Color("#d9b58b"))
 		draw_rect(Rect2(px - 12, py - 12, 24, 27), body_colors[i % body_colors.size()])
 		draw_rect(Rect2(px - 10, py + 13, 8, 12), Color("#403b3a"))
