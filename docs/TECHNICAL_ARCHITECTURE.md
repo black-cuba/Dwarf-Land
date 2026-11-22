@@ -34,6 +34,7 @@
 - En el horario nocturno, el planificador libera trabajos, asigna camas libres y los colonos recuperan fatiga al llegar al refugio.
 - La temperatura local depende de la capa, la hora y el refugio; la exposición extrema reduce la salud y activa alertas.
 - Campaña registra objetivos de almacén, taller y día 10; Supervivencia es abierta; Sandbox suspende el desgaste de necesidades y temperatura.
+- Los eventos diarios usan un generador aleatorio con estado persistido; enfermedad y lesiones progresan y se recuperan durante el descanso.
 - Campaña registra objetivos de almacén, taller y día 10; Supervivencia es abierta; Sandbox suspende el desgaste de necesidades y temperatura.
 - La construcción reserva materiales al crear la orden; almacenes amplían la capacidad y camas construidas se añaden a la asignación nocturna.
 - La minería reserva herramientas, aplica desgaste por material y devuelve la herramienta si no se rompe; el taller convierte madera y mineral en herramientas. Las estructuras se mantienen transitables hasta incorporar navegación con varias rutas.
