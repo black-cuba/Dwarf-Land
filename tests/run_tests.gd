@@ -141,6 +141,15 @@ func _test_simulation_planting_queue() -> void:
 	assert(simulation.queue_planting(), "No se pudo crear la orden de siembra.")
 	assert(not simulation.queue_planting(), "Se permitió duplicar una orden de siembra.")
 	assert(simulation.inventory.get_amount(&"seeds") == seeds_before - 1, "La semilla no se reservó al crear la orden.")
+	simulation.advance_hour()
+	for _hour in range(4):
+		simulation.update_frame(2.0)
+		simulation.advance_hour()
+	assert(simulation.crop_field.is_planted and not simulation.crop_field.is_ready, "La orden completada no sembró el campo.")
+	assert(simulation.scheduler.get_active_orders_snapshot().is_empty(), "La orden de siembra sigue activa tras completarse.")
+	var water_before := simulation.inventory.get_amount(&"water")
+	simulation._on_new_day()
+	assert(simulation.inventory.get_amount(&"water") == water_before - 1, "El cultivo en crecimiento no consumió agua disponible.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
