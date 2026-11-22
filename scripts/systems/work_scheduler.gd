@@ -5,6 +5,7 @@ signal task_completed(task_id: StringName, resource: StringName, amount: int)
 signal task_started(task_id: StringName, colonist_id: StringName)
 signal terrain_excavated(cell: Vector2i)
 signal map_terrain_excavated(cell: Vector3i)
+signal map_structure_built(cell: Vector3i, structure_type: StringName)
 signal crop_planted(cell: Vector2i)
 signal structure_built(cell: Vector2i, structure_type: StringName)
 signal task_cancelled(task_id: StringName)
@@ -48,6 +49,21 @@ func queue_map_excavation(cell: Vector3i, priority: int = 3) -> StringName:
 			if existing.state == ColonyWorkOrder.State.AVAILABLE or existing.state == ColonyWorkOrder.State.IN_PROGRESS:
 				return &""
 	var order_id := queue_order(&"map_dig", cell.z, Vector2i(cell.x, cell.z), priority, 3.0, &"", 0)
+	for order in orders:
+		if order.id == order_id:
+			order.target_map_cell = cell
+			break
+	return order_id
+
+
+func queue_map_construction(cell: Vector3i, structure_type: StringName, priority: int, required_work: float) -> StringName:
+	if not is_map_cell_inside(cell):
+		return &""
+	for existing in orders:
+		if existing.work_type == &"map_build" and existing.target_map_cell == cell:
+			if existing.state == ColonyWorkOrder.State.AVAILABLE or existing.state == ColonyWorkOrder.State.IN_PROGRESS:
+				return &""
+	var order_id := queue_order(&"map_build", cell.z, Vector2i(cell.x, cell.z), priority, required_work, structure_type, 0)
 	for order in orders:
 		if order.id == order_id:
 			order.target_map_cell = cell
@@ -133,6 +149,9 @@ func _progress_order(
 	if order.work_type == &"map_dig":
 		_progress_map_dig_order(colonist, order, navigation)
 		return
+	if order.work_type == &"map_build":
+		_progress_map_build_order(colonist, order, navigation)
+		return
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
 		if order.work_type == &"dig" or order.work_type == &"build":
@@ -193,6 +212,32 @@ func _progress_map_dig_order(
 		_release_assignment(colonist.id)
 
 
+
+func _progress_map_build_order(
+	colonist: DwarfColonist,
+	order: ColonyWorkOrder,
+	navigation: ColonyNavigationGrid
+) -> void:
+	var work_cell := navigation.get_map_adjacent_cell(colonist.map_position, order.target_map_cell)
+	if work_cell.x < 0:
+		order.state = ColonyWorkOrder.State.CANCELLED
+		task_cancelled.emit(order.id)
+		_release_assignment(colonist.id)
+		return
+	if colonist.map_position != work_cell:
+		var path := navigation.find_map_path(colonist.map_position, work_cell)
+		if path.is_empty():
+			_release_assignment(colonist.id)
+			return
+		colonist.start_map_movement(path[mini(4, path.size()) - 1])
+		return
+	if order.advance(colonist.get_work_speed(&"build")):
+		navigation.set_map_blocked(order.target_map_cell, true)
+		map_structure_built.emit(order.target_map_cell, order.output_resource)
+		task_completed.emit(order.id, &"", 0)
+		_release_assignment(colonist.id)
+
+
 func _assign_available_orders(
 	colonists: Array[DwarfColonist],
 	navigation: ColonyNavigationGrid
@@ -219,7 +264,7 @@ func _assign_available_orders(
 				continue
 
 			var path_distance := 0
-			if order.work_type == &"map_dig":
+			if order.work_type == &"map_dig" or order.work_type == &"map_build":
 				var map_work_target := navigation.get_map_adjacent_work_cell(colonist.map_position, order.target_map_cell)
 				if map_work_target.x < 0:
 					continue
