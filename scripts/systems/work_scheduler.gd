@@ -43,6 +43,9 @@ func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationG
 			colonist.stop_movement()
 			_release_assignment(colonist.id)
 			continue
+		if colonist.is_resting:
+			_release_assignment(colonist.id)
+			continue
 		if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
 			colonist.stop_movement()
 			_release_assignment(colonist.id)
@@ -80,6 +83,11 @@ func restore_active_orders(snapshots: Array) -> bool:
 		var suffix := String(order.id).trim_prefix("work_")
 		_next_order_number = maxi(_next_order_number, int(suffix) + 1 if suffix.is_valid_int() else 1)
 	return true
+
+
+
+func release_colonist(colonist_id: StringName) -> void:
+	_release_assignment(colonist_id)
 
 
 func get_active_orders_snapshot() -> Array[Dictionary]:
@@ -144,7 +152,7 @@ func _assign_available_orders(
 		var best_score := -1000000.0
 
 		for colonist in colonists:
-			if not colonist.alive or _assignments.has(colonist.id):
+			if not colonist.alive or colonist.is_resting or _assignments.has(colonist.id):
 				continue
 			if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
 				continue
