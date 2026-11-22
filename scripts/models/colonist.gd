@@ -63,8 +63,8 @@ func get_render_position() -> Vector2:
 	return visual_position if is_moving else Vector2(current_position)
 
 
-func advance_hour(is_rest_period: bool, ambient_temperature: float) -> void:
-	if not alive:
+func advance_hour(is_rest_period: bool, ambient_temperature: float, sandbox_mode: bool = false) -> void:
+	if not alive or sandbox_mode:
 		return
 	hunger = minf(NEED_MAX, hunger + 1.15)
 	thirst = minf(NEED_MAX, thirst + 1.65)
