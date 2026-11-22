@@ -18,6 +18,7 @@ var ambient_temperature := 18.0
 
 var inventory := ColonyInventory.new()
 var scheduler := ColonyWorkScheduler.new()
+var save_system := ColonySaveSystem.new()
 var navigation := ColonyNavigationGrid.new()
 var colonists: Array[DwarfColonist] = []
 var resource_nodes: Dictionary = {}
@@ -157,13 +158,95 @@ func get_snapshot() -> Dictionary:
 		"active_level": active_level,
 		"paused": paused,
 		"ambient_temperature": ambient_temperature,
-		"inventory": inventory.get_snapshot(),
+		"inventory": {"capacity": inventory.capacity, "amounts": inventory.get_snapshot()},
 		"resource_nodes": get_resource_nodes_snapshot(),
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
 		"pending_outputs": _pending_outputs.duplicate(true),
 		"diggable_cells": navigation.get_diggable_cells()
 	}
+
+
+
+func save_game() -> bool:
+	return save_system.save_snapshot(get_snapshot())
+
+
+func load_game() -> bool:
+	var result := save_system.load_snapshot()
+	if not bool(result.get("success", false)):
+		return false
+	return restore_snapshot(result.get("data", {}))
+
+
+func restore_snapshot(snapshot: Dictionary) -> bool:
+	if not snapshot.has("day") or not snapshot.has("hour") or typeof(snapshot.get("inventory")) != TYPE_DICTIONARY:
+		return false
+	var inventory_data: Dictionary = snapshot["inventory"]
+	if typeof(inventory_data.get("amounts")) != TYPE_DICTIONARY:
+		return false
+	if not inventory.restore(inventory_data["amounts"], int(inventory_data.get("capacity", ColonyInventory.DEFAULT_CAPACITY))):
+		return false
+
+	day = maxi(1, int(snapshot.get("day", 1)))
+	hour = clampi(int(snapshot.get("hour", 7)), 0, 23)
+	active_level = clampi(int(snapshot.get("active_level", 0)), 0, LEVEL_COUNT - 1)
+	ambient_temperature = float(snapshot.get("ambient_temperature", 18.0))
+	paused = false
+
+	var restored_colonists: Array[DwarfColonist] = []
+	var colonist_data: Variant = snapshot.get("colonists", [])
+	if typeof(colonist_data) != TYPE_ARRAY:
+		return false
+	for item in colonist_data:
+		if typeof(item) != TYPE_DICTIONARY:
+			return false
+		var colonist := DwarfColonist.new(
+			StringName(item.get("id", "")),
+			String(item.get("name", "Colono")),
+			String(item.get("profession", "Generalista"))
+		)
+		colonist.hunger = clampf(float(item.get("hunger", 0.0)), 0.0, DwarfColonist.NEED_MAX)
+		colonist.thirst = clampf(float(item.get("thirst", 0.0)), 0.0, DwarfColonist.NEED_MAX)
+		colonist.fatigue = clampf(float(item.get("fatigue", 0.0)), 0.0, DwarfColonist.NEED_MAX)
+		colonist.health = clampf(float(item.get("health", 100.0)), 0.0, 100.0)
+		colonist.body_temperature = float(item.get("body_temperature", 37.0))
+		colonist.alive = bool(item.get("alive", true))
+		var position: Variant = item.get("current_position", Vector2i(7, 0))
+		if typeof(position) != TYPE_VECTOR2I:
+			return false
+		colonist.current_position = Vector2i(position.x, clampi(position.y, 0, LEVEL_COUNT - 1))
+		colonist.current_level = colonist.current_position.y
+		colonist.visual_position = Vector2(colonist.current_position)
+		colonist.movement_target = colonist.current_position
+		restored_colonists.append(colonist)
+	colonists = restored_colonists
+
+	var resource_data: Variant = snapshot.get("resource_nodes", {})
+	if typeof(resource_data) != TYPE_DICTIONARY:
+		return false
+	for key in resource_data:
+		var resource_key := StringName(key)
+		if not resource_nodes.has(resource_key) or typeof(resource_data[key]) != TYPE_DICTIONARY:
+			continue
+		var node: ColonyResourceNode = resource_nodes[resource_key]
+		node.available_units = clampi(int(resource_data[key].get("available_units", node.available_units)), 0, node.maximum_units)
+
+	navigation.clear_terrain()
+	var terrain_data: Variant = snapshot.get("diggable_cells", [])
+	if typeof(terrain_data) != TYPE_ARRAY:
+		return false
+	for cell in terrain_data:
+		if typeof(cell) == TYPE_VECTOR2I:
+			navigation.set_diggable(cell)
+
+	var orders_data: Variant = snapshot.get("active_work_orders", [])
+	if typeof(orders_data) != TYPE_ARRAY or not scheduler.restore_active_orders(orders_data):
+		return false
+	_pending_outputs = snapshot.get("pending_outputs", [])
+	_last_alert_key = ""
+	colony_changed.emit()
+	return true
 
 
 func _satisfy_needs(colonist: DwarfColonist) -> void:
