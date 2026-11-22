@@ -200,8 +200,7 @@ func _progress_order(
 		if map_path.is_empty():
 			_release_assignment(colonist.id)
 			return
-		var movement_steps := mini(4, map_path.size())
-		colonist.start_map_movement(map_path[movement_steps - 1])
+		colonist.start_map_movement(_get_map_movement_target(colonist, map_path))
 		return
 
 	if order.advance(colonist.get_work_speed(order.work_type)):
@@ -233,8 +232,7 @@ func _progress_map_dig_order(
 		if path.is_empty():
 			_release_assignment(colonist.id)
 			return
-		var movement_steps := mini(4, path.size())
-		colonist.start_map_movement(path[movement_steps - 1])
+		colonist.start_map_movement(_get_map_movement_target(colonist, path))
 		return
 	if order.advance(colonist.get_work_speed(&"stone")):
 		if navigation.excavate_map_cell(order.target_map_cell):
@@ -263,7 +261,7 @@ func _progress_map_build_order(
 		if path.is_empty():
 			_release_assignment(colonist.id)
 			return
-		colonist.start_map_movement(path[mini(4, path.size()) - 1])
+		colonist.start_map_movement(_get_map_movement_target(colonist, path))
 		return
 	if order.advance(colonist.get_work_speed(&"build")):
 		if order.output_resource != &"bed":
@@ -288,7 +286,7 @@ func _progress_map_delivery_order(
 		if path.is_empty():
 			_release_assignment(colonist.id)
 			return
-		colonist.start_map_movement(path[mini(4, path.size()) - 1])
+		colonist.start_map_movement(_get_map_movement_target(colonist, path))
 		return
 	if order.advance(1.0):
 		resource_delivered.emit(colonist.id, order.output_resource, order.output_amount)
@@ -312,11 +310,23 @@ func _progress_map_craft_order(
 		if path.is_empty():
 			_release_assignment(colonist.id)
 			return
-		colonist.start_map_movement(path[mini(4, path.size()) - 1])
+		colonist.start_map_movement(_get_map_movement_target(colonist, path))
 		return
 	if order.advance(colonist.get_work_speed(&"craft")):
 		task_completed.emit(order.id, order.output_resource, order.output_amount)
 		_release_assignment(colonist.id)
+
+
+
+func _get_map_movement_target(colonist: DwarfColonist, path: Array[Vector3i]) -> Vector3i:
+	if path.is_empty():
+		return colonist.map_position
+	var movement_steps := mini(4, path.size())
+	for index in range(path.size()):
+		if path[index].z != colonist.map_position.z:
+			movement_steps = maxi(1, index)
+			break
+	return path[movement_steps - 1]
 
 
 func _assign_available_orders(
