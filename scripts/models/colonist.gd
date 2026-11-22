@@ -17,6 +17,7 @@ var injury_severity := 0.0
 var carried_resource: StringName = &""
 var carried_amount := 0
 const CARRY_CAPACITY := 8
+const LAYER_MOVEMENT_SPEED := 1.0
 var body_temperature := 37.0
 var alive := true
 var current_level := 0
@@ -27,6 +28,7 @@ var is_moving := false
 # Full spatial position: x/y are map cells and z is the geological layer.
 var map_position := Vector3i(7, ColonyNavigationGrid.ELEVATOR_ROW, 0)
 var map_visual_position := Vector2(7.0, float(ColonyNavigationGrid.ELEVATOR_ROW))
+var map_visual_layer := 0.0
 var map_movement_target := Vector3i(7, ColonyNavigationGrid.ELEVATOR_ROW, 0)
 var is_map_moving := false
 var is_resting := false
@@ -51,6 +53,7 @@ func start_map_movement(target: Vector3i) -> void:
 	if is_map_moving or target == map_position:
 		return
 	map_visual_position = Vector2(map_position.x, map_position.y)
+	map_visual_layer = float(map_position.z)
 	map_movement_target = target
 	is_map_moving = true
 
@@ -59,8 +62,10 @@ func advance_map_movement(delta: float) -> bool:
 	if not is_map_moving or delta <= 0.0:
 		return false
 	map_visual_position = map_visual_position.move_toward(Vector2(map_movement_target.x, map_movement_target.y), MOVEMENT_SPEED * delta)
-	if map_visual_position.distance_to(Vector2(map_movement_target.x, map_movement_target.y)) <= 0.001:
+	map_visual_layer = move_toward(map_visual_layer, float(map_movement_target.z), LAYER_MOVEMENT_SPEED * delta)
+	if map_visual_position.distance_to(Vector2(map_movement_target.x, map_movement_target.y)) <= 0.001 and absf(map_visual_layer - float(map_movement_target.z)) <= 0.001:
 		map_visual_position = Vector2(map_movement_target.x, map_movement_target.y)
+		map_visual_layer = float(map_movement_target.z)
 		map_position = map_movement_target
 		current_position = Vector2i(map_position.x, map_position.z)
 		current_level = map_position.z
@@ -73,8 +78,9 @@ func advance_map_movement(delta: float) -> bool:
 func stop_map_movement() -> void:
 	if not is_map_moving:
 		return
-	map_position = Vector3i(roundi(map_visual_position.x), roundi(map_visual_position.y), map_position.z)
+	map_position = Vector3i(roundi(map_visual_position.x), roundi(map_visual_position.y), clampi(roundi(map_visual_layer), 0, ColonyNavigationGrid.LEVEL_COUNT - 1))
 	map_visual_position = Vector2(map_position.x, map_position.y)
+	map_visual_layer = float(map_position.z)
 	map_movement_target = map_position
 	current_position = Vector2i(map_position.x, map_position.z)
 	current_level = map_position.z
@@ -85,9 +91,14 @@ func get_map_render_position() -> Vector2:
 	return map_visual_position if is_map_moving else Vector2(map_position.x, map_position.y)
 
 
+func get_map_render_layer() -> float:
+	return map_visual_layer if is_map_moving else float(map_position.z)
+
+
 func sync_map_position_from_legacy() -> void:
 	map_position = Vector3i(current_position.x, ColonyNavigationGrid.ELEVATOR_ROW, current_position.y)
 	map_visual_position = Vector2(map_position.x, map_position.y)
+	map_visual_layer = float(map_position.z)
 	map_movement_target = map_position
 	is_map_moving = false
 
@@ -221,6 +232,7 @@ func get_snapshot() -> Dictionary:
 		"visual_position": get_render_position(),
 		"map_position": map_position,
 		"map_visual_position": get_map_render_position(),
+		"map_visual_layer": get_map_render_layer(),
 		"is_moving": is_moving,
 		"is_resting": is_resting,
 		"is_sleeping": is_sleeping,
