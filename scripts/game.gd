@@ -143,6 +143,10 @@ func _draw_structures() -> void:
 	draw_rect(Rect2(180, 350, 42, 40), Color("#302b2b"))
 	draw_rect(Rect2(245, 350, 42, 40), Color("#302b2b"))
 	draw_string(ThemeDB.fallback_font, Vector2(165, 292), "REFUGIO", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
+	for bed_x in [7, 8, 9]:
+		var bed_px := 65.0 + float(bed_x) * 28.0
+		draw_rect(Rect2(bed_px - 11, 366, 22, 15), Color("#a9b4c0"))
+		draw_rect(Rect2(bed_px - 9, 368, 18, 5), Color("#e4d6bd"))
 
 	draw_rect(Rect2(410, 350, 135, 40), Color("#80623e"))
 	draw_rect(Rect2(425, 330, 105, 20), Color("#b08a50"))
