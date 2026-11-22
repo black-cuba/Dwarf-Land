@@ -153,7 +153,7 @@ func advance_hour(is_rest_period: bool, ambient_temperature: float, sandbox_mode
 func get_work_speed(work_type: StringName) -> float:
 	match profession:
 		"Recolector":
-			if work_type == &"food" or work_type == &"water" or work_type == &"wood":
+			if work_type == &"food" or work_type == &"water" or work_type == &"wood" or work_type == &"mushrooms":
 				return 1.25
 		"Agricultora":
 			if work_type == &"food":
