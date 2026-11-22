@@ -30,11 +30,12 @@ Un ascensor conecta las tres capas en una posición fija. Las cavernas y bloques
 - Descanso nocturno: cada colono busca una cama libre y recupera fatiga al llegar.
 - Temperatura distinta por capa, horario y refugio; la exposición extrema puede dañar la salud.
 - Fuentes renovables y depósitos finitos; inventario con capacidad.
+- Hongos subterráneos renovables para fabricar medicina.
 - Recolección y extracción mediante órdenes de trabajo.
 - Los colonos transportan físicamente los recursos hasta el punto de almacenamiento. La carga y las órdenes de entrega se conservan al guardar.
 - Cultivos con humedad, crecimiento diario, cosecha y resiembra.
 - Construcción de camas, almacenes y talleres en celdas del mapa. Las estructuras sólidas bloquean el paso; las camas permanecen accesibles.
-- Taller con fabricación básica de herramientas; las herramientas se desgastan durante la extracción.
+- Taller con fabricación de herramientas y medicina; las herramientas se desgastan durante la extracción y la medicina reduce enfermedad y lesión.
 - Enfermedades y lesiones básicas, alertas y recuperación mediante descanso.
 - Campaña: construir un almacén y un taller y alcanzar el día 10.
 - Supervivencia: administrar la colonia sin objetivo final.
@@ -52,7 +53,7 @@ El núcleo de simulación incluye:
 - Construcción en el mapa 2D, ocupación sólida, camas accesibles y persistencia de edificios.
 - Recolección, carga y entrega física de recursos en el almacén; persistencia de carga en tránsito.
 - Cultivos con humedad, maduración, cosecha y resiembra.
-- Necesidades, descanso, temperatura, enfermedades y lesiones básicas.
+- Necesidades, descanso, temperatura, enfermedades y lesiones básicas, con tratamiento médico mediante medicina fabricada.
 - Inventario, almacenes, taller y fabricación de herramientas.
 - Guardado local versionado, copia de seguridad, recuperación y guardado automático.
 - Modos Campaña, Supervivencia y Sandbox.
