@@ -505,7 +505,7 @@ func get_local_temperature(colonist: DwarfColonist) -> float:
 
 func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
 	if not rest_period:
-		if colonist.is_resting and colonist.is_moving:
+		if colonist.is_resting and (colonist.is_moving or colonist.is_map_moving):
 			colonist.stop_movement()
 		colonist.is_resting = false
 		colonist.is_sleeping = false
@@ -524,16 +524,17 @@ func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
 		return
 
 	var bed: Vector2i = _bed_assignments[colonist.id]
-	if colonist.current_position == bed and not colonist.is_moving:
+	var bed_map_cell := Vector3i(bed.x, ColonyNavigationGrid.ELEVATOR_ROW, bed.y)
+	if colonist.map_position == bed_map_cell and not colonist.is_map_moving:
 		colonist.is_sleeping = true
 		return
 
 	colonist.is_sleeping = false
-	if colonist.is_moving:
+	if colonist.is_map_moving:
 		return
-	var path := navigation.find_path(colonist.current_position, bed)
+	var path := navigation.find_map_path(colonist.map_position, bed_map_cell)
 	if not path.is_empty():
-		colonist.start_movement(path[mini(4, path.size()) - 1])
+		colonist.start_map_movement(path[mini(4, path.size()) - 1])
 
 
 func _assign_bed(colonist: DwarfColonist) -> void:
@@ -544,9 +545,12 @@ func _assign_bed(colonist: DwarfColonist) -> void:
 	for bed in beds:
 		if occupied.has(bed) or not navigation.is_walkable(bed):
 			continue
+		var bed_map_cell := Vector3i(bed.x, ColonyNavigationGrid.ELEVATOR_ROW, bed.y)
+		if not navigation.is_map_walkable(bed_map_cell):
+			continue
 		var distance := 0
-		if colonist.current_position != bed:
-			var path := navigation.find_path(colonist.current_position, bed)
+		if colonist.map_position != bed_map_cell:
+			var path := navigation.find_map_path(colonist.map_position, bed_map_cell)
 			if path.is_empty():
 				continue
 			distance = path.size()
