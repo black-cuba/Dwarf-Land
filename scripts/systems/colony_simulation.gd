@@ -38,7 +38,7 @@ func _init() -> void:
 	scheduler.crop_planted.connect(_on_crop_planted)
 	scheduler.structure_built.connect(_on_structure_built)
 	scheduler.task_cancelled.connect(_on_task_cancelled)
-	world_seed = int(Time.get_unix_time_from_system())
+	world_seed = int(Time.get_ticks_usec())
 	var generated_world := ColonyWorldGenerator.new(world_seed).generate()
 	resource_nodes = generated_world["resources"]
 	for cell in generated_world["diggable_cells"]:
