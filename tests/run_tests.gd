@@ -258,6 +258,7 @@ func _test_autonomous_bed_assignment() -> void:
 	var colonist: DwarfColonist = simulation.colonists[0]
 	colonist.current_position = Vector2i(7, 1)
 	colonist.current_level = 1
+	colonist.sync_map_position_from_legacy()
 	colonist.fatigue = 80.0
 	simulation.hour = 21
 	simulation.advance_hour()
