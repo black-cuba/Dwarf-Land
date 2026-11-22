@@ -40,23 +40,36 @@ La distribución representa una regla ecológica/geológica, no una garantía de
 - Código, arte, música y contenido originales; no se copia material protegido de otros juegos.
 
 ## Estado de implementación
-La base funcional incluye necesidades, inventario, fuentes limitadas, trabajos con prioridades, especializaciones y navegación de tres capas. La primera versión de excavación distingue bloques de roca excavables de celdas transitables; los colonos pueden recibir órdenes de excavación desde la interfaz y abren el paso al completar el trabajo. El movimiento entre celdas se interpola visualmente. El estado de la colonia se guarda automáticamente cada seis horas de juego y al pasar la aplicación a segundo plano o cerrarla; se mantiene una copia de seguridad recuperable.
 
-La primera base funcional incluye necesidades, inventario, fuentes limitadas, trabajos con prioridades, especializaciones, navegación de tres capas y pruebas automáticas. La distribución inicial ya separa cultivos y árboles en superficie, agua y arcilla en el subsuelo, y roca, carbón y minerales en profundidad.
+La versión de desarrollo ya incorpora:
+- Simulación de tres capas con distribución ecológica/geológica inicial.
+- Fuentes renovables y depósitos finitos, inventario con capacidad y cola de trabajos.
+- Movimiento interpolado y excavación de bloques mediante órdenes.
+- Agricultura básica con humedad, crecimiento por días, cosecha y resiembra.
+- Descanso nocturno con tres camas iniciales y camas construidas.
+- Temperatura variable por capa y horario, exposición térmica y alertas.
+- Construcción con costes de madera/piedra; almacenes amplían la capacidad.
+- Taller con receta de fabricación de herramientas y desgaste por extracción.
+- Guardado local versionado, copia de seguridad y recuperación.
+- Pruebas automatizadas de lógica ejecutadas en GitHub Actions.
 
-Todavía faltan movimiento visual continuo, excavación de galerías extensas y terreno generado por mapa, cultivos avanzados, construcción, habitaciones, herramientas, transporte, eventos, guardado y los tres modos.
+Limitaciones actuales:
+- El mapa usa una sola línea de navegación por capa; todavía no tiene movimiento libre 2D, rutas alternativas ni colisiones completas.
+- Las estructuras se dibujan y tienen efectos funcionales, pero siguen siendo transitables.
+- Las posiciones iniciales de recursos y obstáculos son fijas; aún no hay generación procedural de mapas y vetas.
+- Faltan transporte de materiales entre instalaciones, construcción avanzada, enfermedades, accidentes y eventos.
+- Los modos Campaña, Supervivencia y Sandbox todavía no están implementados.
+- La interfaz, el arte y el audio siguen siendo provisionales; falta validación en dispositivos Android reales.
 
 ## Próximos hitos
-1. Movimiento visual continuo y excavación de terreno.
-2. Comportamiento autónomo para comer, beber, dormir y recuperarse.
-3. Agricultura y ciclos de cultivo.
-4. Construcción, habitaciones, camas, almacenes y talleres.
-5. Geología, vetas, minería, herramientas y transporte.
-6. Temperatura ambiental, aislamiento, enfermedades, accidentes y eventos.
-7. Guardado local seguro.
-8. Interfaz móvil, arte y audio originales.
-9. Campaña, Supervivencia y Sandbox.
-10. Pruebas completas en Android.
+1. Rehacer la navegación como mapa 2D con rutas alternativas, colisiones y excavación de galerías.
+2. Generación procedural y guardado de semilla del mundo, con distribución variable de vetas.
+3. Transporte de materiales, logística y comportamiento autónomo avanzado.
+4. Habitaciones, aislamiento, camas, talleres y producción ampliada.
+5. Enfermedades, accidentes, eventos y ecología ambiental.
+6. Modos Campaña, Supervivencia y Sandbox.
+7. Interfaz móvil adaptable, controles táctiles completos, arte y audio originales.
+8. Pruebas funcionales y de rendimiento en Android.
 
 ## Regla de entrega
 No se compilará ni publicará APK hasta que el juego esté completo, las pruebas estén superadas y exista autorización expresa.
