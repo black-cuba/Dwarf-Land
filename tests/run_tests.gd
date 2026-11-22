@@ -390,7 +390,7 @@ func _test_resource_hauling_to_storage() -> void:
 		if restored_carrier.carried_amount == 0:
 			break
 	assert(restored_carrier.carried_amount == 0, "El colono no entregó la carga en el almacén.")
-	assert(restored.inventory.get_amount(&"wood") > wood_before - 8, "La madera transportada no llegó al inventario de la colonia.")
+	assert(restored.inventory.get_amount(&"wood") > wood_before, "La madera transportada no llegó al inventario de la colonia.")
 
 
 func _test_workshop_tool_crafting() -> void:
