@@ -145,7 +145,7 @@ func queue_planting(priority: int = 3) -> bool:
 	if active_level != 0 or crop_field.is_planted:
 		return false
 	for order in scheduler.orders:
-		if order.work_type == &"plant" and order.state == ColonyWorkOrder.State.AVAILABLE or order.work_type == &"plant" and order.state == ColonyWorkOrder.State.IN_PROGRESS:
+		if order.work_type == &"plant" and (order.state == ColonyWorkOrder.State.AVAILABLE or order.state == ColonyWorkOrder.State.IN_PROGRESS):
 			return false
 	if not inventory.remove_resource(&"seeds", 1):
 		return false
