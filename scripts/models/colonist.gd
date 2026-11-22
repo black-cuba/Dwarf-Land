@@ -14,6 +14,9 @@ var fatigue := 10.0
 var health := 100.0
 var illness_severity := 0.0
 var injury_severity := 0.0
+var carried_resource: StringName = &""
+var carried_amount := 0
+const CARRY_CAPACITY := 8
 var body_temperature := 37.0
 var alive := true
 var current_level := 0
@@ -209,6 +212,8 @@ func get_snapshot() -> Dictionary:
 		"health": health,
 		"illness_severity": illness_severity,
 		"injury_severity": injury_severity,
+		"carried_resource": String(carried_resource),
+		"carried_amount": carried_amount,
 		"body_temperature": body_temperature,
 		"alive": alive,
 		"current_level": current_position.y,
