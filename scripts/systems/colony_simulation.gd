@@ -567,6 +567,12 @@ func _complete_reserved_tool(task_id: StringName) -> void:
 	if tool_durability <= 0.0:
 		tool_durability = 100.0
 		alert_raised.emit("Una herramienta se ha roto durante la extracción.", ALERT_WARNING)
+		if game_mode != &"sandbox" and event_random.randf() < 0.15:
+			for colonist in colonists:
+				if colonist.alive and colonist.profession == "Minero":
+					colonist.apply_injury(15.0)
+					alert_raised.emit("%s sufrió un accidente durante la extracción." % colonist.display_name, ALERT_WARNING)
+					break
 	else:
 		inventory.add_resource(&"tools", 1)
 
