@@ -163,6 +163,9 @@ func _test_autonomous_bed_assignment() -> void:
 	simulation.hour = 21
 	simulation.advance_hour()
 	assert(colonist.is_resting and colonist.is_sleeping, "El colono no ocupó una cama durante el descanso nocturno.")
+	assert(simulation._bed_assignments.size() == 3, "No se asignó una cama independiente a cada colono.")
+	var assigned_beds: Array = simulation._bed_assignments.values()
+	assert(assigned_beds[0] != assigned_beds[1] and assigned_beds[1] != assigned_beds[2] and assigned_beds[0] != assigned_beds[2], "Dos colonos comparten la misma cama.")
 	assert(colonist.fatigue < 80.0, "El descanso nocturno no redujo la fatiga.")
 	simulation.hour = 5
 	simulation.advance_hour()
