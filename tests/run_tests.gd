@@ -135,6 +135,7 @@ func _test_simulation_snapshot_restore() -> void:
 	assert(restored.restore_snapshot(snapshot), "No se pudo restaurar el estado completo de la colonia.")
 	assert(restored.day == 9 and restored.hour == 14, "El reloj no se restauró.")
 	assert(restored.world_seed == original.world_seed, "La semilla del mundo no se restauró.")
+	assert(restored.resource_nodes[&"ore"].cell == original.resource_nodes[&"ore"].cell, "La posición del yacimiento no se restauró.")
 	assert(restored.active_level == 2, "No se restauró la capa activa.")
 	assert(restored.inventory.get_amount(&"ore") == original.inventory.get_amount(&"ore"), "El inventario no se restauró.")
 	assert(restored.navigation.is_walkable(Vector2i(20, 2)), "El terreno excavado no se conservó.")
