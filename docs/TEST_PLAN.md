@@ -17,7 +17,7 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] Las fuentes renovables se regeneran al cambiar el día sin superar su capacidad.
 - [ ] Las vetas minerales y canteras se agotan y no se regeneran.
 - [ ] No se puede reservar más recurso del que una fuente contiene.
-- [ ] Las fuentes de cada recurso están ubicadas en el nivel correcto.
+- [x] Las fuentes de cada recurso están ubicadas en el nivel correcto y tienen coordenadas de mapa 2D.
 
 ## Inventario y producción
 
@@ -37,9 +37,11 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] Existen exactamente tres capas jugables: superficie, subsuelo y profundidad.
 - [ ] La vista y el movimiento son siempre 2D; la capa es un dato lógico, nunca una escena 3D.
 - [ ] No existe una conexión vertical distinta del ascensor.
-- [ ] Los colonos recorren la cuadrícula 2D hasta la celda de trabajo.
+- [x] Los colonos recorren la cuadrícula 2D hasta la celda de trabajo.
 - [ ] El ascensor conecta las tres capas y no permite atravesar roca sin excavar.
-- [ ] Las órdenes de excavación 2D abren la celda seleccionada al completarse.
+- [x] Las órdenes de excavación 2D abren la celda seleccionada al completarse.
+- [x] La construcción 2D ocupa una celda, impide el paso y conserva la colisión al restaurar la partida.
+- [x] Las camas usan posiciones de la cuadrícula 2D y admiten asignación independiente.
 - [ ] Un colono tarda tiempo en desplazarse entre niveles.
 - [ ] Las celdas bloqueadas no pueden atravesarse.
 - [ ] Los colonos se muestran en el nivel y posición donde se encuentran.
