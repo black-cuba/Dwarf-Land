@@ -35,7 +35,7 @@ La distribución respeta reglas ecológicas/geológicas. La generación inicial 
 - Las construcciones consumen materiales y requieren trabajo; los almacenes amplían capacidad y las camas aumentan los puestos de descanso.
 - Recursos: comida, agua, madera, tierra/arcilla, piedra, minerales, herramientas y materiales.
 - Vivienda, almacenes, talleres, cultivos e instalaciones.
-- Tres modos previstos: Campaña, Supervivencia y Sandbox.
+- Campaña: construir un almacén y un taller y alcanzar el día 10.\n- Supervivencia: administrar la colonia sin objetivo final.\n- Sandbox: construir y producir sin desgaste de hambre, sed, fatiga ni temperatura.
 - Juego offline, sin anuncios, telemetría, servidores ni servicios de pago.
 - Código, arte, música y contenido originales; no se copia material protegido de otros juegos.
 
