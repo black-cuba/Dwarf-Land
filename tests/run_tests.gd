@@ -58,10 +58,10 @@ func _test_seeded_world_generation() -> void:
 	assert(first_nodes[&"wood"].cell == repeat_nodes[&"wood"].cell, "La misma semilla no genera el mismo bosque.")
 	assert(first_nodes[&"water"].cell == repeat_nodes[&"water"].cell, "La misma semilla no genera el mismo acuífero.")
 	assert(first_nodes[&"ore"].cell == repeat_nodes[&"ore"].cell, "La misma semilla no genera la misma veta.")
-	var distribution_changed: bool = first_nodes[&"wood"].cell != alternate_nodes[&"wood"].cell or first_nodes[&"water"].cell != alternate_nodes[&"water"].cell or first_nodes[&"clay"].cell != alternate_nodes[&"clay"].cell or first_nodes[&"ore"].cell != alternate_nodes[&"ore"].cell or first_nodes[&"coal"].cell != alternate_nodes[&"coal"].cell
+	var distribution_changed: bool = first_nodes[&"wood"].cell != alternate_nodes[&"wood"].cell or first_nodes[&"water"].cell != alternate_nodes[&"water"].cell or first_nodes[&"clay"].cell != alternate_nodes[&"clay"].cell or first_nodes[&"ore"].cell != alternate_nodes[&"ore"].cell or first_nodes[&"coal"].cell != alternate_nodes[&"coal"].cell or first_nodes[&"mushrooms"].cell != alternate_nodes[&"mushrooms"].cell
 	assert(distribution_changed, "Semillas distintas no variaron la distribución de recursos.")
 	assert(first_nodes[&"food"].level == 0 and first_nodes[&"wood"].level == 0, "Los recursos de superficie están mal ubicados.")
-	assert(first_nodes[&"water"].level == 1 and first_nodes[&"clay"].level == 1, "Los recursos del subsuelo están mal ubicados.")
+	assert(first_nodes[&"water"].level == 1 and first_nodes[&"clay"].level == 1 and first_nodes[&"mushrooms"].level == 1, "Los recursos del subsuelo están mal ubicados.")
 	assert(first_nodes[&"stone"].level == 2 and first_nodes[&"ore"].level == 2 and first_nodes[&"coal"].level == 2, "Los recursos profundos están mal ubicados.")
 	assert(first["map_diggable_cells"] == repeat["map_diggable_cells"], "La misma semilla no genera el mismo terreno 2D.")
 	assert(first["map_diggable_cells"] != alternate["map_diggable_cells"], "Semillas distintas no alteran el terreno 2D.")
@@ -418,6 +418,21 @@ func _test_workshop_tool_crafting() -> void:
 		if simulation.inventory.get_amount(&"tools") == tools_before + 1:
 			break
 	assert(simulation.inventory.get_amount(&"tools") == tools_before + 1, "El taller no fabricó y entregó la herramienta al almacén.")
+	assert(simulation.add_resource(&"mushrooms", 2) == 2, "No se pudieron añadir hongos para la receta médica.")
+	var medicine_before := simulation.inventory.get_amount(&"medicine")
+	assert(simulation.queue_crafting(&"medicine"), "No se pudo encolar la fabricación de medicina.")
+	for _hour in range(18):
+		simulation.advance_hour()
+		simulation.update_frame(2.0)
+		if simulation.inventory.get_amount(&"medicine") == medicine_before + 1:
+			break
+	assert(simulation.inventory.get_amount(&"medicine") == medicine_before + 1, "El taller no fabricó y entregó la medicina.")
+	var patient: DwarfColonist = simulation.colonists[0]
+	patient.apply_illness(80.0)
+	patient.apply_injury(60.0)
+	assert(not simulation.treat_most_affected_colonist().is_empty(), "No se pudo tratar al colono más afectado.")
+	assert(patient.illness_severity < 80.0 and patient.injury_severity < 60.0, "La medicina no redujo enfermedad y lesión.")
+	assert(simulation.inventory.get_amount(&"medicine") == medicine_before, "El tratamiento no consumió la medicina.")
 
 
 
