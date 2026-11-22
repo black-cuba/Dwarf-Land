@@ -24,6 +24,8 @@ var navigation := ColonyNavigationGrid.new()
 var colonists: Array[DwarfColonist] = []
 var resource_nodes: Dictionary = {}
 var structures: Array[Dictionary] = []
+var tool_durability := 100.0
+var _reserved_tool_orders: Dictionary = {}
 var _pending_outputs: Array[Dictionary] = []
 var _last_alert_key := ""
 var _bed_assignments: Dictionary = {}
@@ -34,6 +36,7 @@ func _init() -> void:
 	scheduler.terrain_excavated.connect(_on_terrain_excavated)
 	scheduler.crop_planted.connect(_on_crop_planted)
 	scheduler.structure_built.connect(_on_structure_built)
+	scheduler.task_cancelled.connect(_on_task_cancelled)
 	# Initial geological obstacles. These cells must be excavated before passage.
 	for cell in [Vector2i(5, 1), Vector2i(6, 1), Vector2i(20, 2), Vector2i(21, 2)]:
 		navigation.set_diggable(cell)
@@ -121,11 +124,19 @@ func queue_work(work_type: StringName, priority: int = 3) -> bool:
 	var node: ColonyResourceNode = resource_nodes[work_type]
 	if work_type == &"food" and not crop_field.is_ready:
 		return false
+	var uses_tool := work_type == &"stone" or work_type == &"ore" or work_type == &"coal" or work_type == &"clay"
+	if uses_tool and not inventory.has_amount(&"tools", 1):
+		alert_raised.emit("No hay herramientas disponibles para la extracción.", ALERT_WARNING)
+		return false
 	if not node.reserve(node.output_per_batch):
 		alert_raised.emit("No quedan recursos disponibles en esta fuente.", ALERT_WARNING)
 		return false
+	if uses_tool:
+		inventory.remove_resource(&"tools", 1)
 
-	scheduler.queue_order(work_type, node.level, node.cell, priority, node.work_hours_per_batch, node.resource, node.output_per_batch)
+	var order_id := scheduler.queue_order(work_type, node.level, node.cell, priority, node.work_hours_per_batch, node.resource, node.output_per_batch)
+	if uses_tool:
+		_reserved_tool_orders[order_id] = _get_tool_wear(work_type)
 	colony_changed.emit()
 	return true
 
@@ -271,6 +282,8 @@ func get_snapshot() -> Dictionary:
 		"resource_nodes": get_resource_nodes_snapshot(),
 		"crop_field": crop_field.get_snapshot(),
 		"structures": structures.duplicate(true),
+		"tool_durability": tool_durability,
+		"reserved_tool_orders": _reserved_tool_orders.duplicate(true),
 		"colonists": people,
 		"active_work_orders": scheduler.get_active_orders_snapshot(),
 		"pending_outputs": _pending_outputs.duplicate(true),
@@ -370,6 +383,11 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	var orders_data: Variant = snapshot.get("active_work_orders", [])
 	if typeof(orders_data) != TYPE_ARRAY or not scheduler.restore_active_orders(orders_data):
 		return false
+	tool_durability = clampf(float(snapshot.get("tool_durability", 100.0)), 0.0, 100.0)
+	var reserved_tools: Variant = snapshot.get("reserved_tool_orders", {})
+	if typeof(reserved_tools) != TYPE_DICTIONARY:
+		return false
+	_reserved_tool_orders = reserved_tools.duplicate(true)
 	var pending_data: Variant = snapshot.get("pending_outputs", [])
 	if typeof(pending_data) != TYPE_ARRAY:
 		return false
@@ -466,7 +484,41 @@ func _on_new_day() -> void:
 	alert_raised.emit("Ha comenzado el día %d. Los cultivos han avanzado su ciclo." % day, ALERT_INFO)
 
 
-func _on_task_completed(_task_id: StringName, resource: StringName, amount: int) -> void:
+
+func _get_tool_wear(work_type: StringName) -> float:
+	match work_type:
+		&"stone":
+			return 20.0
+		&"ore":
+			return 25.0
+		&"coal":
+			return 15.0
+		&"clay":
+			return 10.0
+	return 0.0
+
+
+func _complete_reserved_tool(task_id: StringName) -> void:
+	if not _reserved_tool_orders.has(task_id):
+		return
+	tool_durability -= float(_reserved_tool_orders[task_id])
+	_reserved_tool_orders.erase(task_id)
+	if tool_durability <= 0.0:
+		tool_durability = 100.0
+		alert_raised.emit("Una herramienta se ha roto durante la extracción.", ALERT_WARNING)
+	else:
+		inventory.add_resource(&"tools", 1)
+
+
+func _on_task_cancelled(task_id: StringName) -> void:
+	if _reserved_tool_orders.has(task_id):
+		_reserved_tool_orders.erase(task_id)
+		inventory.add_resource(&"tools", 1)
+	colony_changed.emit()
+
+
+func _on_task_completed(task_id: StringName, resource: StringName, amount: int) -> void:
+	_complete_reserved_tool(task_id)
 	if resource == &"" or amount <= 0:
 		colony_changed.emit()
 		return
