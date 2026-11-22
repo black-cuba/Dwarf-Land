@@ -38,4 +38,4 @@
 - La exportación final requiere juego completo, pruebas superadas y autorización expresa.
 
 ## Pendiente
-Movimiento continuo, excavación y generación de mapas; autonomía completa; cultivos; construcción; habitaciones; talleres; herramientas; transporte; eventos; guardado; modos de juego; interfaz móvil y arte/audio finales.
+Movimiento continuo, excavación y generación de mapas; autonomía completa; cultivos avanzados; construcción; habitaciones; talleres; herramientas; transporte; eventos; guardado; modos de juego; interfaz móvil y arte/audio finales.
