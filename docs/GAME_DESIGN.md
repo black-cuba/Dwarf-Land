@@ -53,12 +53,16 @@ Los modos se implementarán después de estabilizar el núcleo de simulación.
 La base visual inicial se está sustituyendo progresivamente por sistemas separados y mantenibles. Ya existe una primera versión de:
 - Modelo individual de colono con hambre, sed, fatiga, salud y temperatura corporal.
 - Inventario con cantidades y capacidad máxima.
+- Fuentes subterráneas finitas y renovables: cultivo de hongos, manantial, madera fúngica, cantera y veta mineral.
+- Regeneración diaria de fuentes renovables y agotamiento de depósitos minerales.
 - Reloj de simulación por horas.
 - Cola de trabajos con prioridades y asignación autónoma de colonos.
+- Ritmos de trabajo diferenciados por profesión.
+- Pausa del trabajo ante hambre, sed o fatiga críticas.
 - Producción de comida, agua, madera y piedra mediante trabajos que consumen tiempo.
 - Desplazamiento lógico entre los dos niveles y alertas de reservas.
 
-Estos sistemas son una primera capa técnica. Todavía no equivalen a la simulación completa: faltan fuentes físicas de recursos, rutas y desplazamiento espacial, profesiones con rendimiento diferenciado, cultivos, construcción funcional, habitaciones, herramientas, enfermedades, eventos, guardado y modos de juego.
+Estos sistemas son una primera capa técnica. Todavía no equivalen a la simulación completa: faltan rutas y desplazamiento espacial real, ciclos de cultivo visuales, construcción funcional, habitaciones, herramientas, enfermedades, eventos, guardado y modos de juego.
 
 ## Prototipo 0.1.0
 
