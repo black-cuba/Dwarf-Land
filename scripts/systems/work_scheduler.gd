@@ -4,6 +4,7 @@ extends RefCounted
 signal task_completed(task_id: StringName, resource: StringName, amount: int)
 signal task_started(task_id: StringName, colonist_id: StringName)
 signal terrain_excavated(cell: Vector2i)
+signal crop_planted(cell: Vector2i)
 
 var orders: Array[ColonyWorkOrder] = []
 var _next_order_number := 1
@@ -117,6 +118,8 @@ func _progress_order(
 		if order.work_type == &"dig":
 			if navigation.excavate(order.target_cell):
 				terrain_excavated.emit(order.target_cell)
+		elif order.work_type == &"plant":
+			crop_planted.emit(order.target_cell)
 		task_completed.emit(order.id, order.output_resource, order.output_amount)
 		_release_assignment(colonist.id)
 
