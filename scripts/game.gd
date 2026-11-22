@@ -214,8 +214,10 @@ func _gather_food() -> void:
 		_refresh_interface()
 		return
 
-	var accepted := simulation.add_resource(&"food", 6)
-	message = "Se han almacenado %d raciones de comida." % accepted
+	if simulation.queue_work(&"food", 3):
+		message = "Trabajo de recolección de comida añadido a la cola."
+	else:
+		message = "No se pudo crear el trabajo de comida."
 	_refresh_interface()
 
 
@@ -225,8 +227,10 @@ func _gather_water() -> void:
 		_refresh_interface()
 		return
 
-	var accepted := simulation.add_resource(&"water", 8)
-	message = "Se han almacenado %d unidades de agua." % accepted
+	if simulation.queue_work(&"water", 3):
+		message = "Trabajo de abastecimiento de agua añadido a la cola."
+	else:
+		message = "No se pudo crear el trabajo de agua."
 	_refresh_interface()
 
 
@@ -236,8 +240,10 @@ func _mine_stone() -> void:
 		_refresh_interface()
 		return
 
-	var accepted := simulation.add_resource(&"stone", 5)
-	message = "Se han almacenado %d unidades de piedra." % accepted
+	if simulation.queue_work(&"stone", 3):
+		message = "Trabajo de extracción de piedra añadido a la cola."
+	else:
+		message = "No se pudo crear el trabajo de piedra."
 	_refresh_interface()
 
 
