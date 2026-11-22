@@ -7,7 +7,7 @@
 - `scripts/systems/inventory.gd`: inventario y capacidad.
 - `scripts/systems/save_system.gd`: guardado JSON local versionado, escritura temporal y recuperación desde copia de seguridad.
 - `scripts/models/crop_field.gd`: ciclo de cultivo, humedad, maduración, cosecha y resiembra.
-- `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor, obstáculos, bloques excavables y celdas excavadas.
+- `scripts/systems/navigation_grid.gd`: cuadrícula de tres capas, ascensor, obstáculos, bloques excavables y celdas excavadas.\n- `scripts/systems/world_generator.gd`: distribución reproducible de recursos a partir de una semilla persistente.
 - `scripts/systems/work_scheduler.gd`: asignación por especialidad, movimiento, órdenes de trabajo y excavación desde una celda adyacente.
 - `scripts/systems/colony_simulation.gd`: reloj, necesidades, recursos, producción y alertas.
 - `tests/`: pruebas automatizadas.
@@ -27,7 +27,7 @@
 - La excavación se ejecuta desde una celda adyacente y abre el paso al completar el trabajo.
 - Los trabajos consumen tiempo y entregan producción al inventario.
 - El inventario limita la entrada; el excedente permanece pendiente.
-- La distribución inicial respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.
+- La distribución respeta el entorno: madera y cultivos en superficie, agua y arcilla en subsuelo, roca, carbón y mineral en profundidad.\n- Una semilla guardada genera variaciones reproducibles en las posiciones de varios recursos; algunos obstáculos y el depósito principal de piedra aún son fijos.
 - Los cultivos maduran por días, necesitan humedad, consumen agua cuando hay reservas y se replantan usando semillas.
 - En el horario nocturno, el planificador libera trabajos, asigna camas libres y los colonos recuperan fatiga al llegar al refugio.
 - La temperatura local depende de la capa, la hora y el refugio; la exposición extrema reduce la salud y activa alertas.
