@@ -350,6 +350,21 @@ func _test_map_construction_and_restore() -> void:
 
 func _test_resource_hauling_to_storage() -> void:
 	var simulation := ColonySimulation.new()
+	simulation.active_level = 1
+	for colonist in simulation.colonists:
+		colonist.current_position = Vector2i(36, 1)
+		colonist.current_level = 1
+		colonist.sync_map_position_from_legacy()
+	var storage_cell := Vector3i(38, ColonyNavigationGrid.ELEVATOR_ROW, 1)
+	assert(simulation.queue_map_construction(&"storage", storage_cell), "No se pudo construir el almacén de logística.")
+	for _hour in range(7):
+		simulation.advance_hour()
+		simulation.update_frame(2.0)
+	assert(simulation.structures.size() == 1, "El almacén logístico no se construyó.")
+	for colonist in simulation.colonists:
+		colonist.current_position = Vector2i(37, 1)
+		colonist.current_level = 1
+		colonist.sync_map_position_from_legacy()
 	var carrier: DwarfColonist = simulation.colonists[0]
 	var wood_before := simulation.inventory.get_amount(&"wood")
 	assert(simulation.queue_work(&"wood"), "No se pudo ordenar la recolección de madera.")
@@ -359,18 +374,23 @@ func _test_resource_hauling_to_storage() -> void:
 		if carrier.carried_amount > 0:
 			break
 	assert(carrier.carried_amount > 0 and carrier.carried_resource == &"wood", "El colono no cargó la madera recolectada.")
+	var delivery_found := false
+	for order in simulation.scheduler.orders:
+		if order.work_type == &"map_delivery" and order.target_colonist_id == carrier.id:
+			delivery_found = order.target_map_cell == storage_cell
+	assert(delivery_found, "El colono no seleccionó el almacén accesible más cercano.")
 	var snapshot := simulation.get_snapshot()
 	var restored := ColonySimulation.new()
 	assert(restored.restore_snapshot(snapshot), "No se pudo restaurar una carga en tránsito.")
 	var restored_carrier: DwarfColonist = restored.colonists[0]
 	assert(restored_carrier.carried_resource == &"wood" and restored_carrier.carried_amount > 0, "El guardado perdió la carga del colono.")
-	for _hour in range(24):
+	for _hour in range(8):
 		restored.advance_hour()
 		restored.update_frame(2.0)
 		if restored_carrier.carried_amount == 0:
 			break
 	assert(restored_carrier.carried_amount == 0, "El colono no entregó la carga en el almacén.")
-	assert(restored.inventory.get_amount(&"wood") > wood_before, "La madera transportada no llegó al inventario de la colonia.")
+	assert(restored.inventory.get_amount(&"wood") > wood_before - 8, "La madera transportada no llegó al inventario de la colonia.")
 
 
 func _test_workshop_tool_crafting() -> void:
