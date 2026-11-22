@@ -6,6 +6,7 @@ signal task_started(task_id: StringName, colonist_id: StringName)
 signal terrain_excavated(cell: Vector2i)
 signal crop_planted(cell: Vector2i)
 signal structure_built(cell: Vector2i, structure_type: StringName)
+signal task_cancelled(task_id: StringName)
 
 var orders: Array[ColonyWorkOrder] = []
 var _next_order_number := 1
@@ -110,6 +111,7 @@ func _progress_order(
 	if work_target.x < 0:
 		if order.work_type == &"dig" or order.work_type == &"build":
 			order.state = ColonyWorkOrder.State.CANCELLED
+			task_cancelled.emit(order.id)
 		_release_assignment(colonist.id)
 		return
 
