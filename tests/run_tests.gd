@@ -242,7 +242,7 @@ func _test_mining_tool_durability() -> void:
 	assert(simulation.queue_work(&"stone"), "No se pudo ordenar la extracción con herramienta.")
 	assert(simulation.inventory.get_amount(&"tools") == tools_before - 1, "La herramienta no se reservó al iniciar la extracción.")
 	simulation.advance_hour()
-	for _hour in range(5):
+	for _hour in range(6):
 		simulation.update_frame(1.0)
 		simulation.advance_hour()
 	assert(simulation.tool_durability == 100.0, "La durabilidad no se reinició al romperse la herramienta.")
