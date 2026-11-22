@@ -341,7 +341,7 @@ func has_workshop() -> bool:
 
 
 func queue_crafting(recipe: StringName, priority: int = 3) -> bool:
-	if not has_workshop() or recipe != &"tool":
+	if not has_workshop() or not [&"tool", &"medicine"].has(recipe):
 		return false
 	var workshop_cell := Vector3i(-1, -1, -1)
 	for structure in structures:
@@ -350,16 +350,71 @@ func queue_crafting(recipe: StringName, priority: int = 3) -> bool:
 			break
 	if not navigation.is_map_cell_inside(workshop_cell):
 		return false
-	if not inventory.has_amount(&"wood", 2) or not inventory.has_amount(&"ore", 1):
+	var first_resource: StringName
+	var first_cost := 0
+	var second_resource: StringName
+	var second_cost := 0
+	var output_resource: StringName
+	var required_work := 3.0
+	match recipe:
+		&"tool":
+			first_resource = &"wood"
+			first_cost = 2
+			second_resource = &"ore"
+			second_cost = 1
+			output_resource = &"tools"
+		&"medicine":
+			first_resource = &"mushrooms"
+			first_cost = 2
+			second_resource = &"water"
+			second_cost = 1
+			output_resource = &"medicine"
+			required_work = 4.0
+	if not inventory.has_amount(first_resource, first_cost) or not inventory.has_amount(second_resource, second_cost):
 		return false
-	inventory.remove_resource(&"wood", 2)
-	inventory.remove_resource(&"ore", 1)
-	if scheduler.queue_map_crafting(workshop_cell, priority, &"tools", 1, 3.0) == &"":
-		inventory.add_resource(&"wood", 2)
-		inventory.add_resource(&"ore", 1)
+	inventory.remove_resource(first_resource, first_cost)
+	inventory.remove_resource(second_resource, second_cost)
+	if scheduler.queue_map_crafting(workshop_cell, priority, output_resource, 1, required_work) == &"":
+		inventory.add_resource(first_resource, first_cost)
+		inventory.add_resource(second_resource, second_cost)
 		return false
 	colony_changed.emit()
 	return true
+
+
+func treat_colonist(colonist_id: StringName) -> bool:
+	if not inventory.remove_resource(&"medicine", 1):
+		return false
+	for colonist in colonists:
+		if colonist.id != colonist_id or not colonist.alive:
+			continue
+		if colonist.illness_severity <= 0.0 and colonist.injury_severity <= 0.0:
+			inventory.add_resource(&"medicine", 1)
+			return false
+		colonist.illness_severity = maxf(0.0, colonist.illness_severity - 45.0)
+		colonist.injury_severity = maxf(0.0, colonist.injury_severity - 35.0)
+		colonist.health = minf(100.0, colonist.health + 15.0)
+		colony_changed.emit()
+		return true
+	inventory.add_resource(&"medicine", 1)
+	return false
+
+
+func treat_most_affected_colonist() -> String:
+	if not inventory.has_amount(&"medicine", 1):
+		return ""
+	var selected: DwarfColonist
+	var highest_severity := 0.0
+	for colonist in colonists:
+		if not colonist.alive:
+			continue
+		var severity := maxf(colonist.illness_severity, colonist.injury_severity)
+		if severity > highest_severity:
+			highest_severity = severity
+			selected = colonist
+	if selected == null or not treat_colonist(selected.id):
+		return ""
+	return selected.display_name
 
 
 func get_bed_map_cells() -> Array[Vector3i]:
@@ -716,7 +771,7 @@ func _on_task_completed(task_id: StringName, resource: StringName, amount: int) 
 	if resource == &"food":
 		crop_field.harvest(amount)
 	var completed_order := _find_order(task_id)
-	if completed_order != null and [&"food", &"water", &"wood", &"clay", &"stone", &"ore", &"coal", &"tools", &"map_craft"].has(completed_order.work_type):
+	if completed_order != null and [&"food", &"water", &"wood", &"clay", &"mushrooms", &"stone", &"ore", &"coal", &"tools", &"medicine", &"map_craft"].has(completed_order.work_type):
 		for colonist in colonists:
 			if colonist.id != completed_order.assigned_colonist_id:
 				continue
