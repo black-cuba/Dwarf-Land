@@ -6,7 +6,7 @@
 
 ## Estado del proyecto
 
-**Fase:** prototipo inicial  
+**Fase:** desarrollo del núcleo de simulación  
 **Versión:** 0.1.0  
 **Motor:** Godot 4.7.2 estable  
 **Lenguaje:** GDScript  
@@ -29,11 +29,11 @@
 2. Abre el proyecto seleccionando el archivo `project.godot`.
 3. Ejecuta la escena principal con F6/F5.
 
-## Compilación Android
+## APK y lanzamientos
 
-El repositorio incluye un flujo de GitHub Actions para validar y exportar un APK de depuración. Se ejecuta al actualizar `main` o manualmente desde la pestaña **Actions**. El APK se publica como artefacto de la ejecución.
+La compilación Android está desactivada durante el desarrollo. No se generarán APK de prueba ni versiones incompletas. La APK final se preparará únicamente cuando todos los sistemas acordados estén implementados, las pruebas estén superadas y exista autorización expresa para la compilación final.
 
-La primera compilación usa firma de depuración. Para distribuir actualizaciones instalables sobre una versión anterior necesitaremos configurar una clave de firma privada y persistente mediante GitHub Secrets; nunca se guardará en este repositorio público.
+La firma de distribución se configurará al llegar a esa etapa, usando un secreto privado fuera del repositorio público.
 
 ## Estructura
 
