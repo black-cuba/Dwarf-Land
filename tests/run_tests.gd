@@ -10,6 +10,8 @@ func _run_tests() -> void:
 	_test_resource_node()
 	_test_navigation()
 	_test_colonist()
+	_test_work_order_depth()
+	_test_scheduler_reassigns_urgent_colonist_work()
 	_test_simulation_work_order()
 	print("Dwarf Land: todas las pruebas automatizadas han pasado.")
 	quit(0)
@@ -70,6 +72,43 @@ func _test_colonist() -> void:
 	assert(absf(colonist.body_temperature - 37.0) < 0.01, "La temperatura corporal no se mantiene en ambiente templado.")
 	assert(is_equal_approx(colonist.get_work_speed(&"stone"), 1.4), "La profesión minera no aplica su bonificación.")
 	assert(is_equal_approx(colonist.get_work_speed(&"food"), 1.0), "La bonificación minera se aplicó a un trabajo no especializado.")
+
+
+func _test_work_order_depth() -> void:
+	var order := ColonyWorkOrder.new(
+		&"deep_test",
+		&"coal",
+		2,
+		Vector2i(14, 2),
+		3,
+		4.0,
+		&"coal",
+		5
+	)
+	assert(order.level == 2, "La orden minera perdió su nivel de profundidad.")
+	assert(order.target_cell == Vector2i(14, 2), "La orden minera alteró la coordenada de destino.")
+
+
+func _test_scheduler_reassigns_urgent_colonist_work() -> void:
+	var scheduler := ColonyWorkScheduler.new()
+	var navigation := ColonyNavigationGrid.new()
+	var first := DwarfColonist.new(&"first", "Primero", "Minero")
+	var second := DwarfColonist.new(&"second", "Segundo", "Minero")
+	first.current_position = Vector2i(12, 2)
+	second.current_position = Vector2i(12, 2)
+	var colonists: Array[DwarfColonist] = [first, second]
+	var order_id := scheduler.queue_order(&"stone", 2, Vector2i(12, 2), 3, 10.0, &"stone", 4)
+
+	scheduler.advance_hour(colonists, navigation)
+	assert(scheduler.get_active_orders_snapshot()[0]["assigned_colonist_id"] == "first", "La primera orden no se asignó al primer colono disponible.")
+
+	first.hunger = 85.0
+	scheduler.advance_hour(colonists, navigation)
+	var active := scheduler.get_active_orders_snapshot()
+	assert(active.size() == 1, "La orden se perdió al liberar al colono.")
+	assert(active[0]["id"] == String(order_id), "La orden reasignada no conserva su identificador.")
+	assert(active[0]["assigned_colonist_id"] == "second", "La tarea no se reasignó al siguiente colono disponible.")
+	assert(first.id != active[0]["assigned_colonist_id"], "El colono en estado crítico conservó el trabajo.")
 
 
 func _test_simulation_work_order() -> void:
