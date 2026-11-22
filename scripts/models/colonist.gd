@@ -14,6 +14,7 @@ var health := 100.0
 var body_temperature := 37.0
 var alive := true
 var current_level := 0
+var current_position := Vector2i(7, 0)
 
 
 func _init(p_id: StringName, p_display_name: String, p_profession: String) -> void:
@@ -102,6 +103,7 @@ func get_snapshot() -> Dictionary:
 		"body_temperature": body_temperature,
 		"alive": alive,
 		"current_level": current_level,
+		"current_position": current_position,
 		"condition": get_condition()
 	}
 
