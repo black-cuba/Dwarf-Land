@@ -603,7 +603,7 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	for item in structure_data:
 		if typeof(item) != TYPE_DICTIONARY or typeof(item.get("cell")) != TYPE_VECTOR2I:
 			return false
-		var restored_structure := item.duplicate(true)
+		var restored_structure: Dictionary = item.duplicate(true)
 		structures.append(restored_structure)
 
 	var terrain_data: Variant = snapshot.get("diggable_cells", [])
