@@ -25,6 +25,7 @@ var colonists: Array[DwarfColonist] = []
 var resource_nodes: Dictionary = {}
 var _pending_outputs: Array[Dictionary] = []
 var _last_alert_key := ""
+var _bed_assignments: Dictionary = {}
 
 
 func _init() -> void:
@@ -79,6 +80,7 @@ func advance_hour() -> void:
 	for colonist in colonists:
 		if not colonist.alive:
 			continue
+		_update_rest(colonist, is_rest_period)
 		colonist.advance_hour(is_rest_period, ambient_temperature)
 		_satisfy_needs(colonist)
 
@@ -240,6 +242,8 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		colonist.current_level = colonist.current_position.y
 		colonist.visual_position = Vector2(colonist.current_position)
 		colonist.movement_target = colonist.current_position
+		colonist.is_resting = false
+		colonist.is_sleeping = false
 		restored_colonists.append(colonist)
 	colonists = restored_colonists
 
@@ -278,6 +282,59 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 	_last_alert_key = ""
 	colony_changed.emit()
 	return true
+
+
+
+func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
+	if not rest_period:
+		colonist.is_resting = false
+		colonist.is_sleeping = false
+		_bed_assignments.erase(colonist.id)
+		return
+
+	if not colonist.is_resting:
+		colonist.stop_movement()
+		scheduler.release_colonist(colonist.id)
+	colonist.is_resting = true
+
+	if not _bed_assignments.has(colonist.id):
+		_assign_bed(colonist)
+	if not _bed_assignments.has(colonist.id):
+		colonist.is_sleeping = false
+		return
+
+	var bed: Vector2i = _bed_assignments[colonist.id]
+	if colonist.current_position == bed and not colonist.is_moving:
+		colonist.is_sleeping = true
+		return
+
+	colonist.is_sleeping = false
+	if colonist.is_moving:
+		return
+	var path := navigation.find_path(colonist.current_position, bed)
+	if not path.is_empty():
+		colonist.start_movement(path[mini(4, path.size()) - 1])
+
+
+func _assign_bed(colonist: DwarfColonist) -> void:
+	var beds: Array[Vector2i] = [Vector2i(7, 1), Vector2i(8, 1), Vector2i(9, 1)]
+	var occupied: Array = _bed_assignments.values()
+	var best_bed := Vector2i(-1, -1)
+	var best_distance := 2147483647
+	for bed in beds:
+		if occupied.has(bed) or not navigation.is_walkable(bed):
+			continue
+		var distance := 0
+		if colonist.current_position != bed:
+			var path := navigation.find_path(colonist.current_position, bed)
+			if path.is_empty():
+				continue
+			distance = path.size()
+		if distance < best_distance:
+			best_distance = distance
+			best_bed = bed
+	if best_bed.x >= 0:
+		_bed_assignments[colonist.id] = best_bed
 
 
 func _satisfy_needs(colonist: DwarfColonist) -> void:
