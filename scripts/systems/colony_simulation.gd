@@ -28,11 +28,11 @@ var _last_alert_key := ""
 func _init() -> void:
 	scheduler.task_completed.connect(_on_task_completed)
 	resource_nodes = {
-		&"food": ColonyResourceNode.new(&"cave_garden", &"food", 0, Vector2i(8, 0), 24, 48, 6, 4.0, 6),
-		&"water": ColonyResourceNode.new(&"underground_spring", &"water", 0, Vector2i(14, 0), 32, 64, 8, 3.0, 8),
+		&"food": ColonyResourceNode.new(&"cave_garden", &"food", 0, Vector2i(11, 0), 24, 48, 6, 4.0, 6),
+		&"water": ColonyResourceNode.new(&"underground_spring", &"water", 0, Vector2i(18, 0), 32, 64, 8, 3.0, 8),
 		&"wood": ColonyResourceNode.new(&"fungal_timber", &"wood", 0, Vector2i(21, 0), 18, 36, 3, 5.0, 6),
-		&"stone": ColonyResourceNode.new(&"stone_quarry", &"stone", 1, Vector2i(12, 1), 60, 100, 0, 5.0, 5),
-		&"ore": ColonyResourceNode.new(&"ore_vein", &"ore", 1, Vector2i(25, 1), 24, 40, 0, 6.0, 3)
+		&"stone": ColonyResourceNode.new(&"stone_quarry", &"stone", 1, Vector2i(13, 1), 60, 100, 0, 5.0, 5),
+		&"ore": ColonyResourceNode.new(&"ore_vein", &"ore", 1, Vector2i(27, 1), 24, 40, 0, 6.0, 3)
 	}
 	var borin := DwarfColonist.new(&"dwarf_001", "Borin", "Recolector")
 	borin.current_position = Vector2i(7, 0)
