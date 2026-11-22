@@ -540,6 +540,8 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		if typeof(map_cell) == TYPE_VECTOR3I:
 			navigation.set_map_diggable(map_cell)
 	for structure in structures:
+		if StringName(structure.get("type", "")) == &"bed":
+			continue
 		var map_cell: Vector3i = structure.get("map_cell", Vector3i(int(structure.get("cell", Vector2i.ZERO).x), ColonyNavigationGrid.ELEVATOR_ROW, int(structure.get("level", 0))))
 		navigation.set_map_blocked(map_cell, true)
 
