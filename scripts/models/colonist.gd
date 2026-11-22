@@ -19,6 +19,8 @@ var current_position := Vector2i(7, 0)
 var visual_position := Vector2(7.0, 0.0)
 var movement_target := Vector2i(7, 0)
 var is_moving := false
+var is_resting := false
+var is_sleeping := false
 
 
 func _init(p_id: StringName, p_display_name: String, p_profession: String) -> void:
@@ -66,8 +68,10 @@ func advance_hour(is_rest_period: bool, ambient_temperature: float) -> void:
 		return
 	hunger = minf(NEED_MAX, hunger + 1.15)
 	thirst = minf(NEED_MAX, thirst + 1.65)
-	if is_rest_period:
-		fatigue = maxf(0.0, fatigue - 7.0)
+	if is_rest_period and is_sleeping:
+		fatigue = maxf(0.0, fatigue - 15.0)
+	elif is_rest_period:
+		fatigue = minf(NEED_MAX, fatigue + 0.35)
 	elif fatigue >= 85.0:
 		fatigue = maxf(0.0, fatigue - 4.0)
 	else:
@@ -141,6 +145,8 @@ func get_snapshot() -> Dictionary:
 		"current_position": current_position,
 		"visual_position": get_render_position(),
 		"is_moving": is_moving,
+		"is_resting": is_resting,
+		"is_sleeping": is_sleeping,
 		"condition": get_condition()
 	}
 
