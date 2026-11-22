@@ -288,6 +288,8 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 
 func _update_rest(colonist: DwarfColonist, rest_period: bool) -> void:
 	if not rest_period:
+		if colonist.is_resting and colonist.is_moving:
+			colonist.stop_movement()
 		colonist.is_resting = false
 		colonist.is_sleeping = false
 		_bed_assignments.erase(colonist.id)
