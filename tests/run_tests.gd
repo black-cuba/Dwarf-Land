@@ -14,6 +14,7 @@ func _run_tests() -> void:
 	_test_autonomous_bed_assignment()
 	_test_storage_construction_and_restore()
 	_test_workshop_tool_crafting()
+	_test_mining_tool_durability()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -227,6 +228,33 @@ func _test_workshop_tool_crafting() -> void:
 	for _hour in range(4):
 		simulation.advance_hour()
 	assert(simulation.inventory.get_amount(&"tools") == tools_before + 1, "El taller no produjo la herramienta.")
+
+
+
+func _test_mining_tool_durability() -> void:
+	var simulation := ColonySimulation.new()
+	simulation.active_level = 2
+	for colonist in simulation.colonists:
+		colonist.current_position = Vector2i(12, 2)
+		colonist.current_level = 2
+	simulation.tool_durability = 20.0
+	var tools_before := simulation.inventory.get_amount(&"tools")
+	assert(simulation.queue_work(&"stone"), "No se pudo ordenar la extracción con herramienta.")
+	assert(simulation.inventory.get_amount(&"tools") == tools_before - 1, "La herramienta no se reservó al iniciar la extracción.")
+	simulation.advance_hour()
+	for _hour in range(5):
+		simulation.update_frame(1.0)
+		simulation.advance_hour()
+	assert(simulation.tool_durability == 100.0, "La durabilidad no se reinició al romperse la herramienta.")
+	assert(simulation.inventory.get_amount(&"tools") == tools_before - 1, "Una herramienta rota volvió al inventario.")
+
+	var no_tools := ColonySimulation.new()
+	no_tools.active_level = 2
+	no_tools.inventory.remove_resource(&"tools", no_tools.inventory.get_amount(&"tools"))
+	var stone_node: ColonyResourceNode = no_tools.resource_nodes[&"stone"]
+	var stone_before := stone_node.available_units
+	assert(not no_tools.queue_work(&"stone"), "Se permitió minar sin herramientas.")
+	assert(stone_node.available_units == stone_before, "La fuente perdió recursos al rechazar una orden sin herramientas.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
