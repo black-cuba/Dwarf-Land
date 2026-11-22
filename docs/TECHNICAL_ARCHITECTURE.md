@@ -44,7 +44,7 @@ El juego es estrictamente 2D lateral: no utiliza cámara, escena, física ni ren
 - La minería reserva herramientas, aplica desgaste por material y devuelve la herramienta si no se rompe; el taller convierte madera y mineral en herramientas. Las estructuras se mantienen transitables hasta incorporar navegación con varias rutas.
 
 ## Validación
-- GitHub Actions importa el proyecto y ejecuta pruebas de lógica.
+- GitHub Actions importa el proyecto, aplica una guarda automática contra nodos/renderizado 3D, ejecuta pruebas de lógica y abre la escena principal en modo headless.
 - El guardado automático se ejecuta cada seis horas de juego y al suspender o cerrar la aplicación.
 - El flujo de validación no exporta APK.
 - No se compilará APK durante el desarrollo.
