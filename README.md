@@ -22,7 +22,8 @@
 - Recursos distribuidos por capa: árboles y cultivos en superficie, agua y tierra en subsuelo, roca y minerales en profundidad.
 - Excavación de bloques geológicos mediante órdenes de trabajo y apertura de rutas transitables.
 - Movimiento interpolado de colonos y guardado local automático con copia de seguridad.
-- Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.\n- Descanso nocturno autónomo con asignación de camas y recuperación de fatiga.
+- Ciclo agrícola básico: crecimiento diario condicionado por humedad, cosecha y resiembra.
+- Descanso nocturno autónomo con asignación de camas y recuperación de fatiga.
 - Construcción, extracción y producción.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
