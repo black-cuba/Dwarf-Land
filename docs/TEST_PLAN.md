@@ -12,6 +12,13 @@ Este documento define comprobaciones obligatorias. No implica que ya se hayan ej
 - [ ] En condiciones ambientales normales la temperatura corporal permanece estable.
 - [ ] El frío y el calor extremos afectan la temperatura corporal y, si persisten, la salud.
 
+## Fuentes de recursos
+
+- [ ] Las fuentes renovables se regeneran al cambiar el día sin superar su capacidad.
+- [ ] Las vetas minerales y canteras se agotan y no se regeneran.
+- [ ] No se puede reservar más recurso del que una fuente contiene.
+- [ ] Una orden agotada o inválida no consume existencias.
+
 ## Inventario y producción
 
 - [ ] El inventario no acepta cantidades negativas.
@@ -19,6 +26,8 @@ Este documento define comprobaciones obligatorias. No implica que ya se hayan ej
 - [ ] Las salidas de producción que no caben quedan pendientes y no se pierden.
 - [ ] Cada orden requiere el tiempo de trabajo definido.
 - [ ] La prioridad más alta se asigna antes que las prioridades inferiores.
+- [ ] Cada profesión aplica su bonificación solo a trabajos compatibles.
+- [ ] Un colono con necesidades críticas suspende su trabajo hasta recuperarse.
 - [ ] Un colono no puede ejecutar dos órdenes simultáneamente.
 - [ ] Una orden completada entrega exactamente la cantidad definida.
 - [ ] Una orden no produce recursos si está cancelada o no se ha completado.
