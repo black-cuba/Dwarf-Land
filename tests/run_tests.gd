@@ -20,6 +20,7 @@ func _run_tests() -> void:
 	_test_illness_and_injury()
 	_test_resource_node()
 	_test_navigation()
+	_test_navigation_2d_map()
 	_test_excavation()
 	_test_excavation_work_order()
 	_test_simulation_rejects_duplicate_excavation()
@@ -83,6 +84,33 @@ func _test_navigation() -> void:
 	navigation.set_blocked(Vector2i(ColonyNavigationGrid.ELEVATOR_COLUMN, 0), true)
 	var blocked_path := navigation.find_path(Vector2i(7, 0), Vector2i(12, 2))
 	assert(blocked_path.is_empty(), "La ruta atraviesa un ascensor bloqueado.")
+
+
+
+func _test_navigation_2d_map() -> void:
+	var navigation := ColonyNavigationGrid.new()
+	var start := Vector3i(2, 5, 1)
+	var goal := Vector3i(8, 5, 1)
+	var direct_path := navigation.find_map_path(start, goal)
+	assert(direct_path.size() == 6, "La cuadrícula 2D no calcula la ruta horizontal mínima.")
+	navigation.set_map_blocked(Vector3i(5, 5, 1), true)
+	var detour := navigation.find_map_path(start, goal)
+	assert(not detour.is_empty(), "La navegación 2D no encontró una ruta alternativa.")
+	assert(not detour.has(Vector3i(5, 5, 1)), "La ruta alternativa atraviesa un obstáculo.")
+	for cell in detour:
+		assert(navigation.is_map_walkable(cell), "La ruta 2D atraviesa una celda bloqueada.")
+	var lift_path := navigation.find_map_path(Vector3i(34, 5, 0), Vector3i(34, 5, 2))
+	assert(lift_path.size() == 2, "El ascensor no conecta las tres capas en el mismo punto.")
+	navigation.set_map_blocked(Vector3i(34, 5, 1), true)
+	assert(navigation.find_map_path(Vector3i(34, 5, 0), Vector3i(34, 5, 2)).is_empty(), "El ascensor bloqueado sigue conectando capas.")
+	var wall := Vector3i(6, 6, 2)
+	navigation.set_map_diggable(wall)
+	assert(navigation.can_dig_map_cell(wall), "La roca 2D no quedó marcada para excavar.")
+	assert(not navigation.is_map_walkable(wall), "La roca 2D bloqueada permite el paso.")
+	assert(navigation.excavate_map_cell(wall), "No se pudo excavar una celda 2D.")
+	assert(navigation.is_map_walkable(wall), "La excavación 2D no abrió el paso.")
+	assert(not navigation.can_dig_map_cell(wall), "La roca excavada sigue pendiente.")
+	assert(not navigation.is_map_cell_inside(Vector3i(0, ColonyNavigationGrid.MAP_HEIGHT, 0)), "El mapa aceptó una fila fuera de sus límites.")
 
 
 func _test_excavation() -> void:
