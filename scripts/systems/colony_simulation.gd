@@ -51,6 +51,17 @@ func _init() -> void:
 	colonists.append(krag)
 
 
+
+func update_frame(delta: float) -> bool:
+	if paused or delta <= 0.0:
+		return false
+	var moved := false
+	for colonist in colonists:
+		if colonist.alive and colonist.advance_movement(delta):
+			moved = true
+	return moved
+
+
 func advance_hour() -> void:
 	if paused:
 		return
