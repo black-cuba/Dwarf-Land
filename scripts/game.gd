@@ -340,6 +340,7 @@ func _build_interface() -> void:
 	_add_button(row, "Construir", _toggle_build_mode)
 	_add_button(row, "Fabricar", _craft_tool)
 	_add_button(row, "Guardar", _save_game)
+	_add_button(row, "Modo", _cycle_game_mode)
 	_add_button(row, "Pausar", _toggle_pause)
 
 	message_label = Label.new()
@@ -376,17 +377,25 @@ func _refresh_interface() -> void:
 	var tool_condition := roundi(simulation.tool_durability)
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
-	title_label.text = "DWARF LAND     ·     DÍA %d     ·     %02d:00" % [simulation.day, simulation.hour]
+	title_label.text = "DWARF LAND     ·     %s     ·     DÍA %d     ·     %02d:00" % [simulation.get_game_mode_label().to_upper(), simulation.day, simulation.hour]
 	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   Herramientas: %d (%d%%)   |   Colonos: %d   Trabajos: %d" % [
 		food, water, seeds, wood, clay, stone, coal, ore, tools, tool_condition, simulation.get_living_colonist_count(), active_orders
 	]
 	message_label.text = message
+	if simulation.game_mode == &"campaign":
+		var progress := simulation.get_campaign_progress()
+		message_label.text = "Objetivo: almacén %s · taller %s · día 10 %s" % [
+			"✓" if progress.storage_built else "—",
+			"✓" if progress.workshop_built else "—",
+			"✓" if progress.day_ten_reached else "—"
+		]
 
-	if action_buttons.size() > 10:
+	if action_buttons.size() > 11:
 		action_buttons[3].text = "Extraer " + String(_get_selected_extraction_resource()).capitalize() if not _get_extraction_options().is_empty() else "Extraer"
 		action_buttons[7].text = "Plano: " + String(_get_selected_building()).capitalize() if build_mode else "Construir"
 		action_buttons[8].disabled = not simulation.has_workshop()
-		action_buttons[10].text = "Reanudar" if simulation.paused else "Pausar"
+		action_buttons[10].text = "Modo: " + simulation.get_game_mode_label()
+		action_buttons[11].text = "Reanudar" if simulation.paused else "Pausar"
 
 
 func _on_alert_raised(alert_message: String, severity: int) -> void:
@@ -522,6 +531,21 @@ func _plant_crops() -> void:
 	_refresh_interface()
 
 
+
+
+
+func _cycle_game_mode() -> void:
+	var next_mode: StringName
+	match simulation.game_mode:
+		&"survival":
+			next_mode = &"campaign"
+		&"campaign":
+			next_mode = &"sandbox"
+		_:
+			next_mode = &"survival"
+	simulation.set_game_mode(next_mode)
+	message = "Modo cambiado a %s." % simulation.get_game_mode_label()
+	_refresh_interface()
 
 
 func _save_game() -> void:
