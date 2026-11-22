@@ -14,7 +14,7 @@ func generate() -> Dictionary:
 	var wood_x := random.randi_range(20, 30)
 	var water_x := random.randi_range(18, 24)
 	var clay_x := random.randi_range(10, 11)
-	var mushroom_x := random.randi_range(5, 8)
+	var mushroom_x := random.randi_range(3, 5)
 	var ore_x := random.randi_range(22, 27)
 	var coal_x := random.randi_range(28, 33)
 
