@@ -12,6 +12,7 @@ var _assignments: Dictionary = {}
 func queue_order(
 	work_type: StringName,
 	level: int,
+	target_cell: Vector2i,
 	priority: int,
 	required_work: float,
 	output_resource: StringName,
@@ -24,6 +25,7 @@ func queue_order(
 		order_id,
 		work_type,
 		level,
+		target_cell,
 		priority,
 		required_work,
 		output_resource,
@@ -33,7 +35,7 @@ func queue_order(
 	return order_id
 
 
-func advance_hour(colonists: Array[DwarfColonist]) -> void:
+func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationGrid) -> void:
 	for colonist in colonists:
 		if not colonist.alive:
 			_release_assignment(colonist.id)
@@ -51,8 +53,15 @@ func advance_hour(colonists: Array[DwarfColonist]) -> void:
 			order.state = ColonyWorkOrder.State.IN_PROGRESS
 			task_started.emit(order.id, colonist.id)
 
-		if colonist.current_level != order.level:
-			colonist.current_level = order.level
+		if colonist.current_position != order.target_cell:
+			var path := navigation.find_path(colonist.current_position, order.target_cell)
+			if path.is_empty():
+				_release_assignment(colonist.id)
+				continue
+
+			var movement_steps := mini(4, path.size())
+			colonist.current_position = path[movement_steps - 1]
+			colonist.current_level = colonist.current_position.y
 			continue
 
 		if order.advance(colonist.get_work_speed(order.work_type)):
