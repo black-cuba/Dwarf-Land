@@ -147,13 +147,14 @@ func _test_excavation() -> void:
 
 func _test_save_system_backup_recovery() -> void:
 	var save_system := ColonySaveSystem.new("user://dwarf_land_test_saves")
-	var first_snapshot := {"day": 4, "position": Vector2i(8, 2), "name": "Primera"}
+	var first_snapshot := {"day": 4, "position": Vector2i(8, 2), "map_position": Vector3i(8, 4, 2), "name": "Primera"}
 	var second_snapshot := {"day": 5, "position": Vector2i(9, 2), "name": "Segunda"}
 	assert(save_system.save_snapshot(first_snapshot), "No se pudo crear el primer guardado.")
 	assert(save_system.save_snapshot(second_snapshot), "No se pudo actualizar el guardado.")
 	var loaded := save_system.load_snapshot()
 	assert(loaded.success and not loaded.used_backup, "No se leyó el guardado principal.")
 	assert(loaded.data.day == 5 and loaded.data.position == Vector2i(9, 2), "El guardado no conservó los datos.")
+	assert(loaded.data.map_position == Vector3i(8, 4, 2), "El guardado no serializó una coordenada Vector3i.")
 	var target := ProjectSettings.globalize_path("user://dwarf_land_test_saves/colony_save.json")
 	var corrupt := FileAccess.open(target, FileAccess.WRITE)
 	assert(corrupt != null, "No se pudo preparar la prueba de recuperación.")
