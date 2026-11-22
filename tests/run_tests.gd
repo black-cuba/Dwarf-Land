@@ -9,6 +9,7 @@ func _run_tests() -> void:
 	_test_inventory()
 	_test_save_system_backup_recovery()
 	_test_simulation_snapshot_restore()
+	_test_crop_growth_and_harvest()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -113,6 +114,22 @@ func _test_simulation_snapshot_restore() -> void:
 	assert(restored.inventory.get_amount(&"ore") == original.inventory.get_amount(&"ore"), "El inventario no se restauró.")
 	assert(restored.navigation.is_walkable(Vector2i(20, 2)), "El terreno excavado no se conservó.")
 	assert(restored.scheduler.get_active_orders_snapshot().size() == 1, "La cola de trabajo no se restauró.")
+	assert(restored.crop_field.is_ready, "El estado del campo no se restauró.")
+
+
+
+func _test_crop_growth_and_harvest() -> void:
+	var field := ColonyCropField.new()
+	assert(field.is_ready, "El campo inicial debe tener una cosecha lista.")
+	assert(field.harvest(12) == 12, "No se pudo cosechar una parte de la producción.")
+	assert(field.is_ready and field.harvestable_units == 12, "La cosecha parcial alteró incorrectamente el campo.")
+	assert(field.harvest(12) == 12, "No se pudo completar la cosecha.")
+	assert(not field.is_planted, "El campo debe quedar libre tras agotar la cosecha.")
+	assert(field.plant(), "No se pudo replantar el campo.")
+	assert(not field.is_ready, "El campo recién sembrado aparece maduro.")
+	for _day in range(4):
+		field.advance_day(true)
+	assert(field.is_ready and field.harvestable_units == ColonyCropField.HARVEST_PER_CYCLE, "El cultivo no maduró tras cuatro días con agua.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
