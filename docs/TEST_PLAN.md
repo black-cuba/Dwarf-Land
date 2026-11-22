@@ -24,6 +24,7 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] El inventario no acepta cantidades negativas.
 - [ ] El inventario no supera su capacidad.
 - [ ] Las salidas de producción que no caben quedan pendientes y no se pierden.
+- [x] Los colonos recogen recursos, los transportan al almacén y conservan la carga durante el guardado.
 - [ ] Cada orden requiere el tiempo de trabajo definido.
 - [ ] La prioridad más alta se asigna antes que las prioridades inferiores.
 - [ ] Cada profesión aplica su bonificación solo a trabajos compatibles.
