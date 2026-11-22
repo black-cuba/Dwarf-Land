@@ -29,7 +29,7 @@ La distribución representa una regla ecológica/geológica, no una garantía de
 
 ## Supervivencia y colonia
 - Colonos autónomos en tareas rutinarias; el jugador establece prioridades y órdenes importantes.
-- Necesidades: hambre, sed, sueño/fatiga, salud y temperatura.
+- Necesidades: hambre, sed, sueño/fatiga, salud y temperatura.\n- Durante la noche, los colonos suspenden sus trabajos, buscan una cama libre en el refugio y recuperan más fatiga al dormir.
 - Recursos: comida, agua, madera, tierra/arcilla, piedra, minerales, herramientas y materiales.
 - Vivienda, almacenes, talleres, cultivos e instalaciones.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
