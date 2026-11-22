@@ -1,76 +1,57 @@
 # Dwarf Land — Documento de diseño
 
 ## Visión
+Juego original de supervivencia y gestión de una colonia de enanos en un mundo lateral 2D. La supervivencia depende de una economía material coherente: cada recurso aparece en el entorno donde tendría sentido encontrarlo y debe extraerse, transportarse, almacenarse y consumirse.
 
-Juego original de supervivencia y gestión de una colonia de enanos bajo tierra. La presión principal nace de mantener con vida a la comunidad mediante producción, almacenamiento, planificación y decisiones de gestión.
+## Estructura del mundo: tres capas
 
-## Alcance confirmado
+El mundo jugable tiene exactamente tres capas conectadas por un ascensor o acceso vertical seguro:
 
-- Vista 2D lateral.
-- Exactamente dos niveles subterráneos jugables.
-- Sin superficie jugable ni tercer nivel.
-- Colonos autónomos en tareas rutinarias; el jugador fija prioridades y da órdenes importantes.
-- Juego sin conexión, sin anuncios, sin telemetría y sin servicios externos.
-- No se copiarán código, personajes, mapas, sonidos ni imágenes de otros juegos.
+### Capa 1 — Superficie: árboles, vegetación y suelo
+- Árboles y madera.
+- Suelo fértil, hierba y cultivos.
+- Alimentos de superficie y espacio para agricultura.
+- Entradas a galerías y zonas de excavación.
+
+### Capa 2 — Subsuelo: tierra y zona de raíces
+- Tierra compacta, raíces y arcilla.
+- Acuíferos y corrientes de agua subterránea.
+- Hongos y recursos orgánicos que prosperan sin luz.
+- Transición geológica entre suelo y roca.
+
+### Capa 3 — Profundidad: roca madre y yacimientos
+- Roca compacta y piedra de construcción.
+- Vetas minerales y depósitos geológicos.
+- Materiales más profundos, con extracción más exigente.
+- Mayor presión ambiental y logística conforme se amplíen los sistemas de supervivencia.
+
+La distribución representa una regla ecológica/geológica, no una garantía de que cada mapa real tenga exactamente los mismos depósitos. Los yacimientos concretos variarán entre partidas cuando se implemente la generación del mundo.
+
+## Supervivencia y colonia
+- Colonos autónomos en tareas rutinarias; el jugador establece prioridades y órdenes importantes.
+- Necesidades: hambre, sed, sueño/fatiga, salud y temperatura.
+- Recursos: comida, agua, madera, tierra/arcilla, piedra, minerales, herramientas y materiales.
+- Vivienda, almacenes, talleres, cultivos e instalaciones.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
-
-## Distribución de los niveles
-
-### Nivel 1 — Refugio y producción
-
-Vivienda, camas, almacenamiento, agua, alimentos, cultivos y espacios de trabajo.
-
-### Nivel 2 — Extracción y materiales
-
-Minería, piedra, minerales, materias primas y taller. El ascensor conecta ambos niveles.
-
-## Necesidades de cada colono
-
-- Hambre.
-- Sed.
-- Sueño y fatiga.
-- Salud.
-- Temperatura corporal y condiciones ambientales.
-
-## Recursos colectivos
-
-- Comida y agua.
-- Madera, piedra y minerales.
-- Herramientas y materiales de construcción.
-- Reservas y capacidad de almacenamiento.
+- Juego offline, sin anuncios, telemetría, servidores ni servicios de pago.
+- Código, arte, música y contenido originales; no se copia material protegido de otros juegos.
 
 ## Estado de implementación
+La primera base funcional incluye necesidades, inventario, fuentes limitadas, trabajos con prioridades, especializaciones, navegación de tres capas y pruebas automáticas. La distribución inicial ya separa cultivos y árboles en superficie, agua en el subsuelo y roca/minerales en profundidad.
 
-Ya existe una primera base funcional del núcleo de simulación:
-
-- Modelo individual de colono con necesidades, salud, temperatura y profesión.
-- Inventario con capacidad máxima.
-- Fuentes subterráneas finitas y renovables: cultivo de hongos, manantial, madera fúngica, cantera y veta mineral.
-- Regeneración diaria de fuentes renovables y agotamiento de depósitos minerales.
-- Reloj de simulación por horas.
-- Cola de trabajos con prioridades.
-- Asignación de tareas favoreciendo la profesión más adecuada.
-- Pausa de trabajo ante hambre, sed o fatiga críticas.
-- Producción con tiempo de trabajo y entrega real al inventario.
-- Cuadrícula de dos niveles con ruta obligatoria por el ascensor.
-- Indicadores básicos de necesidades y reservas en pantalla.
-- Pruebas automatizadas de inventario, fuentes, navegación, necesidades y trabajos.
-
-Esta base todavía no representa el juego final. El movimiento es por pasos de simulación y faltan sistemas completos de construcción, agricultura, vivienda, fabricación, eventos, persistencia y modos.
+Todavía faltan movimiento visual continuo, excavación real del terreno, generación de mapas, cultivos completos, construcción, habitaciones, herramientas, transporte, eventos, guardado y los tres modos.
 
 ## Próximos hitos
-
-1. Movimiento visual continuo, colisiones y navegación alrededor de instalaciones.
-2. Comportamiento autónomo completo para comer, beber, dormir, trabajar y recuperarse.
-3. Cultivos con siembra, crecimiento y cosecha.
-4. Construcción, habitaciones, camas, almacenes y talleres funcionales.
-5. Minería, herramientas, fabricación, desgaste y transporte.
+1. Movimiento visual continuo y excavación de terreno.
+2. Comportamiento autónomo para comer, beber, dormir y recuperarse.
+3. Agricultura y ciclos de cultivo.
+4. Construcción, habitaciones, camas, almacenes y talleres.
+5. Geología, vetas, minería, herramientas y transporte.
 6. Temperatura ambiental, aislamiento, enfermedades, accidentes y eventos.
-7. Guardado local seguro y recuperación de partidas.
-8. Interfaz móvil completa, arte y audio originales.
+7. Guardado local seguro.
+8. Interfaz móvil, arte y audio originales.
 9. Campaña, Supervivencia y Sandbox.
-10. Pruebas completas en dispositivo Android y corrección final.
+10. Pruebas completas en Android.
 
 ## Regla de entrega
-
-No se compilará ni publicará una APK hasta que el juego esté completo, las pruebas estén superadas y exista autorización expresa para la compilación final.
+No se compilará ni publicará APK hasta que el juego esté completo, las pruebas estén superadas y exista autorización expresa.
