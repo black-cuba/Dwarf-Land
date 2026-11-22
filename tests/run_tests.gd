@@ -11,6 +11,7 @@ func _run_tests() -> void:
 	_test_navigation()
 	_test_excavation()
 	_test_excavation_work_order()
+	_test_simulation_rejects_duplicate_excavation()
 	_test_colonist()
 	_test_work_order_depth()
 	_test_scheduler_reassigns_urgent_colonist_work()
@@ -66,6 +67,15 @@ func _test_excavation() -> void:
 	assert(navigation.is_walkable(wall), "La celda excavada no se volvió transitable.")
 	assert(not navigation.can_dig(wall), "La roca excavada sigue marcada como pendiente.")
 
+
+
+
+func _test_simulation_rejects_duplicate_excavation() -> void:
+	var simulation := ColonySimulation.new()
+	simulation.active_level = 1
+	var target := Vector2i(5, 1)
+	assert(simulation.queue_excavation(target), "No se pudo crear la primera orden de excavación.")
+	assert(not simulation.queue_excavation(target), "La simulación permitió duplicar una orden de excavación pendiente.")
 
 
 func _test_excavation_work_order() -> void:
