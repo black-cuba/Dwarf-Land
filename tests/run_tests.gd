@@ -102,6 +102,12 @@ func _test_colonist() -> void:
 	assert(absf(colonist.body_temperature - 37.0) < 0.01, "La temperatura corporal no se mantiene en ambiente templado.")
 	assert(is_equal_approx(colonist.get_work_speed(&"stone"), 1.4), "La profesión minera no aplica su bonificación.")
 	assert(is_equal_approx(colonist.get_work_speed(&"food"), 1.0), "La bonificación minera se aplicó a un trabajo no especializado.")
+	colonist.start_movement(Vector2i(9, 0))
+	assert(colonist.is_moving, "El colono no inició el movimiento.")
+	colonist.advance_movement(0.2)
+	assert(colonist.visual_position.x > 7.0 and colonist.visual_position.x < 9.0, "El movimiento no interpola posiciones.")
+	colonist.advance_movement(1.0)
+	assert(not colonist.is_moving and colonist.current_position == Vector2i(9, 0), "El colono no finalizó el movimiento.")
 
 
 func _test_work_order_depth() -> void:
@@ -149,6 +155,7 @@ func _test_simulation_work_order() -> void:
 	assert(active_orders.size() == 1, "La orden no aparece en la cola activa.")
 	assert(active_orders[0]["assigned_colonist_id"] == "dwarf_002", "La tarea agrícola no se asignó a la colona especializada.")
 	for _hour in range(5):
+		simulation.update_frame(2.0)
 		simulation.advance_hour()
 	assert(simulation.inventory.get_amount(&"food") == initial_inventory + source.output_per_batch, "La tarea completada no entregó su producción.")
 	assert(simulation.scheduler.get_active_orders_snapshot().is_empty(), "La tarea completada sigue activa.")
