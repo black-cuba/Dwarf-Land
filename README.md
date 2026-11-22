@@ -30,6 +30,7 @@
 - Taller que fabrica herramientas; la minería consume herramientas y aplica desgaste hasta romperlas.
 - Construcción, extracción y producción.
 - Tres modos: Campaña (almacén + taller + día 10), Supervivencia sin objetivo final y Sandbox sin desgaste de necesidades.
+- Enfermedades por estrés y eventos diarios; los accidentes de minería pueden causar lesiones recuperables con descanso.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
 
 ## Ejecutar el prototipo
