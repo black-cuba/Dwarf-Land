@@ -79,27 +79,21 @@ func _draw_cavern() -> void:
 
 
 func _draw_structures() -> void:
-	# Nivel 1: refugio y almacén. Las instalaciones funcionales se implementarán
-	# mediante el sistema de construcción, no con estas formas de presentación.
-	draw_rect(Rect2(150, 270, 190, 60), Color("#67513f"))
-	draw_rect(Rect2(165, 240, 160, 30), Color("#9a7654"))
-	draw_rect(Rect2(180, 290, 42, 40), Color("#302b2b"))
-	draw_rect(Rect2(245, 290, 42, 40), Color("#302b2b"))
-	draw_string(ThemeDB.fallback_font, Vector2(165, 230), "REFUGIO", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
+	# Refugio and warehouse are built into the shallow subsurface layer.
+	draw_rect(Rect2(150, 330, 190, 60), Color("#67513f"))
+	draw_rect(Rect2(165, 300, 160, 30), Color("#9a7654"))
+	draw_rect(Rect2(180, 350, 42, 40), Color("#302b2b"))
+	draw_rect(Rect2(245, 350, 42, 40), Color("#302b2b"))
+	draw_string(ThemeDB.fallback_font, Vector2(165, 292), "REFUGIO", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
 
-	draw_rect(Rect2(410, 290, 135, 40), Color("#80623e"))
-	draw_rect(Rect2(425, 270, 105, 20), Color("#b08a50"))
-	draw_string(ThemeDB.fallback_font, Vector2(420, 258), "ALMACÉN", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
+	draw_rect(Rect2(410, 350, 135, 40), Color("#80623e"))
+	draw_rect(Rect2(425, 330, 105, 20), Color("#b08a50"))
+	draw_string(ThemeDB.fallback_font, Vector2(420, 322), "ALMACÉN", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
 
-	# Nivel 2: taller y representación geológica.
-	draw_rect(Rect2(180, 520, 145, 50), Color("#59616a"))
-	draw_rect(Rect2(195, 500, 115, 20), Color("#8b9298"))
-	draw_string(ThemeDB.fallback_font, Vector2(195, 490), "TALLER", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
-	for i in range(5):
-		var rock_position := Vector2(450 + i * 35, 555 - (i % 2) * 16)
-		draw_circle(rock_position, 13, Color("#77818b"))
-		draw_circle(rock_position, 6, Color("#a9b0b7"))
-
+	# The workshop is located close to deep extraction sites.
+	draw_rect(Rect2(180, 535, 145, 50), Color("#59616a"))
+	draw_rect(Rect2(195, 515, 115, 20), Color("#8b9298"))
+	draw_string(ThemeDB.fallback_font, Vector2(195, 507), "TALLER", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color.WHITE)
 
 
 func _draw_resource_nodes() -> void:
@@ -132,6 +126,22 @@ func _draw_resource_nodes() -> void:
 					Vector2(px + 23, floor_y - 12),
 					Vector2(px + 20, floor_y)
 				]), Color("#8c969f"))
+			&"clay":
+				draw_colored_polygon(PackedVector2Array([
+					Vector2(px - 21, floor_y),
+					Vector2(px - 15, floor_y - 20),
+					Vector2(px + 4, floor_y - 25),
+					Vector2(px + 22, floor_y - 9),
+					Vector2(px + 18, floor_y)
+				]), Color("#a87953"))
+			&"coal":
+				draw_colored_polygon(PackedVector2Array([
+					Vector2(px - 21, floor_y),
+					Vector2(px - 15, floor_y - 20),
+					Vector2(px + 4, floor_y - 25),
+					Vector2(px + 22, floor_y - 9),
+					Vector2(px + 18, floor_y)
+				]), Color("#292d33"))
 			&"ore":
 				draw_colored_polygon(PackedVector2Array([
 					Vector2(px - 22, floor_y),
@@ -250,11 +260,13 @@ func _refresh_interface() -> void:
 	var wood := simulation.inventory.get_amount(&"wood")
 	var stone := simulation.inventory.get_amount(&"stone")
 	var ore := simulation.inventory.get_amount(&"ore")
+	var clay := simulation.inventory.get_amount(&"clay")
+	var coal := simulation.inventory.get_amount(&"coal")
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
 	title_label.text = "DWARF LAND     ·     DÍA %d     ·     %02d:00" % [simulation.day, simulation.hour]
-	status_label.text = "Comida: %d   Agua: %d   Madera: %d   Piedra: %d   Mineral: %d   |   Colonos: %d   Trabajos: %d" % [
-		food, water, wood, stone, ore, simulation.get_living_colonist_count(), active_orders
+	status_label.text = "Comida: %d   Agua: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   |   Colonos: %d   Trabajos: %d" % [
+		food, water, wood, clay, stone, coal, ore, simulation.get_living_colonist_count(), active_orders
 	]
 	message_label.text = message
 
