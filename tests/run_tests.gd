@@ -14,6 +14,7 @@ func _run_tests() -> void:
 	_test_simulation_planting_queue()
 	_test_autonomous_bed_assignment()
 	_test_storage_construction_and_restore()
+	_test_map_construction_and_restore()
 	_test_workshop_tool_crafting()
 	_test_mining_tool_durability()
 	_test_game_modes()
@@ -302,6 +303,27 @@ func _test_storage_construction_and_restore() -> void:
 	assert(restored.inventory.capacity == ColonyInventory.DEFAULT_CAPACITY + 60, "La capacidad del almacén no se conservó.")
 	assert(restored.navigation.is_walkable(Vector2i(25, 1)), "La estructura restaurada debe conservar una ruta transitable.")
 
+
+
+func _test_map_construction_and_restore() -> void:
+	var simulation := ColonySimulation.new()
+	simulation.active_level = 1
+	for colonist in simulation.colonists:
+		colonist.current_position = Vector2i(36, 1)
+		colonist.current_level = 1
+		colonist.sync_map_position_from_legacy()
+	var target := Vector3i(38, ColonyNavigationGrid.ELEVATOR_ROW, 1)
+	assert(simulation.queue_map_construction(&"storage", target), "No se pudo ordenar la construcción sobre una celda 2D.")
+	assert(not simulation.queue_map_construction(&"storage", target), "Se permitió duplicar una construcción 2D.")
+	for _hour in range(7):
+		simulation.advance_hour()
+		simulation.update_frame(2.0)
+	assert(simulation.structures.size() == 1, "La construcción 2D no se completó.")
+	assert(simulation.navigation.blocked_map_cells.has(target), "La estructura terminada no bloqueó su celda 2D.")
+	var restored := ColonySimulation.new()
+	assert(restored.restore_snapshot(simulation.get_snapshot()), "No se restauró una estructura del mapa 2D.")
+	assert(restored.navigation.blocked_map_cells.has(target), "El guardado perdió la colisión de la estructura 2D.")
+	assert(restored.get_bed_map_cells().size() == 3, "Las camas iniciales no se conservaron tras construir.")
 
 
 func _test_workshop_tool_crafting() -> void:
