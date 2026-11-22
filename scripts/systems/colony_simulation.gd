@@ -425,6 +425,20 @@ func _check_colony_alerts() -> void:
 		alert_key = "water_critical"
 		alert_message = "Reservas de agua críticas: quedan %d unidades." % water
 		severity = ALERT_CRITICAL
+	else:
+		for colonist in colonists:
+			if not colonist.alive:
+				continue
+			if colonist.body_temperature < 35.5:
+				alert_key = "cold_exposure"
+				alert_message = "%s está sufriendo hipotermia." % colonist.display_name
+				severity = ALERT_WARNING
+				break
+			if colonist.body_temperature > 38.5:
+				alert_key = "heat_exposure"
+				alert_message = "%s está sufriendo estrés térmico." % colonist.display_name
+				severity = ALERT_WARNING
+				break
 
 	if alert_key != _last_alert_key:
 		_last_alert_key = alert_key
