@@ -79,6 +79,7 @@ func advance_hour() -> void:
 	var is_rest_period := hour >= 22 or hour < 6
 	for colonist in colonists:
 		if not colonist.alive:
+			_bed_assignments.erase(colonist.id)
 			continue
 		_update_rest(colonist, is_rest_period)
 		colonist.advance_hour(is_rest_period, ambient_temperature)
