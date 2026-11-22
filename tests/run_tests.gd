@@ -9,6 +9,7 @@ func _run_tests() -> void:
 	_test_inventory()
 	_test_resource_node()
 	_test_navigation()
+	_test_excavation()
 	_test_colonist()
 	_test_work_order_depth()
 	_test_scheduler_reassigns_urgent_colonist_work()
@@ -29,17 +30,7 @@ func _test_inventory() -> void:
 
 
 func _test_resource_node() -> void:
-	var node := ColonyResourceNode.new(
-		&"test_spring",
-		&"water",
-		0,
-		Vector2i(5, 0),
-		10,
-		20,
-		4,
-		2.0,
-		4
-	)
+	var node := ColonyResourceNode.new(&"test_spring", &"water", 0, Vector2i(5, 0), 10, 20, 4, 2.0, 4)
 	assert(node.reserve(4), "La fuente rechazó una reserva válida.")
 	assert(node.available_units == 6, "La reserva no descontó existencias.")
 	assert(not node.reserve(7), "La fuente permitió reservar más recursos de los disponibles.")
@@ -58,10 +49,21 @@ func _test_navigation() -> void:
 	assert(not navigation.is_walkable(Vector2i(5, 3)), "El mapa permite un cuarto nivel.")
 	var deep_path := navigation.find_path(Vector2i(7, 0), Vector2i(12, 2))
 	assert(not deep_path.is_empty(), "No se puede llegar desde la superficie a la profundidad.")
-
 	navigation.set_blocked(Vector2i(ColonyNavigationGrid.ELEVATOR_COLUMN, 0), true)
 	var blocked_path := navigation.find_path(Vector2i(7, 0), Vector2i(12, 2))
 	assert(blocked_path.is_empty(), "La ruta atraviesa un ascensor bloqueado.")
+
+
+func _test_excavation() -> void:
+	var navigation := ColonyNavigationGrid.new()
+	var wall := Vector2i(8, 1)
+	navigation.set_diggable(wall)
+	assert(not navigation.is_walkable(wall), "La roca sin excavar debe bloquear el paso.")
+	assert(navigation.can_dig(wall), "La roca preparada no aparece como excavable.")
+	assert(navigation.get_adjacent_work_cell(Vector2i(7, 1), wall) == Vector2i(7, 1), "El colono no puede trabajar desde una celda adyacente.")
+	assert(navigation.excavate(wall), "No se pudo excavar la roca.")
+	assert(navigation.is_walkable(wall), "La celda excavada no se volvió transitable.")
+	assert(not navigation.can_dig(wall), "La roca excavada sigue marcada como pendiente.")
 
 
 func _test_colonist() -> void:
@@ -75,16 +77,7 @@ func _test_colonist() -> void:
 
 
 func _test_work_order_depth() -> void:
-	var order := ColonyWorkOrder.new(
-		&"deep_test",
-		&"coal",
-		2,
-		Vector2i(14, 2),
-		3,
-		4.0,
-		&"coal",
-		5
-	)
+	var order := ColonyWorkOrder.new(&"deep_test", &"coal", 2, Vector2i(14, 2), 3, 4.0, &"coal", 5)
 	assert(order.level == 2, "La orden minera perdió su nivel de profundidad.")
 	assert(order.target_cell == Vector2i(14, 2), "La orden minera alteró la coordenada de destino.")
 
@@ -98,17 +91,14 @@ func _test_scheduler_reassigns_urgent_colonist_work() -> void:
 	second.current_position = Vector2i(12, 2)
 	var colonists: Array[DwarfColonist] = [first, second]
 	var order_id := scheduler.queue_order(&"stone", 2, Vector2i(12, 2), 3, 10.0, &"stone", 4)
-
 	scheduler.advance_hour(colonists, navigation)
 	assert(scheduler.get_active_orders_snapshot()[0]["assigned_colonist_id"] == "first", "La primera orden no se asignó al primer colono disponible.")
-
 	first.hunger = 85.0
 	scheduler.advance_hour(colonists, navigation)
 	var active := scheduler.get_active_orders_snapshot()
 	assert(active.size() == 1, "La orden se perdió al liberar al colono.")
 	assert(active[0]["id"] == String(order_id), "La orden reasignada no conserva su identificador.")
 	assert(active[0]["assigned_colonist_id"] == "second", "La tarea no se reasignó al siguiente colono disponible.")
-	assert(first.id != active[0]["assigned_colonist_id"], "El colono en estado crítico conservó el trabajo.")
 
 
 func _test_simulation_work_order() -> void:
@@ -124,21 +114,16 @@ func _test_simulation_work_order() -> void:
 	assert(water_source.level == 1 and clay_source.level == 1, "El acuífero y la arcilla deben estar en el subsuelo.")
 	assert(stone_source.level == 2 and ore_source.level == 2 and coal_source.level == 2, "La roca, el carbón y los minerales deben estar en profundidad.")
 	var initial_inventory := simulation.inventory.get_amount(&"food")
-
 	assert(simulation.queue_work(&"food", 3), "No se pudo encolar una tarea de comida.")
 	assert(source.available_units == initial_source - source.output_per_batch, "La tarea no reservó recursos de la fuente.")
-
 	simulation.advance_hour()
 	var active_orders := simulation.scheduler.get_active_orders_snapshot()
 	assert(active_orders.size() == 1, "La orden no aparece en la cola activa.")
 	assert(active_orders[0]["assigned_colonist_id"] == "dwarf_002", "La tarea agrícola no se asignó a la colona especializada.")
-
 	for _hour in range(5):
 		simulation.advance_hour()
-
 	assert(simulation.inventory.get_amount(&"food") == initial_inventory + source.output_per_batch, "La tarea completada no entregó su producción.")
 	assert(simulation.scheduler.get_active_orders_snapshot().is_empty(), "La tarea completada sigue activa.")
-
 	var current_hour := simulation.hour
 	simulation.set_paused(true)
 	simulation.advance_hour()
