@@ -1,78 +1,73 @@
 # Dwarf Land — Documento de diseño
 
 ## Visión
-Juego original de supervivencia y gestión de una colonia de enanos en un mundo lateral 2D. La supervivencia depende de una economía material coherente: cada recurso aparece en el entorno donde tendría sentido encontrarlo y debe extraerse, transportarse, almacenarse y consumirse.
+Juego original de supervivencia y gestión de una colonia de enanos en un mundo lateral estrictamente 2D. La supervivencia depende de una economía material coherente: los recursos aparecen en la capa donde corresponde encontrarlos, los colonos los extraen, los transportan y los almacenan.
 
-## Estructura del mundo: tres capas
+## Estructura del mundo: tres capas simultáneas
 
-El mundo jugable tiene exactamente tres capas conectadas por un ascensor o acceso vertical seguro:
+El mapa muestra las tres capas horizontales al mismo tiempo. Cada capa tiene una cuadrícula de 40 columnas por 12 filas. La coordenada de capa es un dato lógico; no existe renderizado ni escena 3D.
 
-### Capa 1 — Superficie: árboles, vegetación y suelo
-- Árboles y madera.
-- Suelo fértil, hierba y cultivos.
-- Alimentos de superficie y espacio para agricultura.
-- Entradas a galerías y zonas de excavación.
+### Superficie
+- Árboles, vegetación, madera y suelo fértil.
+- Cultivos y alimentos.
+- Accesos al subsuelo.
 
-### Capa 2 — Subsuelo: tierra y zona de raíces
-- Tierra compacta, raíces y depósitos de arcilla.
-- Acuíferos y corrientes de agua subterránea.
-- Hongos y recursos orgánicos que prosperan sin luz.
-- Transición geológica entre suelo y roca.
+### Subsuelo
+- Tierra, raíces y depósitos de arcilla.
+- Acuíferos y agua subterránea.
+- Cámaras y galerías excavables.
 
-### Capa 3 — Profundidad: roca madre y yacimientos
-- Roca compacta y piedra de construcción.
-- Vetas minerales y depósitos geológicos.
-- Materiales más profundos, con extracción más exigente.
-- Mayor presión ambiental y logística conforme se amplíen los sistemas de supervivencia.
+### Profundidad
+- Roca madre y piedra.
+- Vetas minerales y carbón.
+- Extracción que requiere herramientas.
 
-La distribución respeta reglas ecológicas/geológicas. La generación inicial ya usa una semilla reproducible para variar la posición de bosques, acuíferos, arcilla y vetas de mineral/carbón; la roca principal y los primeros obstáculos siguen siendo fijos.
+Un ascensor conecta las tres capas en una posición fija. Las cavernas y bloques geológicos se generan con una semilla reproducible; el corredor de acceso y el hueco del ascensor permanecen abiertos.
 
 ## Supervivencia y colonia
-- Colonos autónomos en tareas rutinarias; el jugador establece prioridades y órdenes importantes.
+- Colonos autónomos para tareas rutinarias; el jugador define prioridades y órdenes.
 - Necesidades: hambre, sed, sueño/fatiga, salud y temperatura.
-- Durante la noche, los colonos suspenden sus trabajos, buscan una cama libre en el refugio y recuperan más fatiga al dormir.
-- La superficie, el subsuelo y la profundidad tienen temperaturas distintas; la exposición térmica puede dañar la salud y generar alertas.
-- Las construcciones consumen materiales y requieren trabajo; los almacenes amplían capacidad y las camas aumentan los puestos de descanso.
-- Recursos: comida, agua, madera, tierra/arcilla, piedra, minerales, herramientas y materiales.
-- Vivienda, almacenes, talleres, cultivos e instalaciones.
+- Descanso nocturno: cada colono busca una cama libre y recupera fatiga al llegar.
+- Temperatura distinta por capa, horario y refugio; la exposición extrema puede dañar la salud.
+- Fuentes renovables y depósitos finitos; inventario con capacidad.
+- Recolección y extracción mediante órdenes de trabajo.
+- Los colonos transportan físicamente los recursos hasta el punto de almacenamiento. La carga y las órdenes de entrega se conservan al guardar.
+- Cultivos con humedad, crecimiento diario, cosecha y resiembra.
+- Construcción de camas, almacenes y talleres en celdas del mapa. Las estructuras sólidas bloquean el paso; las camas permanecen accesibles.
+- Taller con fabricación básica de herramientas; las herramientas se desgastan durante la extracción.
+- Enfermedades y lesiones básicas, alertas y recuperación mediante descanso.
 - Campaña: construir un almacén y un taller y alcanzar el día 10.
 - Supervivencia: administrar la colonia sin objetivo final.
 - Sandbox: construir y producir sin desgaste de hambre, sed, fatiga ni temperatura.
-- Juego offline, sin anuncios, telemetría, servidores ni servicios de pago.
-- Código, arte, música y contenido originales; no se copia material protegido de otros juegos.
+- Funcionamiento local/offline, sin anuncios, telemetría, servidores ni servicios de pago.
+- Código, arte, música y contenido originales.
 
 ## Estado de implementación
 
-La versión de desarrollo ya incorpora:
-- Simulación de tres capas con distribución ecológica/geológica inicial.
-- Fuentes renovables y depósitos finitos, inventario con capacidad y cola de trabajos.
-- Movimiento interpolado y excavación de bloques mediante órdenes.
-- Agricultura básica con humedad, crecimiento por días, cosecha y resiembra.
-- Descanso nocturno con tres camas iniciales y camas construidas.
-- Temperatura variable por capa y horario, exposición térmica y alertas.
-- Construcción con costes de madera/piedra; almacenes amplían la capacidad.
-- Taller con receta de fabricación de herramientas y desgaste por extracción.
-- Guardado local versionado, copia de seguridad, recuperación y guardado manual.
-- Tres modos: Campaña (almacén, taller y día 10), Supervivencia abierta y Sandbox sin desgaste de necesidades.
-- Generación reproducible mediante semilla para variar parte de los recursos.
-- Enfermedades progresivas por estrés, eventos diarios y lesiones ocasionales por accidentes mineros; descanso para recuperación.
-- Pruebas automatizadas de lógica ejecutadas en GitHub Actions.
+El núcleo de simulación incluye:
+- Tres capas visibles simultáneamente y selección táctil de capa/celda.
+- Cuadrícula 2D con rutas cardinales, obstáculos, ascensor y rutas alternativas.
+- Generación reproducible de cámaras y bloques excavables en subsuelo y profundidad.
+- Movimiento interpolado de colonos, excavación por órdenes y apertura de celdas.
+- Construcción en el mapa 2D, ocupación sólida, camas accesibles y persistencia de edificios.
+- Recolección, carga y entrega física de recursos en el almacén; persistencia de carga en tránsito.
+- Cultivos con humedad, maduración, cosecha y resiembra.
+- Necesidades, descanso, temperatura, enfermedades y lesiones básicas.
+- Inventario, almacenes, taller y fabricación de herramientas.
+- Guardado local versionado, copia de seguridad, recuperación y guardado automático.
+- Modos Campaña, Supervivencia y Sandbox.
+- Pruebas automatizadas ejecutadas con Godot 4.7.2 en GitHub Actions.
 
-Limitaciones actuales:
-- El mapa usa una sola línea de navegación por capa; todavía no tiene movimiento libre 2D, rutas alternativas ni colisiones completas.
-- Las estructuras se dibujan y tienen efectos funcionales, pero siguen siendo transitables.
-- La semilla varía varios depósitos, pero faltan galerías, vetas y obstáculos generados proceduralmente.
-- Faltan transporte físico de materiales, habitaciones avanzadas, enfermedades, accidentes y eventos.
-- La interfaz, el arte y el audio siguen siendo provisionales; falta validación en dispositivos Android reales.
+## Trabajo pendiente
+1. Logística avanzada: distribuir recursos entre varios almacenes, abastecer talleres y gestionar prioridades de almacenamiento.
+2. Generación geológica más rica: vetas por material, acuíferos, cavernas conectadas, suelos y biomas.
+3. Sistema completo de habitaciones, aislamiento, temperatura interior y calidad de vivienda.
+4. Progresión de campaña, eventos ambientales, medicina y tratamientos de enfermedades/lesiones.
+5. Interfaz móvil adaptable a distintas resoluciones, controles táctiles refinados y accesibilidad.
+6. Sustituir gráficos provisionales por arte original definitivo, animaciones y audio.
+7. Pruebas visuales, funcionales y de rendimiento en dispositivos Android reales.
 
-## Próximos hitos
-1. Rehacer la navegación como mapa 2D con rutas alternativas, colisiones y excavación de galerías.
-2. Generación procedural completa de terreno y vetas.
-3. Transporte de materiales y logística entre fuentes, colonos, almacenes y talleres.
-4. Habitaciones, aislamiento y sistemas avanzados de producción.
-5. Enfermedades, accidentes, eventos y ecología ambiental.
-6. Interfaz móvil adaptable, controles táctiles completos, arte y audio originales.
-7. Pruebas funcionales y de rendimiento en Android.
+## Validación y entrega
+GitHub Actions importa el proyecto y ejecuta pruebas de lógica con Godot 4.7.2. Esta validación no sustituye las pruebas visuales ni la ejecución en un teléfono real.
 
-## Regla de entrega
-No se compilará ni publicará APK hasta que el juego esté completo, las pruebas estén superadas y exista autorización expresa.
+No se compilará ni publicará APK hasta que el juego esté completo, las pruebas aplicables estén superadas y exista autorización expresa para la compilación final.
