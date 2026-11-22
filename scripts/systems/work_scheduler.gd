@@ -39,9 +39,11 @@ func queue_order(
 func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationGrid) -> void:
 	for colonist in colonists:
 		if not colonist.alive:
+			colonist.stop_movement()
 			_release_assignment(colonist.id)
 			continue
 		if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
+			colonist.stop_movement()
 			_release_assignment(colonist.id)
 			continue
 
@@ -66,6 +68,8 @@ func _progress_order(
 	order: ColonyWorkOrder,
 	navigation: ColonyNavigationGrid
 ) -> void:
+	if colonist.is_moving:
+		return
 	var work_target := _get_work_target(order, colonist.current_position, navigation)
 	if work_target.x < 0:
 		if order.work_type == &"dig":
@@ -80,8 +84,7 @@ func _progress_order(
 			return
 
 		var movement_steps := mini(4, path.size())
-		colonist.current_position = path[movement_steps - 1]
-		colonist.current_level = colonist.current_position.y
+		colonist.start_movement(path[movement_steps - 1])
 		return
 
 	if order.advance(colonist.get_work_speed(order.work_type)):
