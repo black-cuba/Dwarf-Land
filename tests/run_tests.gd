@@ -13,6 +13,7 @@ func _run_tests() -> void:
 	_test_simulation_planting_queue()
 	_test_autonomous_bed_assignment()
 	_test_storage_construction_and_restore()
+	_test_workshop_tool_crafting()
 	_test_resource_node()
 	_test_navigation()
 	_test_excavation()
@@ -202,6 +203,30 @@ func _test_storage_construction_and_restore() -> void:
 	assert(restored.structures.size() == 1, "La estructura no se conservó en el guardado.")
 	assert(restored.inventory.capacity == ColonyInventory.DEFAULT_CAPACITY + 60, "La capacidad del almacén no se conservó.")
 	assert(restored.navigation.is_walkable(Vector2i(25, 1)), "La estructura restaurada debe conservar una ruta transitable.")
+
+
+
+func _test_workshop_tool_crafting() -> void:
+	var simulation := ColonySimulation.new()
+	simulation.active_level = 1
+	assert(not simulation.queue_crafting(&"tool"), "Se permitió fabricar sin un taller.")
+	for colonist in simulation.colonists:
+		colonist.current_position = Vector2i(24, 1)
+		colonist.current_level = 1
+	assert(simulation.queue_construction(&"workshop", Vector2i(25, 1)), "No se pudo ordenar la construcción del taller.")
+	simulation.advance_hour()
+	for _hour in range(5):
+		simulation.advance_hour()
+	assert(simulation.has_workshop(), "El taller no quedó disponible al completar su construcción.")
+	for colonist in simulation.colonists:
+		colonist.current_position = Vector2i(25, 1)
+		colonist.current_level = 1
+	assert(simulation.add_resource(&"ore", 1) == 1, "No se pudo añadir el mineral de prueba.")
+	var tools_before := simulation.inventory.get_amount(&"tools")
+	assert(simulation.queue_crafting(&"tool"), "No se pudo encolar la fabricación de una herramienta.")
+	for _hour in range(4):
+		simulation.advance_hour()
+	assert(simulation.inventory.get_amount(&"tools") == tools_before + 1, "El taller no produjo la herramienta.")
 
 
 func _test_simulation_rejects_duplicate_excavation() -> void:
