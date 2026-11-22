@@ -35,17 +35,17 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 
 ## Niveles y colonos
 
-- [ ] Existen exactamente tres capas jugables: superficie, subsuelo y profundidad.
-- [ ] La vista y el movimiento son siempre 2D; la capa es un dato lógico, nunca una escena 3D.
-- [ ] No existe una conexión vertical distinta del ascensor.
+- [x] Existen exactamente tres capas jugables: superficie, subsuelo y profundidad.
+- [x] La vista y el movimiento son siempre 2D; la capa es un dato lógico, nunca una escena 3D.
+- [x] No existe una conexión vertical distinta del ascensor.
 - [x] Los colonos recorren la cuadrícula 2D hasta la celda de trabajo.
-- [ ] El ascensor conecta las tres capas y no permite atravesar roca sin excavar.
+- [x] El ascensor conecta las tres capas y no permite atravesar roca sin excavar.
 - [x] Las órdenes de excavación 2D abren la celda seleccionada al completarse.
 - [x] La construcción 2D ocupa una celda, impide el paso y conserva la colisión al restaurar la partida.
 - [x] Las camas construidas permanecen accesibles y se incorporan a la asignación nocturna.
 - [x] Las camas usan posiciones de la cuadrícula 2D y admiten asignación independiente.
-- [ ] Un colono tarda tiempo en desplazarse entre niveles.
-- [ ] Las celdas bloqueadas no pueden atravesarse.
+- [x] Un colono tarda tiempo en desplazarse entre niveles mediante una transición animada del ascensor.
+- [x] Las celdas bloqueadas no pueden atravesarse.
 - [ ] Los colonos se muestran en la capa y posición 2D donde se encuentran.
 - [ ] Las tres capas se muestran simultáneamente y el toque selecciona la capa/celda correcta.
 - [ ] Un colono fallecido no continúa trabajando ni consumiendo recursos.
