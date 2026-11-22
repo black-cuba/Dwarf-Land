@@ -41,13 +41,33 @@ func generate() -> Dictionary:
 
 func _generate_map_diggable_cells() -> Array[Vector3i]:
 	var cells: Array[Vector3i] = []
-	# Underground layers begin as solid geology. A continuous access corridor
-	# and the lift shaft remain open; seeded pockets form the mineable terrain.
 	for layer in [1, 2]:
+		var cavern_centers: Array[Vector2i] = []
+		var cavern_count := 9 if layer == 1 else 6
+		for _index in range(cavern_count):
+			cavern_centers.append(Vector2i(
+				random.randi_range(3, ColonyNavigationGrid.MAP_WIDTH - 4),
+				random.randi_range(1, ColonyNavigationGrid.MAP_HEIGHT - 2)
+			))
 		for y in range(ColonyNavigationGrid.MAP_HEIGHT):
 			for x in range(ColonyNavigationGrid.MAP_WIDTH):
+				# A clear horizontal service gallery and the lift shaft keep
+				# every generated cavern reachable without making the map empty.
 				if y == ColonyNavigationGrid.ELEVATOR_ROW or x == ColonyNavigationGrid.ELEVATOR_COLUMN:
 					continue
-				if random.randf() < 0.62:
+				var cell := Vector2i(x, y)
+				var is_cavern := false
+				for center in cavern_centers:
+					var radius_x := 2.0 if layer == 1 else 1.6
+					var radius_y := 1.8 if layer == 1 else 1.4
+					var dx := float(x - center.x) / radius_x
+					var dy := float(y - center.y) / radius_y
+					if dx * dx + dy * dy <= 1.0:
+						is_cavern = true
+						break
+				if is_cavern:
+					continue
+				# Slight deterministic irregularity avoids a uniform wall edge.
+				if random.randf() > (0.08 if layer == 1 else 0.04):
 					cells.append(Vector3i(x, y, layer))
 	return cells
