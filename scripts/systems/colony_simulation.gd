@@ -21,6 +21,7 @@ var ambient_temperature := 18.0
 var inventory := ColonyInventory.new()
 var scheduler := ColonyWorkScheduler.new()
 var save_system := ColonySaveSystem.new()
+var event_random := RandomNumberGenerator.new()
 var crop_field := ColonyCropField.new()
 var navigation := ColonyNavigationGrid.new()
 var colonists: Array[DwarfColonist] = []
@@ -41,6 +42,7 @@ func _init() -> void:
 	scheduler.task_cancelled.connect(_on_task_cancelled)
 	world_seed = int(Time.get_ticks_usec())
 	var generated_world := ColonyWorldGenerator.new(world_seed).generate()
+	event_random.seed = world_seed + 9103
 	resource_nodes = generated_world["resources"]
 	for cell in generated_world["diggable_cells"]:
 		navigation.set_diggable(cell)
@@ -312,6 +314,7 @@ func get_snapshot() -> Dictionary:
 	return {
 		"world_seed": world_seed,
 		"game_mode": String(game_mode),
+		"event_random_state": event_random.state,
 		"day": day,
 		"hour": hour,
 		"active_level": active_level,
@@ -353,6 +356,7 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 
 	world_seed = int(snapshot.get("world_seed", world_seed))
 	game_mode = StringName(snapshot.get("game_mode", "survival"))
+	event_random.state = int(snapshot.get("event_random_state", world_seed + 9103))
 	if not [StringName("campaign"), StringName("survival"), StringName("sandbox")].has(game_mode):
 		game_mode = &"survival"
 	day = maxi(1, int(snapshot.get("day", 1)))
@@ -377,6 +381,8 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		colonist.thirst = clampf(float(item.get("thirst", 0.0)), 0.0, DwarfColonist.NEED_MAX)
 		colonist.fatigue = clampf(float(item.get("fatigue", 0.0)), 0.0, DwarfColonist.NEED_MAX)
 		colonist.health = clampf(float(item.get("health", 100.0)), 0.0, 100.0)
+		colonist.illness_severity = clampf(float(item.get("illness_severity", 0.0)), 0.0, 100.0)
+		colonist.injury_severity = clampf(float(item.get("injury_severity", 0.0)), 0.0, 100.0)
 		colonist.body_temperature = float(item.get("body_temperature", 37.0))
 		colonist.alive = bool(item.get("alive", true))
 		var position: Variant = item.get("current_position", Vector2i(7, 0))
@@ -521,6 +527,12 @@ func _satisfy_needs(colonist: DwarfColonist) -> void:
 
 
 func _on_new_day() -> void:
+	if game_mode != &"sandbox" and not colonists.is_empty() and event_random.randf() < 0.03:
+		var affected_index := event_random.randi_range(0, colonists.size() - 1)
+		var affected: DwarfColonist = colonists[affected_index]
+		if affected.alive:
+			affected.apply_illness(20.0)
+			alert_raised.emit("%s ha contraído una enfermedad. Necesita descanso y condiciones estables." % affected.display_name, ALERT_WARNING)
 	for node in resource_nodes.values():
 		node.regenerate()
 	var watered := false
@@ -652,6 +664,11 @@ func _check_colony_alerts() -> void:
 			if colonist.body_temperature > 38.5:
 				alert_key = "heat_exposure"
 				alert_message = "%s está sufriendo estrés térmico." % colonist.display_name
+				severity = ALERT_WARNING
+				break
+			if colonist.illness_severity >= 40.0:
+				alert_key = "illness"
+				alert_message = "%s está enfermo y necesita recuperarse." % colonist.display_name
 				severity = ALERT_WARNING
 				break
 
