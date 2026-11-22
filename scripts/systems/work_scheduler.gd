@@ -232,7 +232,8 @@ func _progress_map_build_order(
 		colonist.start_map_movement(path[mini(4, path.size()) - 1])
 		return
 	if order.advance(colonist.get_work_speed(&"build")):
-		navigation.set_map_blocked(order.target_map_cell, true)
+		if order.output_resource != &"bed":
+			navigation.set_map_blocked(order.target_map_cell, true)
 		map_structure_built.emit(order.target_map_cell, order.output_resource)
 		task_completed.emit(order.id, &"", 0)
 		_release_assignment(colonist.id)
