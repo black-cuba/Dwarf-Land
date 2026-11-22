@@ -17,10 +17,13 @@ var paused := false
 var ambient_temperature := 18.0
 
 var inventory := ColonyInventory.new()
+var scheduler := ColonyWorkScheduler.new()
 var colonists: Array[DwarfColonist] = []
+var _pending_outputs: Array[Dictionary] = []
 
 
 func _init() -> void:
+	scheduler.task_completed.connect(_on_task_completed)
 	colonists.append(DwarfColonist.new(&"dwarf_001", "Borin", "Recolector"))
 	colonists.append(DwarfColonist.new(&"dwarf_002", "Dora", "Agricultora"))
 	colonists.append(DwarfColonist.new(&"dwarf_003", "Krag", "Minero"))
@@ -44,6 +47,8 @@ func advance_hour() -> void:
 		colonist.advance_hour(is_rest_period, ambient_temperature)
 		_satisfy_needs(colonist)
 
+	scheduler.advance_hour(colonists)
+	_deliver_pending_outputs()
 	time_changed.emit(day, hour)
 	colony_changed.emit()
 	_check_colony_alerts()
@@ -65,6 +70,34 @@ func add_resource(resource: StringName, quantity: int) -> int:
 		alert_raised.emit("El almacén no tiene capacidad suficiente.", ALERT_WARNING)
 	colony_changed.emit()
 	return accepted
+
+
+func queue_work(work_type: StringName, priority: int = 3) -> bool:
+	var order_data: Dictionary
+	match work_type:
+		&"food":
+			order_data = {"level": 0, "hours": 4.0, "resource": &"food", "amount": 6}
+		&"water":
+			order_data = {"level": 0, "hours": 3.0, "resource": &"water", "amount": 8}
+		&"wood":
+			order_data = {"level": 0, "hours": 5.0, "resource": &"wood", "amount": 6}
+		&"stone":
+			order_data = {"level": 1, "hours": 5.0, "resource": &"stone", "amount": 5}
+		&"ore":
+			order_data = {"level": 1, "hours": 6.0, "resource": &"ore", "amount": 3}
+		_:
+			return false
+
+	scheduler.queue_order(
+		work_type,
+		int(order_data["level"]),
+		priority,
+		float(order_data["hours"]),
+		order_data["resource"],
+		int(order_data["amount"])
+	)
+	colony_changed.emit()
+	return true
 
 
 func get_living_colonist_count() -> int:
@@ -100,6 +133,28 @@ func _satisfy_needs(colonist: DwarfColonist) -> void:
 
 func _on_new_day() -> void:
 	alert_raised.emit("Ha comenzado el día %d." % day, ALERT_INFO)
+
+
+func _on_task_completed(_task_id: StringName, resource: StringName, amount: int) -> void:
+	var accepted := inventory.add_resource(resource, amount)
+	if accepted < amount:
+		_pending_outputs.append({
+			"resource": resource,
+			"amount": amount - accepted
+		})
+		alert_raised.emit("Almacén lleno: hay producción pendiente de almacenar.", ALERT_WARNING)
+	colony_changed.emit()
+
+
+func _deliver_pending_outputs() -> void:
+	for i in range(_pending_outputs.size() - 1, -1, -1):
+		var pending: Dictionary = _pending_outputs[i]
+		var accepted := inventory.add_resource(pending["resource"], int(pending["amount"]))
+		pending["amount"] = int(pending["amount"]) - accepted
+		if int(pending["amount"]) <= 0:
+			_pending_outputs.remove_at(i)
+		else:
+			_pending_outputs[i] = pending
 
 
 func _check_colony_alerts() -> void:
