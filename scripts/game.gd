@@ -319,9 +319,15 @@ func _build_interface() -> void:
 	bottom.size = Vector2(1244, 82)
 	root.add_child(bottom)
 
+	var action_scroll := HScrollContainer.new()
+	action_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	bottom.add_child(action_scroll)
+
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
-	bottom.add_child(row)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	action_scroll.add_child(row)
 
 	_add_button(row, "Cambiar nivel", _switch_level)
 	_add_button(row, "Comida", _gather_food)
