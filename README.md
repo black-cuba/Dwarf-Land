@@ -46,9 +46,9 @@ La primera compilación usa firma de depuración. Para distribuir actualizacione
 
 El proyecto se desarrolla con herramientas gratuitas y de código abierto. No se incorporan servicios de pago, publicidad ni infraestructura en la nube para el funcionamiento del juego.
 
-## Licencias
+## Licencias y propiedad intelectual
 
-El código propio de este repositorio se publica bajo MIT; consulta `LICENSE`. Godot Engine se distribuye bajo su propia licencia MIT. Los avisos de terceros y recursos externos se documentarán antes de incorporarlos.
+El repositorio es público para facilitar el desarrollo y la revisión, pero eso no significa que el contenido original de Dwarf Land tenga una licencia de reutilización. No se concede una licencia abierta sobre el código, arte, personajes, historia ni demás contenido propio. Las licencias de Godot y de cualquier dependencia o recurso de terceros se respetarán y documentarán por separado.
 
 ## Créditos
 
