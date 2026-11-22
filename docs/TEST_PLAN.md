@@ -45,7 +45,7 @@ Este documento define los criterios de aceptación. Las casillas pendientes no s
 - [ ] Un colono tarda tiempo en desplazarse entre niveles.
 - [ ] Las celdas bloqueadas no pueden atravesarse.
 - [ ] Los colonos se muestran en la capa y posición 2D donde se encuentran.
-- [x] Las tres capas se muestran simultáneamente y el toque selecciona la capa/celda correcta.
+- [ ] Las tres capas se muestran simultáneamente y el toque selecciona la capa/celda correcta.
 - [ ] Un colono fallecido no continúa trabajando ni consumiendo recursos.
 
 ## Persistencia y Android
