@@ -129,6 +129,10 @@ func _test_map_excavation_work_order() -> void:
 	var colonists: Array[DwarfColonist] = [colonist]
 	var order_id := scheduler.queue_map_excavation(target)
 	assert(order_id != &"", "No se pudo crear una orden de excavación en el mapa 2D.")
+	var saved_orders := scheduler.get_active_orders_snapshot()
+	var restored_scheduler := ColonyWorkScheduler.new()
+	assert(restored_scheduler.restore_active_orders(saved_orders), "No se pudo restaurar la orden de excavación 2D.")
+	assert(restored_scheduler.orders[0].target_map_cell == target, "El guardado perdió la celda de excavación 2D.")
 	scheduler.advance_hour(colonists, navigation)
 	scheduler.advance_hour(colonists, navigation)
 	assert(colonist.is_map_moving, "El minero no inició la ruta hacia la roca 2D.")
