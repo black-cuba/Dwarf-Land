@@ -188,7 +188,7 @@ func _update_illness(is_rest_period: bool) -> void:
 	else:
 		illness_severity = maxf(0.0, illness_severity - 0.05)
 	if is_sleeping:
-		injury_severity = maxf(0.0, injury_severity - 0.15)
+		injury_severity = maxf(0.0, injury_severity - 1.5)
 
 
 func _update_health() -> void:
