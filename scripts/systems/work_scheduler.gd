@@ -3,6 +3,7 @@ extends RefCounted
 
 signal task_completed(task_id: StringName, resource: StringName, amount: int)
 signal task_started(task_id: StringName, colonist_id: StringName)
+signal terrain_excavated(cell: Vector2i)
 
 var orders: Array[ColonyWorkOrder] = []
 var _next_order_number := 1
@@ -41,7 +42,6 @@ func advance_hour(colonists: Array[DwarfColonist], navigation: ColonyNavigationG
 			_release_assignment(colonist.id)
 			continue
 		if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
-			# A colonist in urgent need must not hold a job slot indefinitely.
 			_release_assignment(colonist.id)
 			continue
 
@@ -66,8 +66,13 @@ func _progress_order(
 	order: ColonyWorkOrder,
 	navigation: ColonyNavigationGrid
 ) -> void:
-	if colonist.current_position != order.target_cell:
-		var path := navigation.find_path(colonist.current_position, order.target_cell)
+	var work_target := _get_work_target(order, colonist.current_position, navigation)
+	if work_target.x < 0:
+		_release_assignment(colonist.id)
+		return
+
+	if colonist.current_position != work_target:
+		var path := navigation.find_path(colonist.current_position, work_target)
 		if path.is_empty():
 			_release_assignment(colonist.id)
 			return
@@ -78,6 +83,9 @@ func _progress_order(
 		return
 
 	if order.advance(colonist.get_work_speed(order.work_type)):
+		if order.work_type == &"dig":
+			if navigation.excavate(order.target_cell):
+				terrain_excavated.emit(order.target_cell)
 		task_completed.emit(order.id, order.output_resource, order.output_amount)
 		_release_assignment(colonist.id)
 
@@ -107,8 +115,11 @@ func _assign_available_orders(
 			if colonist.hunger >= 80.0 or colonist.thirst >= 80.0 or colonist.fatigue >= 85.0:
 				continue
 
-			var path := navigation.find_path(colonist.current_position, order.target_cell)
-			if colonist.current_position != order.target_cell and path.is_empty():
+			var work_target := _get_work_target(order, colonist.current_position, navigation)
+			if work_target.x < 0:
+				continue
+			var path := navigation.find_path(colonist.current_position, work_target)
+			if colonist.current_position != work_target and path.is_empty():
 				continue
 
 			var distance_penalty := float(path.size()) * 0.1
@@ -124,6 +135,16 @@ func _assign_available_orders(
 		order.assigned_colonist_id = best_colonist.id
 		order.state = ColonyWorkOrder.State.IN_PROGRESS
 		task_started.emit(order.id, best_colonist.id)
+
+
+func _get_work_target(
+	order: ColonyWorkOrder,
+	colonist_position: Vector2i,
+	navigation: ColonyNavigationGrid
+) -> Vector2i:
+	if order.work_type == &"dig":
+		return navigation.get_adjacent_work_cell(colonist_position, order.target_cell)
+	return order.target_cell
 
 
 func _get_assigned_order(colonist_id: StringName) -> ColonyWorkOrder:
