@@ -498,6 +498,7 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		else:
 			colonist.sync_map_position_from_legacy()
 		colonist.map_visual_position = Vector2(colonist.map_position.x, colonist.map_position.y)
+		colonist.map_visual_layer = float(colonist.map_position.z)
 		colonist.map_movement_target = colonist.map_position
 		colonist.is_map_moving = false
 		colonist.is_resting = false
