@@ -65,8 +65,12 @@ func update_frame(delta: float) -> bool:
 		return false
 	var moved := false
 	for colonist in colonists:
-		if colonist.alive and colonist.advance_movement(delta):
-			moved = true
+		if colonist.alive:
+			if colonist.is_map_moving:
+				if colonist.advance_map_movement(delta):
+					moved = true
+			elif colonist.advance_movement(delta):
+				moved = true
 	return moved
 
 
@@ -395,6 +399,14 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		colonist.current_level = colonist.current_position.y
 		colonist.visual_position = Vector2(colonist.current_position)
 		colonist.movement_target = colonist.current_position
+		var saved_map_position: Variant = item.get("map_position", Vector3i(colonist.current_position.x, ColonyNavigationGrid.ELEVATOR_ROW, colonist.current_position.y))
+		if typeof(saved_map_position) == TYPE_VECTOR3I and navigation.is_map_cell_inside(saved_map_position):
+			colonist.map_position = saved_map_position
+		else:
+			colonist.sync_map_position_from_legacy()
+		colonist.map_visual_position = Vector3(colonist.map_position)
+		colonist.map_movement_target = colonist.map_position
+		colonist.is_map_moving = false
 		colonist.is_resting = false
 		colonist.is_sleeping = false
 		restored_colonists.append(colonist)
