@@ -41,7 +41,7 @@ func queue_order(
 
 
 func queue_map_excavation(cell: Vector3i, priority: int = 3) -> StringName:
-	if not navigation_cell_is_diggable(cell):
+	if not is_map_cell_inside(cell):
 		return &""
 	for existing in orders:
 		if existing.work_type == &"map_dig" and existing.target_map_cell == cell:
@@ -55,7 +55,7 @@ func queue_map_excavation(cell: Vector3i, priority: int = 3) -> StringName:
 	return order_id
 
 
-func navigation_cell_is_diggable(cell: Vector3i) -> bool:
+func is_map_cell_inside(cell: Vector3i) -> bool:
 	return cell.x >= 0 and cell.x < ColonyNavigationGrid.MAP_WIDTH and cell.y >= 0 and cell.y < ColonyNavigationGrid.MAP_HEIGHT and cell.z >= 0 and cell.z < ColonyNavigationGrid.LEVEL_COUNT
 
 
