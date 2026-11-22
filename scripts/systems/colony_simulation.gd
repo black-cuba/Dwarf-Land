@@ -11,6 +11,7 @@ const ALERT_WARNING := 1
 const ALERT_CRITICAL := 2
 
 var world_seed := 20261122
+var game_mode: StringName = &"survival"
 var day := 1
 var hour := 7
 var active_level := 0
@@ -75,14 +76,19 @@ func advance_hour() -> void:
 		day += 1
 		_on_new_day()
 
-	var is_rest_period := hour >= 22 or hour < 6
+	var is_rest_period := game_mode != &"sandbox" and (hour >= 22 or hour < 6)
 	for colonist in colonists:
 		if not colonist.alive:
 			_bed_assignments.erase(colonist.id)
 			continue
-		_update_rest(colonist, is_rest_period)
-		colonist.advance_hour(is_rest_period, get_local_temperature(colonist))
-		_satisfy_needs(colonist)
+		if game_mode == &"sandbox":
+			colonist.is_resting = false
+			colonist.is_sleeping = false
+		else:
+			_update_rest(colonist, is_rest_period)
+		colonist.advance_hour(is_rest_period, get_local_temperature(colonist), game_mode == &"sandbox")
+		if game_mode != &"sandbox":
+			_satisfy_needs(colonist)
 
 	scheduler.advance_hour(colonists, navigation)
 	_deliver_pending_outputs()
@@ -209,6 +215,43 @@ func queue_construction(structure_type: StringName, cell: Vector2i, priority: in
 
 
 
+
+func set_game_mode(mode: StringName) -> bool:
+	if not [&"campaign", &"survival", &"sandbox"].has(mode):
+		return false
+	game_mode = mode
+	if game_mode == &"sandbox":
+		for colonist in colonists:
+			colonist.is_resting = false
+			colonist.is_sleeping = false
+	colony_changed.emit()
+	return true
+
+
+func get_game_mode_label() -> String:
+	match game_mode:
+		&"campaign":
+			return "Campaña"
+		&"sandbox":
+			return "Sandbox"
+	return "Supervivencia"
+
+
+func get_campaign_progress() -> Dictionary:
+	var has_storage := false
+	for structure in structures:
+		if StringName(structure.get("type", "")) == &"storage":
+			has_storage = true
+	var workshop_ready := has_workshop()
+	var survived_ten_days := day >= 10
+	return {
+		"storage_built": has_storage,
+		"workshop_built": workshop_ready,
+		"day_ten_reached": survived_ten_days,
+		"complete": has_storage and workshop_ready and survived_ten_days
+	}
+
+
 func has_workshop() -> bool:
 	for structure in structures:
 		if StringName(structure.get("type", "")) == &"workshop":
@@ -268,6 +311,7 @@ func get_snapshot() -> Dictionary:
 
 	return {
 		"world_seed": world_seed,
+		"game_mode": String(game_mode),
 		"day": day,
 		"hour": hour,
 		"active_level": active_level,
@@ -308,6 +352,9 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		return false
 
 	world_seed = int(snapshot.get("world_seed", world_seed))
+	game_mode = StringName(snapshot.get("game_mode", "survival"))
+	if not [StringName("campaign"), StringName("survival"), StringName("sandbox")].has(game_mode):
+		game_mode = &"survival"
 	day = maxi(1, int(snapshot.get("day", 1)))
 	hour = clampi(int(snapshot.get("hour", 7)), 0, 23)
 	active_level = clampi(int(snapshot.get("active_level", 0)), 0, LEVEL_COUNT - 1)
@@ -571,6 +618,9 @@ func _deliver_pending_outputs() -> void:
 
 
 func _check_colony_alerts() -> void:
+	if game_mode == &"sandbox":
+		_last_alert_key = ""
+		return
 	var living := get_living_colonist_count()
 	var food := inventory.get_amount(&"food")
 	var water := inventory.get_amount(&"water")
