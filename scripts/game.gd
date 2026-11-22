@@ -53,7 +53,6 @@ func _draw() -> void:
 	_draw_structures()
 	_draw_resource_nodes()
 	_draw_colonists()
-	_draw_level_marker()
 
 
 func _draw_cavern() -> void:
@@ -308,13 +307,6 @@ func _draw_colonists() -> void:
 			draw_string(ThemeDB.fallback_font, Vector2(px + 11.0, py - 28.0), str(colonist.carried_amount), HORIZONTAL_ALIGNMENT_LEFT, 16, 10, Color("#1b2430"))
 
 
-func _draw_level_marker() -> void:
-	var labels := ["SUPERFICIE ACTIVA", "SUBSUELO ACTIVO", "PROFUNDIDAD ACTIVA"]
-	var label: String = labels[simulation.active_level]
-	draw_rect(Rect2(930, 150, 260, 38), Color("#17212c"))
-	draw_string(ThemeDB.fallback_font, Vector2(950, 176), label, HORIZONTAL_ALIGNMENT_LEFT, 230, 17, Color("#f0c879"))
-
-
 func _build_interface() -> void:
 	hud = CanvasLayer.new()
 	add_child(hud)
@@ -407,7 +399,7 @@ func _refresh_interface() -> void:
 	var tool_condition := roundi(simulation.tool_durability)
 	var active_orders := simulation.scheduler.get_active_orders_snapshot().size()
 
-	title_label.text = "DWARF LAND     ·     %s     ·     DÍA %d     ·     %02d:00" % [simulation.get_game_mode_label().to_upper(), simulation.day, simulation.hour]
+	title_label.text = "DWARF LAND     ·     %s     ·     %s     ·     DÍA %d     ·     %02d:00" % [simulation.get_game_mode_label().to_upper(), ["SUPERFICIE", "SUBSUELO", "PROFUNDIDAD"][simulation.active_level], simulation.day, simulation.hour]
 	status_label.text = "Comida: %d   Agua: %d   Semillas: %d   Madera: %d   Arcilla: %d   Piedra: %d   Carbón: %d   Mineral: %d   Herramientas: %d (%d%%)   |   Colonos: %d   Trabajos: %d" % [
 		food, water, seeds, wood, clay, stone, coal, ore, tools, tool_condition, simulation.get_living_colonist_count(), active_orders
 	]
