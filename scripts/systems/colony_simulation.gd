@@ -183,10 +183,10 @@ func queue_map_excavation(cell: Vector3i, priority: int = 3) -> bool:
 func queue_map_construction(structure_type: StringName, cell: Vector3i, priority: int = 3) -> bool:
 	if not navigation.is_map_cell_inside(cell) or cell.z != active_level or not navigation.is_map_walkable(cell):
 		return false
-	if cell == Vector3i(crop_field.cell.x, ColonyNavigationGrid.ELEVATOR_ROW, 0):
+	if cell == crop_field.map_cell:
 		return false
 	for node in resource_nodes.values():
-		var node_cell := Vector3i(node.cell.x, ColonyNavigationGrid.ELEVATOR_ROW, node.level)
+		var node_cell: Vector3i = node.map_cell
 		if node_cell == cell:
 			return false
 	for structure in structures:
@@ -510,6 +510,9 @@ func restore_snapshot(snapshot: Dictionary) -> bool:
 		var saved_cell: Variant = resource_data[key].get("cell", node.cell)
 		if typeof(saved_cell) == TYPE_VECTOR2I:
 			node.cell = saved_cell
+		var saved_map_cell: Variant = resource_data[key].get("map_cell", node.map_cell)
+		if typeof(saved_map_cell) == TYPE_VECTOR3I and navigation.is_map_cell_inside(saved_map_cell):
+			node.map_cell = saved_map_cell
 
 	navigation.clear_terrain()
 	structures.clear()
