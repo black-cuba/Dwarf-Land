@@ -536,6 +536,14 @@ func _test_colonist() -> void:
 	colonist.advance_map_movement(1.0)
 	assert(not colonist.is_map_moving and colonist.map_position == Vector3i(12, 5, 0), "El colono no terminó el movimiento en el mapa 2D.")
 	assert(colonist.current_position == Vector2i(12, 0), "La posición de juego heredada no se sincronizó con el mapa 2D.")
+	colonist.map_position = Vector3i(ColonyNavigationGrid.ELEVATOR_COLUMN, ColonyNavigationGrid.ELEVATOR_ROW, 0)
+	colonist.map_visual_position = Vector2(ColonyNavigationGrid.ELEVATOR_COLUMN, ColonyNavigationGrid.ELEVATOR_ROW)
+	colonist.map_visual_layer = 0.0
+	colonist.start_map_movement(Vector3i(ColonyNavigationGrid.ELEVATOR_COLUMN, ColonyNavigationGrid.ELEVATOR_ROW, 2))
+	colonist.advance_map_movement(0.5)
+	assert(colonist.map_visual_layer > 0.0 and colonist.map_visual_layer < 1.0 and colonist.map_position.z == 0, "El ascensor no anima la transición entre capas.")
+	colonist.advance_map_movement(1.5)
+	assert(not colonist.is_map_moving and colonist.map_position.z == 2, "El ascensor no terminó el cambio de capa.")
 	colonist.fatigue = 80.0
 	colonist.is_sleeping = true
 	colonist.advance_hour(true, 18.0)
