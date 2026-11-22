@@ -25,7 +25,7 @@ El mundo jugable tiene exactamente tres capas conectadas por un ascensor o acces
 - Materiales más profundos, con extracción más exigente.
 - Mayor presión ambiental y logística conforme se amplíen los sistemas de supervivencia.
 
-La distribución representa una regla ecológica/geológica, no una garantía de que cada mapa real tenga exactamente los mismos depósitos. Los yacimientos concretos variarán entre partidas cuando se implemente la generación del mundo.
+La distribución respeta reglas ecológicas/geológicas. La generación inicial ya usa una semilla reproducible para variar la posición de bosques, acuíferos, arcilla y vetas de mineral/carbón; la roca principal y los primeros obstáculos siguen siendo fijos.
 
 ## Supervivencia y colonia
 - Colonos autónomos en tareas rutinarias; el jugador establece prioridades y órdenes importantes.
@@ -56,7 +56,7 @@ La versión de desarrollo ya incorpora:
 Limitaciones actuales:
 - El mapa usa una sola línea de navegación por capa; todavía no tiene movimiento libre 2D, rutas alternativas ni colisiones completas.
 - Las estructuras se dibujan y tienen efectos funcionales, pero siguen siendo transitables.
-- Las posiciones iniciales de recursos y obstáculos son fijas; aún no hay generación procedural de mapas y vetas.
+- La semilla varía parte de los recursos; todavía falta generación procedural completa de galerías, vetas, obstáculos y distribución geológica.
 - Faltan transporte de materiales entre instalaciones, construcción avanzada, enfermedades, accidentes y eventos.
 - Los modos Campaña, Supervivencia y Sandbox todavía no están implementados.
 - La interfaz, el arte y el audio siguen siendo provisionales; falta validación en dispositivos Android reales.
