@@ -14,7 +14,7 @@ El mundo jugable tiene exactamente tres capas conectadas por un ascensor o acces
 - Entradas a galerías y zonas de excavación.
 
 ### Capa 2 — Subsuelo: tierra y zona de raíces
-- Tierra compacta, raíces y arcilla.
+- Tierra compacta, raíces y depósitos de arcilla.
 - Acuíferos y corrientes de agua subterránea.
 - Hongos y recursos orgánicos que prosperan sin luz.
 - Transición geológica entre suelo y roca.
@@ -37,7 +37,7 @@ La distribución representa una regla ecológica/geológica, no una garantía de
 - Código, arte, música y contenido originales; no se copia material protegido de otros juegos.
 
 ## Estado de implementación
-La primera base funcional incluye necesidades, inventario, fuentes limitadas, trabajos con prioridades, especializaciones, navegación de tres capas y pruebas automáticas. La distribución inicial ya separa cultivos y árboles en superficie, agua en el subsuelo y roca/minerales en profundidad.
+La primera base funcional incluye necesidades, inventario, fuentes limitadas, trabajos con prioridades, especializaciones, navegación de tres capas y pruebas automáticas. La distribución inicial ya separa cultivos y árboles en superficie, agua y arcilla en el subsuelo, y roca, carbón y minerales en profundidad.
 
 Todavía faltan movimiento visual continuo, excavación real del terreno, generación de mapas, cultivos completos, construcción, habitaciones, herramientas, transporte, eventos, guardado y los tres modos.
 
