@@ -5,7 +5,7 @@ config_version=5
 
 [application]
 config/name="Dwarf Land"
-config/description="Supervivencia y gestión de colonos en dos niveles subterráneos."
+config/description="Supervivencia y gestión de colonos en superficie, subsuelo y profundidad."
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/version="0.1.0"
