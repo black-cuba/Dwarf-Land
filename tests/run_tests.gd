@@ -21,6 +21,7 @@ func _run_tests() -> void:
 	_test_resource_node()
 	_test_navigation()
 	_test_navigation_2d_map()
+	_test_seeded_terrain_restore()
 	_test_excavation()
 	_test_excavation_work_order()
 	_test_simulation_rejects_duplicate_excavation()
@@ -59,6 +60,8 @@ func _test_seeded_world_generation() -> void:
 	assert(first_nodes[&"food"].level == 0 and first_nodes[&"wood"].level == 0, "Los recursos de superficie están mal ubicados.")
 	assert(first_nodes[&"water"].level == 1 and first_nodes[&"clay"].level == 1, "Los recursos del subsuelo están mal ubicados.")
 	assert(first_nodes[&"stone"].level == 2 and first_nodes[&"ore"].level == 2 and first_nodes[&"coal"].level == 2, "Los recursos profundos están mal ubicados.")
+	assert(first["map_diggable_cells"] == repeat["map_diggable_cells"], "La misma semilla no genera el mismo terreno 2D.")
+	assert(first["map_diggable_cells"] != alternate["map_diggable_cells"], "Semillas distintas no alteran el terreno 2D.")
 
 
 func _test_resource_node() -> void:
@@ -111,6 +114,20 @@ func _test_navigation_2d_map() -> void:
 	assert(navigation.is_map_walkable(wall), "La excavación 2D no abrió el paso.")
 	assert(not navigation.can_dig_map_cell(wall), "La roca excavada sigue pendiente.")
 	assert(not navigation.is_map_cell_inside(Vector3i(0, ColonyNavigationGrid.MAP_HEIGHT, 0)), "El mapa aceptó una fila fuera de sus límites.")
+
+
+
+func _test_seeded_terrain_restore() -> void:
+	var generated := ColonyWorldGenerator.new(24680).generate()
+	var simulation := ColonySimulation.new()
+	for cell in generated["map_diggable_cells"]:
+		simulation.navigation.set_map_diggable(cell)
+	var snapshot := simulation.get_snapshot()
+	var restored := ColonySimulation.new()
+	assert(restored.restore_snapshot(snapshot), "No se pudo restaurar el terreno 2D.")
+	assert(restored.navigation.diggable_map_cells.size() == simulation.navigation.diggable_map_cells.size(), "El guardado perdió bloques excavables del mapa 2D.")
+	for cell in simulation.navigation.diggable_map_cells:
+		assert(restored.navigation.can_dig_map_cell(cell), "Un bloque excavable no sobrevivió al guardado.")
 
 
 func _test_excavation() -> void:
