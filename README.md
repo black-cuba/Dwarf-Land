@@ -26,6 +26,7 @@
 - Descanso nocturno autónomo con asignación de camas y recuperación de fatiga.
 - Temperatura ambiental variable por capa y horario, con exposición al frío/calor y alertas.
 - Construcción con costes de materiales, órdenes de trabajo, camas adicionales y almacenes que amplían la capacidad.
+- Taller que fabrica herramientas; la minería consume herramientas y aplica desgaste hasta romperlas.
 - Construcción, extracción y producción.
 - Tres modos previstos: Campaña, Supervivencia y Sandbox.
 - Arte, código, audio y contenido originales; no se reutilizan recursos del juego de referencia.
