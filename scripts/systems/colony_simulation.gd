@@ -183,6 +183,9 @@ func queue_map_excavation(cell: Vector3i, priority: int = 3) -> bool:
 func queue_map_construction(structure_type: StringName, cell: Vector3i, priority: int = 3) -> bool:
 	if not navigation.is_map_cell_inside(cell) or cell.z != active_level or not navigation.is_map_walkable(cell):
 		return false
+	for colonist in colonists:
+		if colonist.alive and (colonist.map_position == cell or (colonist.is_map_moving and colonist.map_movement_target == cell)):
+			return false
 	if cell == crop_field.map_cell:
 		return false
 	if get_bed_map_cells().has(cell):
