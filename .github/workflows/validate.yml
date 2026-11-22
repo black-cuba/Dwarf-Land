@@ -29,5 +29,12 @@ jobs:
       - name: Import and parse Godot project
         run: Godot_v4.7.2-stable_linux.x86_64 --headless --editor --path . --quit
 
+      - name: Enforce 2D-only architecture
+        run: |
+          if grep -R -nE 'Node3D|Camera3D|MeshInstance3D|RigidBody3D|CharacterBody3D|Area3D|Vector3\(' scripts scenes; then
+            echo "3D nodes or Vector3 rendering coordinates are not allowed in Dwarf Land."
+            exit 1
+          fi
+
       - name: Run gameplay logic tests
         run: Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/run_tests.gd
